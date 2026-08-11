@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Copy Trade Platform (Simulated)</title>
+    <style>
+        /* Basic Fiori-like Styling for a clean look */
+        :root {
+            --primary-blue: #007bff;
+            --primary-blue-dark: #0056b3;
+            --light-gray-bg: #f8f9fa;
+            --medium-gray-text: #6c757d;
+            --border-color: #dee2e6;
+            --input-border-color: #ced4da;
+            --error-color: #dc3545;
+            --modal-overlay-bg: rgba(0, 0, 0, 0.5);
+            --success-color: #28a745;
+            --warning-color: #ffc107;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--light-gray-bg);
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+
+        h1, h2, h3 {
+            color: var(--primary-blue);
+            margin-bottom: 15px;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 2.2em;
+        }
+
+        h2 {
+            font-size: 1.8em;
+            border-bottom: 2px solid var(--primary-blue);
+            padding-bottom: 5px;
+            margin-top: 30px;
+        }
+
+        h3 {
+            font-size: 1.4em;
+            margin-top: 20px;
+        }
+
+        .section {
+            margin-top: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .section:last-child {
+            border-bottom: none;
+        }
+
+        /* Table Styling */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th, td {
+            padding: 12px 10px;
+            border-bottom: 1px solid var(--border-color);
+            vertical-align: middle;
+        }
+
+        th {
+            background-color: var(--primary-blue);
+            color: white;
+            text-align: left;
+            font-weight: bold;
+            border: none;
+        }
+
+        tbody tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        tbody tr:hover {
+            background-color: #e9ecef;
+        }
+
+        .number, .currency {
+            text-align: right;
+        }
+
+        /* Form Group Styling */
+        .form-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: bold;
+            color: var(--medium-gray-text);
+            flex: 0 0 150px; /* Fixed width for labels */
+        }
+
+        .form-group input[type="text"],
+        .form-group input[type="number"],
+        .form-group select {
+            flex: 1;
+            padding: 10px 12px;
+            border: 1px solid var(--input-border-color);
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 1em;
+            min-width: 180px; /* Ensure minimum width */
+        }
+
+        .form-group input[readonly] {
+            background-color: #e9ecef;
+            cursor: not-allowed;
+        }
+
+        /* Buttons */
+        button {
+            background-color: var(--primary-blue);
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background-color 0.2s ease-in-out;
+        }
+
+        button:hover {
+            background-color: var(--primary-blue-dark);
+        }
+
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+
+        .action-buttons {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 20px;
+            gap: 10px;
+        }
+
+        .provider-card {
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            background-color: #fff;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .provider-info {
+            flex-grow: 1;
+        }
+
+        .provider-info h3 {
+            margin-top: 0;
+            margin-bottom: 5px;
+            color: var(--primary-blue);
+        }
+
+        .provider-stats p {
+            margin: 0;
+            font-size: 0.9em;
+            color: var(--medium-gray-text);
+        }
+
+        .provider-actions button {
+            padding: 8px 15px;
+            font-size: 0.9em;
+        }
+
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 0.85em;
+            color: white;
+        }
+        .status-active { background-color: var(--success-color); }
+        .status-inactive { background-color: var(--medium-gray-text); }
+        .status-draft { background-color: var(--medium-gray-text); }
+        .status-submitted { background-color: var(--warning-color); color: #333; }
+        .status-approved { background-color: var(--success-color); }
+        .status-rejected { background-color: var(--error-color); }
+        .status-cancelled { background-color: #6c757d; }
+
+        .security-warning {
+            color: var(--error-color);
+            font-weight: bold;
+            text-align: center;
+            margin: 20px auto;
+            padding: 15px;
+            border: 2px dashed var(--error-color);
+            background-color: #fff3f3;
+            border-radius: 5px;
+            max-width: 800px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                padding: 15px;
+            }
+            h1 {
+                font-size: 1.8em;
+            }
+            h2 {
+                font-size: 1.5em;
+            }
+            .form-group {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .form-group label {
+                flex: none;
+                width: auto;
+                margin-bottom: 5px;
+            }
+            .form-group input, .form-group select {
+                width: 100%;
+                min-width: unset;
+            }
+            .provider-card {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .provider-actions {
+                margin-top: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Copy Trade Platform (Simulated)</h1>
+
+        <div class="security-warning">
+            <strong>Disclaimer:</strong> This is a **simulated frontend structure** for a copy trade platform.
+            It does NOT include any real backend logic, broker integration, or actual trading functionality.
+            Building a real copy trading platform requires significant backend development, secure API integrations with brokers,
+            robust risk management, and compliance with financial regulations.
+            **This code is for illustrative purposes only and cannot be used for live trading.**
+        </div>
+
+        <!-- Section for Discovering Signal Providers -->
+        <div class="section">
+            <h2>Discover Signal Providers</h2>
+            <div id="providerList">
+                <p>Loading signal providers...</p>
+                <!-- Provider cards will be loaded here dynamically by JavaScript -->
+            </div>
+        </div>
+
+        <!-- Section for User Dashboard (Simulating data from a broker) -->
+        <div class="section">
+            <h2>Your Trading Dashboard</h2>
+
+            <div class="sub-section">
+                <h3>Available Margin</h3>
+                <div id="marginDetails">
+                    <p>Loading margin...</p>
+                </div>
+            </div>
+
+            <div class="sub-section">
+                <h3>Running Trades (Positions)</h3>
+                <div id="runningTrades">
+                    <p>Loading running trades...</p>
+                </div>
+            </div>
+
+            <div class="sub-section">
+                <h3>Orders</h3>
+                <div id="placedOrders">
+                    <p>Loading placed orders...</p>
+                </div>
+                <div id="executedOrders">
+                    <p>Loading executed orders...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section for Configuring Copy Trading -->
+        <div class="section" id="copyTradingConfig">
+            <h2>Configure Copy Trading</h2>
+            <div class="form-group">
+                <label for="providerSelect">Select Provider:</label>
+                <select id="providerSelect">
+                    <option value="">-- Select a Provider --</option>
+                    <!-- Providers will be dynamically added here by JavaScript -->
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="copyAmount">Amount to Invest:</label>
+                <input type="number" id="copyAmount" placeholder="e.g., 5000" min="100">
+                <span class="currency">EUR</span> <!-- Currency would be dynamic in a real app -->
+            </div>
+            <div class="form-group">
+                <label for="copyStopLoss">Stop Loss (%):</label>
+                <input type="number" id="copyStopLoss" placeholder="e.g., 10" min="0" max="100" value="10">
+            </div>
+            <div class="form-group">
+                <label for="copyRatio">Copy Ratio:</label>
+                <input type="number" id="copyRatio" placeholder="e.g., 1.0" min="0.1" max="5.0" value="1.0" step="0.1">
+                <small>(1.0 means 1:1 trade size, 0.5 means half size, 2.0 means double size)</small>
+            </div>
+            <div class="action-buttons">
+                <button id="startCopyingBtn">Start Copying</button>
+                <button id="stopCopyingBtn">Stop Copying</button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // --- DISCLAIMER ---
+        // This JavaScript code is a SIMULATION. It does NOT connect to any real trading platform,
+        // broker API, or backend server. All data and actions are mocked for demonstration purposes.
+        // Building a functional copy trading platform requires extensive backend development,
+        // secure API integrations, and compliance with financial regulations.
+
+        // --- Simulated Data ---
+        // Represents signal providers available for copying.
+        const simulatedSignalProviders = [
+            { id: 'prov_001', name: 'AlphaTrader', performance_1y: '35.5%', sharpe_ratio: 1.8, risk_score: 'Medium', followers: 150, status: 'active' },
+            { id: 'prov_002', name: 'BetaInvest', performance_1y: '22.1%', sharpe_ratio: 1.5, risk_score: 'Low', followers: 80, status: 'active' },
+            { id: 'prov_003', name: 'GammaProfits', performance_1y: '55.0%', sharpe_ratio: 2.1, risk_score: 'High', followers: 300, status: 'active' },
+            { id: 'prov_004', name: 'DeltaStrategy', performance_1y: '18.9%', sharpe_ratio: 1.3, risk_score: 'Medium', followers: 110, status: 'inactive' }
+        ];
+
+        // Mock data for user's trading dashboard (simulating data from a connected broker)
+        let mockMargin = {
+            "available": { "cash": 150000.75, "net": 150000.75 },
+            "utilised": { "total_margin": 10000.00 }
+        };
+        let mockHoldings = [
+            { "symbol": "RELIANCE", "quantity": 5, "average_price": 2800.50, "current_price": 2850.75, "pnl": 253.75, "exchange": "NSE" },
+            { "symbol": "INFY", "quantity": 10, "average_price": 1400.20, "current_price": 1420.50, "pnl": 203.00, "exchange": "NSE" }
+        ];
+        let mockOrders = {
+            "placed": [
+                { "order_id": "123456789012345", "symbol": "TCS", "transaction_type": "BUY", "quantity": 2, "price": 3500.00, "order_type": "LIMIT", "status": "order_placed", "placed_at": "2023-10-27 09:15:00" }
+            ],
+            "executed": [
+                { "order_id": "987654321098765", "symbol": "SBIN", "transaction_type": "BUY", "quantity": 10, "price": 580.50, "order_type": "MARKET", "status": "complete", "executed_at": "2023-10-27 09:05:00" }
+            ]
+        };
+
+        // --- DOM References ---
+        const providerListDiv = document.getElementById('providerList');
+        const providerSelect = document.getElementById('providerSelect');
+        const copyAmountInput = document.getElementById('copyAmount');
+        const copyStopLossInput = document.getElementById('copyStopLoss');
+        const copyRatioInput = document.getElementById('copyRatio');
+        const startCopyingBtn = document.getElementById('startCopyingBtn');
+        const stopCopyingBtn = document.getElementById('stopCopyingBtn');
+
+        // Dashboard references
+        const marginDetailsDiv = document.getElementById('marginDetails');
+        const runningTradesDiv = document.getElementById('runningTrades');
+        const placedOrdersDiv = document.getElementById('placedOrders');
+        const executedOrdersDiv = document.getElementById('executedOrders');
+
+        // --- Simulated API / Backend Functions ---
+        // These functions mimic backend operations. In a real system, they would
+        // interact with a database, broker APIs, and handle user authentication.
+
+        async function simulateFetchProviders() {
+            console.log("Simulating: Fetching signal providers...");
+            // Simulate network delay
+            return new Promise(resolve => {
+                setTimeout(() => {
+                    resolve(simulatedSignalProviders);
+                }, 500);
+            });
+        }
+
+        async function simulateFetchUserDashboardData() {
+            console.log("Simulating: Fetching user dashboard data...");
+            // This would fetch margin, holdings, orders, and potentially active copy trades
+            return new Promise(resolve => {
+                setTimeout(() => {
+                    resolve({
+                        margin: mockMargin,
+                        holdings: mockHoldings,
+                        orders: mockOrders
+                    });
+                }, 500);
+            });
+        }
+
+        async function simulateStartCopying(providerId, amount, stopLoss, ratio) {
+            console.log(`Simulating: Starting copy trading for provider ${providerId} with amount ${amount}, SL ${stopLoss}%, Ratio ${ratio}`);
+            // In a real system, this would:
+            // 1. Validate user funds.
+            // 2. Link user's account to the provider's strategy.
+            // 3. Set up a listener to monitor the provider's trades.
+            // 4. Place trades on the user's behalf based on the ratio and stop loss.
+            return new Promise((resolve, reject) => {
+                setTimeout(() => {
+                    if (amount < 100) {
+                        reject({ message: "Minimum investment amount is 100." });
+                    } else {
+                        const provider = simulatedSignalProviders.find(p => p.id === providerId);
+                        if (provider && provider.status === 'active') {
+                            // Simulate updating user's copy configuration
+                            console.log(`User is now copying ${provider.name}`);
+                            // In a real app, this would update a user's profile or a dedicated 'copy_trades' table.
+                            resolve({ message: `Successfully started copying ${provider.name}.` });
+                        } else {
+                            reject({ message: "Provider not found or is inactive." });
+                        }
+                    }
+                }, 700); // Simulate network delay
+            });
+        }
+
+        async function simulateStopCopying(providerId) {
+            console.log(`Simulating: Stopping copy trading for provider ${providerId}`);
+            // In a real system, this would:
+            // 1. Unlink the user's account from the provider's strategy.
+            // 2. Close any open copied trades (or leave them open based on strategy).
+            return new Promise((resolve, reject) => {
+                setTimeout(() => {
+                    const provider = simulatedSignalProviders.find(p => p.id === providerId);
+                    if (provider) {
+                        console.log(`User has stopped copying ${provider.name}`);
+                        // Simulate user's copy config being removed/updated
+                        resolve({ message: `Successfully stopped copying ${provider.name}.` });
+                    } else {
+                        reject({ message: "Provider not found." });
+                    }
+                }, 700); // Simulate network delay
+            });
+        }
+
+        // --- UI Rendering Functions ---
+
+        function renderSignalProviders(providers) {
+            const html = providers.map(provider => `
+                <div class="provider-card">
+                    <div class="provider-info">
+                        <h3>${provider.name}</h3>
+                        <div class="provider-stats">
+                            <p><strong>1Y Performance:</strong> ${provider.performance_1y}</p>
+                            <p><strong>Sharpe Ratio:</strong> ${provider.sharpe_ratio}</p>
+                            <p><strong>Risk Score:</strong> ${provider.risk_score}</p>
+                            <p><strong>Followers:</strong> ${provider.followers}</p>
+                        </div>
+                    </div>
+                    <div class="provider-actions">
+                        <span class="status-badge status-${provider.status}">${provider.status.toUpperCase()}</span>
+                        <button class="view-details-btn" data-provider-id="${provider.id}">View Details</button>
+                        <button class="copy-btn" data-provider-id="${provider.id}" ${provider.status !== 'active' ? 'disabled' : ''}>Copy</button>
+                    </div>
+                </div>
+            `).join('');
+            providerListDiv.innerHTML = html;
+
+            // Add event listeners to dynamically created buttons
+            document.querySelectorAll('.copy-btn').forEach(button => {
+                button.addEventListener('click', handleCopyButtonClick);
+            });
+            document.querySelectorAll('.view-details-btn').forEach(button => {
+                button.addEventListener('click', handleViewProviderDetails);
+            });
+        }
+
+        function renderDashboard(data) {
+            // Render Margin
+            const marginDiv = marginDetailsDiv;
+            if (!data || !data.margin) {
+                marginDiv.innerHTML = '<p>Could not load margin details.</p>';
+            } else {
+                marginDiv.innerHTML = `
+                    <p><strong>Cash Available:</strong> <span class="currency">${data.margin.available.cash.toFixed(2)}</span></p>
+                    <p><strong>Net Available:</strong> <span class="currency">${data.margin.available.net.toFixed(2)}</span></p>
+                    <p><strong>Utilised Margin:</strong> <span class="currency">${data.margin.utilised.total_margin.toFixed(2)}</span></p>
+                `;
+            }
+
+            // Render Holdings (Running Trades)
+            const tradesDiv = runningTradesDiv;
+            if (!data || !data.holdings || data.holdings.length === 0) {
+                tradesDiv.innerHTML = '<p>No running trades found.</p>';
+            } else {
+                let tableHTML = `
+                    <table>
+                        <thead>
+                            <tr><th>Symbol</th><th>Qty</th><th class="number">Avg. Price</th><th class="number">Current Price</th><th class="number">P&L</th></tr>
+                        </thead>
+                        <tbody>
+                `;
+                data.holdings.forEach(trade => {
+                    const pnlColor = trade.pnl >= 0 ? 'var(--success-color)' : 'var(--error-color)';
+                    tableHTML += `
+                        <tr>
+                            <td>${trade.symbol}</td>
+                            <td>${trade.quantity}</td>
+                            <td class="number">${trade.average_price.toFixed(2)}</td>
+                            <td class="number">${trade.current_price.toFixed(2)}</td>
+                            <td class="number" style="color: ${pnlColor};">${trade.pnl.toFixed(2)}</td>
+                        </tr>
+                    `;
+                });
+                tableHTML += '</tbody></table>';
+                tradesDiv.innerHTML = tableHTML;
+            }
+
+            // Render Orders
+            const placedOrdersDivElem = placedOrdersDiv;
+            const executedOrdersDivElem = executedOrdersDiv;
+
+            // Placed Orders
+            let placedTableHTML = `<h3>Placed Orders</h3><table><thead><tr><th>ID</th><th>Symbol</th><th>Type</th><th>Qty</th><th class="number">Price</th><th>Status</th></tr></thead><tbody>`;
+            if (!data || !data.orders || !data.orders.placed || data.orders.placed.length === 0) {
+                placedTableHTML += '<tr><td colspan="6" style="text-align: center;">No placed orders.</td></tr>';
+            } else {
+                data.orders.placed.forEach(order => {
+                    const statusClass = `status-${order.status}`;
+                    placedTableHTML += `<tr><td>${order.order_id}</td><td>${order.symbol}</td><td>${order.transaction_type}</td><td>${order.quantity}</td><td class="number">${order.price ? order.price.toFixed(2) : '-'}</td><td><span class="${statusClass}">${order.status.replace('_', ' ').toUpperCase()}</span></td></tr>`;
+                });
+            }
+            placedTableHTML += '</tbody></table>';
+            placedOrdersDivElem.innerHTML = placedTableHTML;
+
+            // Executed Orders
+            let executedTableHTML = `<h3>Executed Orders</h3><table><thead><tr><th>ID</th><th>Symbol</th><th>Type</th><th>Qty</th><th class="number">Price</th><th>Status</th></tr></thead><tbody>`;
+            if (!data || !data.orders || !data.orders.executed || data.orders.executed.length === 0) {
+                executedTableHTML += '<tr><td colspan="6" style="text-align: center;">No executed orders.</td></tr>';
+            } else {
+                data.orders.executed.forEach(order => {
+                    const statusClass = `status-${order.status}`;
+                    executedTableHTML += `<tr><td>${order.order_id}</td><td>${order.symbol}</td><td>${order.transaction_type}</td><td>${order.quantity}</td><td class="number">${order.price.toFixed(2)}</td><td><span class="${statusClass}">${order.status.replace('_', ' ').toUpperCase()}</span></td></tr>`;
+                });
+            }
+            executedTableHTML += '</tbody></table>';
+            executedOrdersDivElem.innerHTML = executedTableHTML;
+        }
+
+        // --- Event Handlers ---
+
+        function handleCopyButtonClick(event) {
+            const providerId = event.target.dataset.providerId;
+            const provider = simulatedSignalProviders.find(p => p.id === providerId);
+            if (provider) {
+                providerSelect.value = providerId;
+                // Pre-fill form with defaults or current settings if available
+                copyAmountInput.value = '1000';
+                copyStopLossInput.value = '10';
+                copyRatioInput.value = '1.0';
+                // Adjust button states if user is already copying this provider (simulated)
+                // For demo, assume not copying initially.
+                startCopyingBtn.disabled = false;
+                stopCopyingBtn.disabled = true;
+                // Scroll to the configuration section
+                document.getElementById('copyTradingConfig').scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        function handleViewProviderDetails(event) {
+            const providerId = event.target.dataset.providerId;
+            const provider = simulatedSignalProviders.find(p => p.id === providerId);
+            if (provider) {
+                alert(`Details for ${provider.name}:\n\n1Y Performance: ${provider.performance_1y}\nSharpe Ratio: ${provider.sharpe_ratio}\nRisk Score: ${provider.risk_score}\nFollowers: ${provider.followers}\nStatus: ${provider.status}`);
+            }
+        }
+
+        async function handleStartCopying() {
+            const providerId = providerSelect.value;
+            const amount = parseFloat(copyAmountInput.value);
+            const stopLoss = parseFloat(copyStopLossInput.value);
+            const ratio = parseFloat(copyRatioInput.value);
+
+            // Basic validation
+            if (!providerId) {
+                alert("Please select a signal provider.");
+                return;
+            }
+            if (isNaN(amount) || amount < 100) {
+                alert("Please enter a valid investment amount (minimum 100).");
+                return;
+            }
+            if (isNaN(stopLoss) || stopLoss < 0 || stopLoss > 100) {
+                alert("Please enter a valid stop loss percentage (0-100).");
+                return;
+            }
+            if (isNaN(ratio) || ratio < 0.1 || ratio > 5.0) {
+                alert("Please enter a valid copy ratio (0.1 to 5.0).");
+                return;
+            }
+
+            startCopyingBtn.disabled = true;
+            startCopyingBtn.textContent = 'Starting...';
+
+            try {
+                const result = await simulateStartCopying(providerId, amount, stopLoss, ratio);
+                alert(result.message);
+                // Update UI to reflect copying status
+                startCopyingBtn.disabled = true; // User is now copying
+                stopCopyingBtn.disabled = false; // Enable stop copying button
+                // In a real app, you'd also update the user's dashboard to show active copy trades
+                await simulateFetchUserDashboardData().then(renderDashboard); // Refresh dashboard data
+            } catch (error) {
+                alert(`Error starting copy trading: ${error.message}`);
+                startCopyingBtn.disabled = false;
+                startCopyingBtn.textContent = 'Start Copying';
+            }
+        }
+
+        async function handleStopCopying() {
+            const providerId = providerSelect.value; // Assumes user is copying the selected provider
+
+            if (!providerId) {
+                alert("Please select the provider you are currently copying to stop.");
+                return;
+            }
+
+            if (!confirm(`Are you sure you want to stop copying ${simulatedSignalProviders.find(p => p.id === providerId)?.name || 'this provider'}?`)) {
+                return;
+            }
+
+            stopCopyingBtn.disabled = true;
+            stopCopyingBtn.textContent = 'Stopping...';
+
+            try {
+                const result = await simulateStopCopying(providerId);
+                alert(result.message);
+                // Update UI
+                providerSelect.value = ''; // Clear selection
+                copyAmountInput.value = '';
+                copyStopLossInput.value = '10'; // Reset to default
+                copyRatioInput.value = '1.0';   // Reset to default
+                startCopyingBtn.disabled = false; // Enable starting again
+                stopCopyingBtn.disabled = true;   // User is no longer copying
+                await simulateFetchUserDashboardData().then(renderDashboard); // Refresh dashboard data
+            } catch (error) {
+                alert(`Error stopping copy trading: ${error.message}`);
+                stopCopyingBtn.disabled = false;
+                stopCopyingBtn.textContent = 'Stop Copying';
+            }
+        }
+
+        // --- Initialization ---
+        document.addEventListener('DOMContentLoaded', () => {
+            // Populate provider dropdown and list on load
+            simulateFetchProviders().then(providers => {
+                const providerSelectElem = document.getElementById('providerSelect');
+                providerSelectElem.innerHTML = '<option value="">-- Select a Provider --</option>'; // Reset
+                providers.forEach(provider => {
+                    const option = document.createElement('option');
+                    option.value = provider.id;
+                    option.textContent = `${provider.name} (${provider.performance_1y})`;
+                    if (provider.status !== 'active') {
+                        option.disabled = true;
+                        option.textContent += ' (Inactive)';
+                    }
+                    providerSelectElem.appendChild(option);
+                });
+                renderSignalProviders(providers);
+            });
+
+            // Load user dashboard data
+            simulateFetchUserDashboardData().then(data => {
+                renderDashboard(data);
+                // Simulate initial button states (e.g., if user is already copying someone)
+                // For this demo, we assume the user is NOT copying anyone initially.
+                startCopyingBtn.disabled = false;
+                stopCopyingBtn.disabled = true;
+            });
+
+            // Event listeners for copy trading controls
+            startCopyingBtn.addEventListener('click', handleStartCopying);
+            stopCopyingBtn.addEventListener('click', handleStopCopying);
+
+            // Optional: Add listener to provider select to adjust button states if needed
+            providerSelect.addEventListener('change', () => {
+                if (providerSelect.value) {
+                    // If a provider is selected, and we are not already copying, enable start button
+                    // In a real app, you'd check user's active copy configurations.
+                    startCopyingBtn.disabled = false; // Assume can start if provider selected
+                    stopCopyingBtn.disabled = true;
+                } else {
+                    // If no provider selected, disable start and stop
+                    startCopyingBtn.disabled = false; // Can start if not copying
+                    stopCopyingBtn.disabled = true;
+                }
+            });
+        });
+    </script>
+</body>
+</html>

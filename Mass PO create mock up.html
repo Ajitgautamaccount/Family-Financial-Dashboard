@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mass PO Creation - Input</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7f6;
+            color: #333;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+        }
+        .container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 750px;
+            border: 1px solid #e0e0e0;
+        }
+        h1 {
+            color: #007bff;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 24px;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+        input[type="file"],
+        input[type="email"],
+        input[type="text"], /* For Company Code */
+        select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background-color: #ffffff;
+            transition: border-color 0.3s ease;
+            box-sizing: border-box;
+        }
+        input[type="file"] {
+            background-color: #fdfdfd;
+        }
+        select {
+            appearance: none;
+            background-image: url('data:image/svg+xml;charset=US-ASCII,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chevron-down" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/></svg>');
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            background-size: 16px;
+        }
+        input[type="email"] {
+             width: calc(100% - 22px);
+        }
+        .email-input-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .email-input-group input[type="email"] {
+            flex-grow: 1;
+        }
+        .email-input-group button {
+            padding: 10px 15px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s ease;
+        }
+        .email-input-group button:hover {
+            background-color: #218838;
+        }
+        .email-list {
+            margin-top: 8px;
+            font-size: 13px;
+            color: #555;
+            list-style: none;
+            padding: 0;
+        }
+        .email-list li {
+            background-color: #e9ecef;
+            padding: 5px 10px;
+            border-radius: 3px;
+            margin-bottom: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .email-list li .remove-email {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 11px;
+            padding: 2px 6px;
+            line-height: 1;
+        }
+        .email-list li .remove-email:hover {
+            background-color: #c82333;
+        }
+
+        input:focus, select:focus {
+            border-color: #007bff;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+        }
+        .radio-group label {
+            display: inline-block;
+            margin-right: 15px;
+            font-weight: normal;
+            color: #333;
+        }
+        .radio-group input[type="radio"] {
+            margin-right: 5px;
+            vertical-align: middle;
+        }
+        .button-group {
+            text-align: center;
+            margin-top: 30px;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            margin: 0 10px;
+        }
+        button:hover {
+            background-color: #0056b3;
+            transform: translateY(-2px);
+        }
+        button.test-mode {
+            background-color: #ffc107;
+            color: #333;
+        }
+        button.test-mode:hover {
+            background-color: #e0a800;
+        }
+        .log-area {
+            margin-top: 30px;
+            padding: 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: 5px;
+            background-color: #fdfdfd;
+            max-height: 350px;
+            overflow-y: auto;
+            font-size: 13px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        .log-area h2 {
+            margin-top: 0;
+            font-size: 16px;
+            color: #555;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 8px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .log-controls button {
+            background-color: #6c757d;
+            font-size: 12px;
+            padding: 5px 10px;
+            margin: 0 5px;
+            transform: none;
+        }
+        .log-controls button:hover {
+            background-color: #5a6268;
+        }
+        .log-entry {
+            margin-bottom: 10px;
+            padding-bottom: 8px;
+            border-bottom: 1px dashed #eee;
+        }
+        .log-entry:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+        .log-entry strong {
+            color: #0056b3;
+            margin-right: 5px;
+        }
+        .log-entry.success {
+            color: #28a745;
+        }
+        .log-entry.error {
+            color: #dc3545;
+            font-weight: bold;
+        }
+        .log-entry.info {
+            color: #6c757d;
+        }
+        .dummy-po {
+            font-weight: bold;
+            color: #17a2b8;
+            margin-left: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Mass Purchase Order Creation</h1>
+
+        <div class="form-group">
+            <label for="excelFile">Upload Excel File:</label>
+            <input type="file" id="excelFile" accept=".xls, .xlsx, .csv">
+        </div>
+
+        <div class="form-group">
+            <label for="companyCode">Company Code:</label>
+            <input type="text" id="companyCode" placeholder="Enter Company Code (e.g., 1000)">
+        </div>
+
+        <div class="form-group">
+            <label for="documentType">Document Type:</label>
+            <select id="documentType">
+                <option value="">-- Select Document Type --</option>
+                <option value="YIND">YIND - Indirect Procurement</option>
+                <option value="YDNB">YDNB - Direct Procurement</option>
+            </select>
+        </div>
+
+        <div class="form-group radio-group">
+            <label>Processing Mode:</label>
+            <div>
+                <input type="radio" id="modeTest" name="processingMode" value="test" checked>
+                <label for="modeTest">Test Mode</label>
+
+                <input type="radio" id="modeProduction" name="processingMode" value="production">
+                <label for="modeProduction">Production Mode</label>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="emailRecipients">Email Recipients (for logs):</label>
+            <div class="email-input-group">
+                <input type="email" id="emailRecipientInput" placeholder="Enter email address">
+                <button id="addEmailButton">Add</button>
+            </div>
+            <ul id="emailList" class="email-list">
+                <!-- Email list will be populated here -->
+            </ul>
+        </div>
+
+        <div class="button-group">
+            <button id="processButton">Process POs</button>
+            <button id="testProcessButton" class="test-mode">Test Process</button>
+        </div>
+
+        <div id="logArea" class="log-area">
+            <div class="log-controls">
+                <h2>Processing Log</h2>
+                <div>
+                    <button id="copyLogButton">Copy Log</button>
+                    <button id="exportLogButton">Export Log</button>
+                </div>
+            </div>
+            <p>Awaiting input or process start...</p>
+        </div>
+    </div>
+
+    <script>
+        const processButton = document.getElementById('processButton');
+        const testProcessButton = document.getElementById('testProcessButton');
+        const logArea = document.getElementById('logArea');
+        const fileInput = document.getElementById('excelFile');
+        const companyCodeInput = document.getElementById('companyCode');
+        const docTypeSelect = document.getElementById('documentType');
+        const modeTestRadio = document.getElementById('modeTest');
+        const modeProductionRadio = document.getElementById('modeProduction');
+        const emailRecipientInput = document.getElementById('emailRecipientInput');
+        const addEmailButton = document.getElementById('addEmailButton');
+        const emailList = document.getElementById('emailList');
+        const copyLogButton = document.getElementById('copyLogButton');
+        const exportLogButton = document.getElementById('exportLogButton');
+
+        let recipients = [];
+        let logEntries = [];
+        let currentPOBase = 450001;
+        let currentCounter = 0;
+
+        function updateLog(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            const logEntry = { message, type, timestamp };
+            logEntries.push(logEntry);
+
+            const logEntryElement = document.createElement('div');
+            logEntryElement.classList.add('log-entry', type);
+
+            let formattedMessage = `[${timestamp}] ${message}`;
+
+            if (type === 'success' && modeProductionRadio.checked && message.includes('successfully processed')) {
+                 currentCounter++;
+                 const dummyPoNumber = `${currentPOBase}${currentCounter}`;
+                 formattedMessage += ` Dummy PO created: <span class="dummy-po">${dummyPoNumber}</span>`;
+            } else if (type === 'error' && message.includes('Error processing item')) {
+                 formattedMessage = `[${timestamp}] <span style="font-weight:bold;">ERROR:</span> ${message}`;
+            }
+
+            logEntryElement.innerHTML = `<strong>${type.toUpperCase()}:</strong> ${formattedMessage}`;
+            logArea.appendChild(logEntryElement);
+            logArea.scrollTop = logArea.scrollHeight;
+        }
+
+        function addEmailRecipient() {
+            const email = emailRecipientInput.value.trim();
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+            if (email && emailRegex.test(email) && !recipients.includes(email)) {
+                recipients.push(email);
+                const listItem = document.createElement('li');
+                listItem.innerHTML = `
+                    <span>${email}</span>
+                    <button class="remove-email">X</button>
+                `;
+                emailList.appendChild(listItem);
+                emailRecipientInput.value = '';
+
+                listItem.querySelector('.remove-email').addEventListener('click', function() {
+                    const index = recipients.indexOf(email);
+                    if (index > -1) {
+                        recipients.splice(index, 1);
+                    }
+                    listItem.remove();
+                });
+            } else if (recipients.includes(email)) {
+                alert("Email address already added.");
+            } else {
+                alert("Please enter a valid email address.");
+            }
+        }
+
+        addEmailButton.addEventListener('click', addEmailRecipient);
+        emailRecipientInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                addEmailRecipient();
+            }
+        });
+
+        function simulateProcessing(mode) {
+            const file = fileInput.files[0];
+            const companyCode = companyCodeInput.value.trim();
+            const docType = docTypeSelect.value;
+
+            logArea.innerHTML = '<div class="log-controls"><h2>Processing Log</h2><div><button id="copyLogButton">Copy Log</button><button id="exportLogButton">Export Log</button></div></div>';
+            logEntries = [];
+            currentCounter = 0;
+
+            if (!file) {
+                updateLog("Error: Please upload an Excel file first.", "error");
+                return;
+            }
+            if (!companyCode) {
+                updateLog("Error: Please enter a Company Code.", "error");
+                return;
+            }
+            if (!docType) {
+                updateLog("Error: Please select a Document Type.", "error");
+                return;
+            }
+
+            updateLog(`Starting ${mode.toUpperCase()} process for file: ${file.name}, Company Code: ${companyCode}, Doc Type: ${docType}. Recipients: ${recipients.join(', ') || 'None'}.`, "info");
+
+            const totalItems = Math.floor(Math.random() * 15) + 5;
+
+            for (let i = 0; i < totalItems; i++) {
+                setTimeout(() => {
+                    const itemSuccess = Math.random() > 0.15;
+
+                    if (itemSuccess || mode === 'test') {
+                        updateLog(`Item ${i+1}/${totalItems}: Processed successfully.`, "success");
+                    } else {
+                        updateLog(`Item ${i+1}/${totalItems}: Error processing item - Invalid data format.`, "error");
+                    }
+
+                    if (i === totalItems - 1) {
+                        const errorsOccurred = logEntries.filter(entry => entry.type === 'error').length > 0;
+                        if (!errorsOccurred || mode === 'test') {
+                            updateLog(`Processing completed successfully in ${mode.toUpperCase()} Mode. Total items processed: ${totalItems}.`, "success");
+                        } else {
+                            updateLog(`Processing completed with errors in ${mode.toUpperCase()} Mode. Total items processed: ${totalItems}.`, "error");
+                        }
+                        if (recipients.length > 0) {
+                            updateLog(`Email notification simulated for: ${recipients.join(', ')}`, "info");
+                        }
+                        document.getElementById('copyLogButton').addEventListener('click', copyLog);
+                        document.getElementById('exportLogButton').addEventListener('click', exportLog);
+                    }
+                }, i * 150);
+            }
+        }
+
+        processButton.addEventListener('click', () => {
+            const selectedMode = document.querySelector('input[name="processingMode"]:checked').value;
+             if (selectedMode === 'production') {
+                simulateProcessing('production');
+            } else {
+                modeTestRadio.checked = true;
+                simulateProcessing('test');
+            }
+        });
+
+        testProcessButton.addEventListener('click', () => {
+            modeTestRadio.checked = true;
+            simulateProcessing('test');
+        });
+
+        function copyLog() {
+            const logText = Array.from(logArea.querySelectorAll('.log-entry'))
+                                .map(entry => entry.textContent.replace(/<strong>.*?<\/strong>/, '').trim())
+                                .join('\n');
+            navigator.clipboard.writeText(logText).then(() => {
+                alert('Log copied to clipboard!');
+            }).catch(err => {
+                alert('Failed to copy log.');
+                console.error('Copy error: ', err);
+            });
+        }
+
+        function exportLog() {
+            const logText = Array.from(logArea.querySelectorAll('.log-entry'))
+                                .map(entry => entry.textContent.replace(/<strong>.*?<\/strong>/, '').trim())
+                                .join('\n');
+            const blob = new Blob([logText], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `mass_po_log_${new Date().toISOString().slice(0,10)}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        copyLogButton.addEventListener('click', copyLog);
+        exportLogButton.addEventListener('click', exportLog);
+
+        updateLog("Ready. Please upload your Excel file, enter Company Code, select options, and add email recipients.");
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ajit's 2026 Resolution Tracker</title>
+    <style>
+        :root {
+            --primary-color: #007bff;
+            --success-color: #28a745;
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
+            --light-bg: #f8f9fa;
+            --white: #ffffff;
+            --text-color: #343a40;
+            --border-color: #dee2e6;
+            --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            --card-radius: 8px;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.7;
+            margin: 0;
+            background-color: var(--light-bg);
+            color: var(--text-color);
+            padding: 20px;
+            padding-bottom: 100px; /* Space for sticky summary */
+        }
+
+        h1, h2 {
+            color: #003f7f; /* Darker blue for headings */
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 8px;
+            margin-top: 30px;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 40px;
+            font-size: 2.5em;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background-color: var(--white);
+            padding: 30px;
+            border-radius: var(--card-radius);
+            box-shadow: var(--card-shadow);
+            margin-bottom: 30px;
+        }
+
+        .resolution-item {
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px dashed var(--border-color);
+        }
+        .resolution-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+
+        .resolution-item h3 {
+            margin-top: 0;
+            margin-bottom: 15px;
+            color: var(--primary-color);
+            border-bottom: none;
+            font-size: 1.3em;
+        }
+
+        .goal-details {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: center;
+            margin-bottom: 10px; /* Space between lines of details */
+        }
+
+        .goal-details label {
+            font-weight: bold;
+            flex-basis: 150px; /* Fixed width for labels */
+            flex-shrink: 0;
+        }
+
+        .goal-details input[type="text"],
+        .goal-details input[type="number"],
+        .goal-details input[type="date"],
+        .goal-details textarea {
+            flex-grow: 1; /* Allow inputs to take remaining space */
+            min-width: 150px; /* Minimum width for inputs */
+            padding: 10px; /* Slightly more padding */
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 1rem;
+        }
+        .goal-details textarea {
+            min-height: 80px; /* Taller textarea */
+        }
+
+        .goal-details input[type="checkbox"] {
+            transform: scale(1.3);
+            cursor: pointer;
+            margin-right: 10px;
+            accent-color: var(--primary-color);
+        }
+
+        .status-completed { color: var(--success-color); font-weight: bold; }
+        .status-pending { color: var(--danger-color); font-weight: bold; }
+        .status-inprogress { color: var(--warning-color); font-weight: bold; }
+        .status-not-set { color: var(--secondary-color); font-weight: normal; }
+
+        .progress-bar-container {
+            width: 100%;
+            background-color: #e0e0e0;
+            border-radius: 5px;
+            overflow: hidden;
+            height: 20px;
+            margin-top: 10px;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background-color: var(--success-color);
+            text-align: center;
+            line-height: 20px;
+            color: white;
+            font-size: 12px;
+            transition: width 0.5s ease-in-out;
+        }
+
+        #summaryBoard {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: var(--primary-color);
+            color: white;
+            padding: 20px 0;
+            box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            text-align: center;
+        }
+
+        #summaryBoard h2 {
+            color: white;
+            border-bottom: 2px solid white;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        #summaryBoard ul {
+            list-style: none;
+            padding: 0;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        #summaryBoard li {
+            margin-bottom: 10px;
+            padding-bottom: 8px;
+            display: flex;
+            flex-direction: column; /* Stack label and value */
+            align-items: center;
+            min-width: 150px; /* Minimum width for list items */
+        }
+
+        #summaryBoard span {
+            font-weight: bold;
+            margin-top: 5px;
+            font-size: 1.1em;
+        }
+
+        .metric-label {
+            font-size: 0.95em;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            h1 { font-size: 2em; }
+            .card { padding: 20px; }
+            .goal-details { flex-direction: column; gap: 10px; }
+            .goal-details label { flex-basis: auto; width: 100%; }
+            .goal-details input[type="text"],
+            .goal-details input[type="number"],
+            .goal-details input[type="date"],
+            .goal-details textarea { width: 100%; min-width: unset; }
+            #summaryBoard ul { flex-direction: column; gap: 15px; }
+            #summaryBoard li { min-width: unset; width: 90%; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Ajit Gautam's 2026 Goals Tracker</h1>
+
+        <div class="card">
+            <h2>Health & Well-being</h2>
+            <div class="resolution-item">
+                <h3>Target Healthier Weight</h3>
+                <div class="goal-details">
+                    <label>Target Weight (kg):</label>
+                    <input type="number" id="health_weight_target_value" placeholder="e.g., 90">
+                    <label>Target Set:</label>
+                    <input type="checkbox" id="health_weight_target_set">
+                </div>
+                <textarea id="health_weight_target_notes" placeholder="Notes (e.g., Focus on diet, reduce sugar intake)..."></textarea>
+            </div>
+            <div class="resolution-item">
+                <h3>Consistent Physical Activity</h3>
+                <div class="goal-details">
+                    <label>Sessions this week:</label>
+                    <input type="number" id="health_activity_sessions_this_week" min="0" value="0">
+                    <label>Target Met:</label>
+                    <input type="checkbox" id="health_activity_target_met_week">
+                </div>
+                <div class="goal-details">
+                    <label>Last Activity Type:</label>
+                    <input type="text" id="health_activity_last_session_type" placeholder="e.g., Table Tennis">
+                    <label>Last Activity Date:</label>
+                    <input type="date" id="health_activity_last_session_date">
+                </div>
+            </div>
+            <div class="resolution-item">
+                <h3>Mindful Balance</h3>
+                <div class="goal-details">
+                    <label>Practiced Today:</label>
+                    <input type="checkbox" id="health_mindful_practice_today">
+                    <label>Duration (mins):</label>
+                    <input type="number" id="health_mindful_duration" min="0" placeholder="e.g., 10">
+                </div>
+            </div>
+             <div class="resolution-item">
+                <h3>Develop Fitness Plan</h3>
+                <div class="goal-details">
+                    <label>Plan Developed:</label>
+                    <input type="checkbox" id="health_fitness_plan_developed">
+                </div>
+                <textarea id="health_fitness_plan_details" placeholder="Details of your fitness plan..."></textarea>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Career Advancement</h2>
+            <div class="resolution-item">
+                <h3>Deepen SAP Expertise</h3>
+                <div class="goal-details">
+                    <label>Skills Identified:</label>
+                    <input type="checkbox" id="career_sap_skills_identified">
+                </div>
+                <textarea id="career_sap_skills_to_enhance" placeholder="Specific skills to enhance (e.g., BTP Integration Suite)..."></textarea>
+            </div>
+            <div class="resolution-item">
+                <h3>Strategic Product Ownership</h3>
+                <div class="goal-details">
+                    <label>Ideas Identified (Q):</label>
+                    <input type="number" id="career_ideas_identified_quarter" min="0" value="0">
+                    <label>Ideas Presented:</label>
+                    <input type="number" id="career_ideas_presented" min="0" value="0">
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>German Social Integration</h2>
+            <div class="resolution-item">
+                <h3>Community Engagement</h3>
+                <div class="goal-details">
+                    <label>Club Joined:</label>
+                    <input type="checkbox" id="social_club_joined">
+                    <label>Club Name:</label>
+                    <input type="text" id="social_club_name" placeholder="e.g., Local Sports Club">
+                </div>
+                <div class="goal-details">
+                    <label>Events Attended (Q):</label>
+                    <input type="number" id="social_events_attended_quarter" min="0" value="0">
+                    <label>Last Event:</label>
+                    <input type="text" id="social_events_last" placeholder="e.g., Museum Visit">
+                </div>
+                <div class="goal-details">
+                    <label>Connections Initiated (Week):</label>
+                    <input type="number" id="social_connections_initiated_week" min="0" value="0">
+                </div>
+            </div>
+            <div class="resolution-item">
+                <h3>Language Proficiency</h3>
+                <div class="goal-details">
+                    <label>Practiced German Today:</label>
+                    <input type="checkbox" id="social_language_practice_today">
+                    <label>Duration (mins):</label>
+                    <input type="number" id="social_language_practice_duration" min="0" placeholder="e.g., 30">
+                </div>
+                 <div class="goal-details">
+                    <label>Course Enrolled:</label>
+                    <input type="checkbox" id="social_language_course_enrolled">
+                    <label>Course Name:</label>
+                    <input type="text" id="social_language_course_name" placeholder="e.g., VHS A2 Course">
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Enhance General Awareness</h2>
+            <div class="resolution-item">
+                <h3>Daily Knowledge Intake</h3>
+                <div class="goal-details">
+                    <label>Met Today:</label>
+                    <input type="checkbox" id="awareness_daily_intake_met">
+                    <label>Topics:</label>
+                    <input type="text" id="awareness_daily_topics" placeholder="e.g., Tech, Economics">
+                </div>
+            </div>
+            <div class="resolution-item">
+                <h3>Cultural Immersion</h3>
+                <div class="goal-details">
+                    <label>Last Read/Watched:</label>
+                    <input type="text" id="awareness_culture_last_read" placeholder="e.g., Book Title / Docu Name">
+                    <label>Date Logged:</label>
+                    <input type="date" id="awareness_culture_last_date">
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Travel & Exploration</h2>
+            <div class="resolution-item">
+                <h3>Explore Europe</h3>
+                <div class="goal-details">
+                    <label>Destinations Identified:</label>
+                    <input type="checkbox" id="travel_destinations_identified">
+                    <label>List:</label>
+                    <input type="text" id="travel_destinations_list" placeholder="e.g., Paris, Rome, Amsterdam">
+                </div>
+                <div class="goal-details">
+                    <label>Travel Budget (€):</label>
+                    <input type="number" id="travel_budget_eur" placeholder="e.g., 2000">
+                </div>
+            </div>
+            <div class="resolution-item">
+                <h3>Execute Trips</h3>
+                <div class="goal-details">
+                    <label>Trip 1 Planned:</label>
+                    <input type="checkbox" id="travel_trip1_planned">
+                    <label>Trip 1 Name:</label>
+                    <input type="text" id="travel_trip1_name" placeholder="e.g., Weekend in Prague">
+                </div>
+                <div class="goal-details">
+                    <label>Trip 1 Dates:</label>
+                    <input type="text" id="travel_trip1_dates" placeholder="e.g., YYYY-MM-DD to YYYY-MM-DD">
+                    <label>Trip 1 Completed:</label>
+                    <input type="checkbox" id="travel_trip1_completed">
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Financial Prudence</h2>
+            <div class="resolution-item">
+                <h3>Sustain & Refine</h3>
+                <div class="goal-details">
+                    <label>Trading Review Done:</label>
+                    <input type="checkbox" id="finance_trading_review_done">
+                    <label>Risk Mgmt Next Review:</label>
+                    <input type="date" id="finance_risk_mgmt_next_review">
+                </div>
+                <div class="goal-details">
+                    <label>Diversification Researched:</label>
+                    <input type="checkbox" id="finance_diversification_researched">
+                    <label>Options Explored:</label>
+                    <input type="text" id="finance_diversification_options" placeholder="e.g., ETFs, Real Estate">
+                </div>
+                <div class="goal-details">
+                    <label>Portfolio Last Review:</label>
+                    <input type="date" id="finance_portfolio_last_review">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sticky Summary Bar -->
+    <div id="summaryBoard">
+        <div class="container">
+            <h2>Progress Summary</h2>
+            <ul id="summaryList">
+                <!-- Summary items will be populated here -->
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        const STORAGE_KEY = 'ajitResolutions2026_simple'; // Unique key for this simple tracker
+        const CURRENT_YEAR = 2026;
+
+        // --- Data Mapping ---
+        // Maps HTML element IDs to their data keys and types for localStorage
+        const elementDataMap = {
+            // Health & Well-being
+            "health_weight_target_value": { key: "health.weight_target.value", type: "number" },
+            "health_weight_target_set": { key: "health.weight_target.set", type: "boolean" },
+            "health_weight_target_notes": { key: "health.weight_target.notes", type: "string" },
+            "health_activity_sessions_this_week": { key: "health.activity.sessions_this_week", type: "number" },
+            "health_activity_target_met_week": { key: "health.activity.target_met_week", type: "boolean" },
+            "health_activity_last_session_type": { key: "health.activity.last_type", type: "string" },
+            "health_activity_last_session_date": { key: "health.activity.last_date", type: "date" },
+            "health_mindful_practice_today": { key: "health.mindful.today", type: "boolean" },
+            "health_mindful_duration": { key: "health.mindful.duration", type: "number" },
+            "health_fitness_plan_developed": { key: "health.fitness_plan.developed", type: "boolean" },
+            "health_fitness_plan_details": { key: "health.fitness_plan.details", type: "string" },
+
+            // Career Advancement
+            "career_sap_skills_identified": { key: "career.sap_skills.identified", type: "boolean" },
+            "career_sap_skills_to_enhance": { key: "career.sap_skills.to_enhance", type: "string" },
+            "career_ideas_identified_quarter": { key: "career.ideas.identified_quarter", type: "number" },
+            "career_ideas_presented": { key: "career.ideas.presented", type: "number" },
+
+            // German Social Integration
+            "social_club_joined": { key: "social.club.joined", type: "boolean" },
+            "social_club_name": { key: "social.club.name", type: "string" },
+            "social_events_attended_quarter": { key: "social.events.attended_quarter", type: "number" },
+            "social_events_last": { key: "social.events.last_event", type: "string" },
+            "social_connections_initiated_week": { key: "social.connections.initiated_week", type: "number" },
+            "social_language_practice_today": { key: "social.language.practice_today", type: "boolean" },
+            "social_language_practice_duration": { key: "social.language.practice_duration", type: "number" },
+            "social_language_course_enrolled": { key: "social.language.course_enrolled", type: "boolean" },
+            "social_language_course_name": { key: "social.language.course_name", type: "string" },
+
+            // Enhance General Awareness
+            "awareness_daily_intake_met": { key: "awareness.daily.met_today", type: "boolean" },
+            "awareness_daily_topics": { key: "awareness.daily.topics", type: "string" },
+            "awareness_culture_last_read": { key: "awareness.culture.last_read", type: "string" },
+            "awareness_culture_last_date": { key: "awareness.culture.last_date", type: "date" },
+            "awareness_sites_visited_quarter": { key: "awareness.sites.visited_quarter", type: "number" },
+
+            // Travel & Exploration
+            "travel_destinations_identified": { key: "travel.destinations.identified", type: "boolean" },
+            "travel_destinations_list": { key: "travel.destinations.list", type: "string" },
+            "travel_budget_eur": { key: "travel.budget.eur", type: "number" },
+            "travel_trip1_planned": { key: "travel.trip1.planned", type: "boolean" },
+            "travel_trip1_name": { key: "travel.trip1.name", type: "string" },
+            "travel_trip1_dates": { key: "travel.trip1.dates", type: "string" },
+            "travel_trip1_completed": { key: "travel.trip1.completed", type: "boolean" },
+            "travel_journal_last_entry": { key: "travel.journal.last_entry", type: "date" },
+
+            // Financial Prudence
+            "finance_trading_review_done": { key: "finance.trading.review_done", type: "boolean" },
+            "finance_risk_mgmt_next_review": { key: "finance.risk_mgmt.next_review", type: "date" },
+            "finance_diversification_researched": { key: "finance.diversification.researched", type: "boolean" },
+            "finance_diversification_options": { key: "finance.diversification.options", type: "string" },
+            "finance_portfolio_last_review": { key: "finance.portfolio.last_review", type: "date" }
+        };
+
+        // --- Helper Functions ---
+        function setNested(obj, keyPath, value) {
+            const keys = keyPath.split('.');
+            let current = obj;
+            for (let i = 0; i < keys.length - 1; i++) {
+                if (!current[keys[i]]) {
+                    current[keys[i]] = {};
+                }
+                current = current[keys[i]];
+            }
+            current[keys[keys.length - 1]] = value;
+        }
+
+        function getNested(obj, keyPath) {
+            const keys = keyPath.split('.');
+            let current = obj;
+            for (const key of keys) {
+                if (current === undefined || current === null) return undefined;
+                current = current[key];
+            }
+            return current;
+        }
+
+        // --- Data Storage ---
+        let appData = {};
+
+        function saveData() {
+            const data = {};
+            for (const id in elementDataMap) {
+                const element = document.getElementById(id);
+                if (!element) continue;
+
+                const { key: keyPath, type } = elementDataMap[id];
+                let value;
+
+                if (element.type === 'checkbox') {
+                    value = element.checked;
+                } else if (element.type === 'number') {
+                    value = element.value === '' ? null : parseFloat(element.value);
+                } else if (element.type === 'date') {
+                    value = element.value === '' ? null : element.value;
+                } else { // text, textarea
+                    value = element.value.trim();
+                }
+                setNested(data, keyPath, value);
+            }
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+            updateSummary(data);
+        }
+
+        function loadData() {
+            const storedData = localStorage.getItem(STORAGE_KEY);
+            let data = {};
+            if (storedData) {
+                try {
+                    data = JSON.parse(storedData);
+                } catch (e) {
+                    console.error("Error parsing stored data:", e);
+                    data = {};
+                }
+            }
+            // Populate form elements
+            for (const id in elementDataMap) {
+                const element = document.getElementById(id);
+                if (!element) continue;
+                const { key: keyPath, type } = elementDataMap[id];
+                const value = getNested(data, keyPath);
+
+                if (value === undefined || value === null) {
+                    if (element.type === 'checkbox') element.checked = false;
+                    else element.value = '';
+                    continue;
+                }
+
+                if (element.type === 'checkbox') element.checked = value;
+                else element.value = value;
+            }
+            updateSummary(data);
+        }
+
+        // --- Summary Logic ---
+        // Global task definitions aligned with elementDataMap keys
+        const taskDefinitions = {
+            "health": [
+                { keyPath: "health.weight_target.set", completion: (val) => val === true, description: "Weight target set" },
+                { keyPath: "health.activity.target_met_week", completion: (val) => val === true, description: "Activity target met" },
+                { keyPath: "health.mindful.today", completion: (val) => val === true, description: "Mindful practice today" },
+                { keyPath: "health.fitness_plan.developed", completion: (val) => val === true, description: "Fitness plan developed" },
+            ],
+            "career": [
+                { keyPath: "career.sap_skills.identified", completion: (val) => val === true, description: "SAP skills identified" },
+                { keyPath: "career.ideas.presented", completion: (val) => val !== null && val > 0, description: "Ideas presented" },
+            ],
+            "social": [
+                { keyPath: "social.club.joined", completion: (val) => val === true, description: "Club joined" },
+                { keyPath: "social.language.practice_today", completion: (val) => val === true, description: "German practice today" },
+                { keyPath: "social.language.course_enrolled", completion: (val) => val === true, description: "German course enrolled" },
+            ],
+            "awareness": [
+                { keyPath: "awareness.daily.met_today", completion: (val) => val === true, description: "Daily intake met" },
+                { keyPath: "awareness.culture.last_read", completion: (val) => val !== '', description: "Culture logged" },
+            ],
+            "travel": [
+                { keyPath: "travel.destinations.identified", completion: (val) => val === true, description: "Destinations identified" },
+                { keyPath: "travel.trip1.completed", completion: (val) => val === true, description: "Trip 1 completed" },
+            ],
+            "finance": [
+                { keyPath: "finance.trading.review_done", completion: (val) => val === true, description: "Trading review done" },
+                { keyPath: "finance.diversification.researched", completion: (val) => val === true, description: "Diversification researched" },
+            ]
+        };
+
+        function updateSummary(data) {
+            const categoryTaskCounts = { "health": 0, "career": 0, "social": 0, "awareness": 0, "travel": 0, "finance": 0 };
+            const categoryCompletedCounts = { ...categoryTaskCounts };
+            let totalTasks = 0;
+            let totalCompleted = 0;
+
+            for (const category in taskDefinitions) {
+                taskDefinitions[category].forEach(task => {
+                    const value = getNested(data, task.keyPath);
+                    const isCompleted = task.completion(value);
+
+                    categoryTaskCounts[category]++;
+                    totalTasks++;
+                    if (isCompleted) {
+                        categoryCompletedCounts[category]++;
+                        totalCompleted++;
+                    }
+                });
+            }
+
+            const overallCompletion = totalTasks > 0 ? (totalCompleted / totalTasks) * 100 : 0;
+            document.getElementById('overallCompletion').textContent = overallCompletion.toFixed(1);
+
+            for (const category in categoryTaskCounts) {
+                const count = categoryTaskCounts[category];
+                const completed = categoryCompletedCounts[category];
+                const percentage = count > 0 ? (completed / count) * 100 : 0;
+                const elementId = category.replace('_', '') + 'Progress';
+                const span = document.getElementById(elementId);
+                if (span) {
+                    span.textContent = percentage.toFixed(1);
+                }
+            }
+
+            // --- Update Specific Metrics for Summary Board ---
+            const summaryList = document.getElementById('summaryList');
+            summaryList.innerHTML = ''; // Clear previous
+
+            // Helper to create a summary item
+            const addSummaryItem = (label, value, id) => {
+                const li = document.createElement('li');
+                li.innerHTML = `<span class="metric-label">${label}:</span><span>${value}</span>`;
+                li.id = id;
+                summaryList.appendChild(li);
+            };
+
+            // Overall metrics
+            addSummaryItem("Overall", `${overallCompletion.toFixed(1)}%`, 'summaryOverall');
+
+            // Category metrics
+            addSummaryItem("Health", `${((categoryCompletedCounts.health / categoryTaskCounts.health) * 100).toFixed(1)}%`, 'summaryHealth');
+            addSummaryItem("Career", `${((categoryCompletedCounts.career / categoryTaskCounts.career) * 100).toFixed(1)}%`, 'summaryCareer');
+            addSummaryItem("Social", `${((categoryCompletedCounts.social / categoryTaskCounts.social) * 100).toFixed(1)}%`, 'summarySocial');
+            addSummaryItem("Awareness", `${((categoryCompletedCounts.awareness / categoryTaskCounts.awareness) * 100).toFixed(1)}%`, 'summaryAwareness');
+            addSummaryItem("Travel", `${((categoryCompletedCounts.travel / categoryTaskCounts.travel) * 100).toFixed(1)}%`, 'summaryTravel');
+            addSummaryItem("Finance", `${((categoryCompletedCounts.finance / categoryTaskCounts.finance) * 100).toFixed(1)}%`, 'summaryFinance');
+
+            // --- Detailed Metrics ---
+            // Health
+            addSummaryItem("Weight Target Set", getNested(data, "health.weight_target.set") ? "Yes" : "No", 'metricHealthWeightSet');
+            addSummaryItem("Activity Sessions (Week)", getNested(data, "health.activity.sessions_this_week") ?? 0, 'metricHealthActivitySessions');
+            addSummaryItem("Mindful Practice Today", getNested(data, "health.mindful.today") ? "Yes" : "No", 'metricHealthMindfulToday');
+
+            // Career
+            addSummaryItem("SAP Skills Identified", getNested(data, "career.sap_skills.identified") ? "Yes" : "No", 'metricCareerSAPSkills');
+            addSummaryItem("Ideas Presented", getNested(data, "career.ideas.presented") ?? 0, 'metricCareerIdeasPresented');
+
+            // Social
+            addSummaryItem("Club Joined", getNested(data, "social.club.joined") ? "Yes" : "No", 'metricSocialClubJoined');
+            addSummaryItem("German Practice Today", getNested(data, "social.language.practice_today") ? "Yes" : "No", 'metricSocialLangPractice');
+            addSummaryItem("German Course Enrolled", getNested(data, "social.language.course_enrolled") ? "Yes" : "No", 'metricSocialLangCourse');
+
+            // Awareness
+            addSummaryItem("Daily Intake Met", getNested(data, "awareness.daily.met_today") ? "Yes" : "No", 'metricAwarenessDailyMet');
+            addSummaryItem("Culture Logged", getNested(data, "awareness.culture.last_read") !== '' ? "Yes" : "No", 'metricAwarenessCultureLogged');
+
+            // Travel
+            addSummaryItem("Destinations Identified", getNested(data, "travel.destinations.identified") ? "Yes" : "No", 'metricTravelDestinations');
+            addSummaryItem("Trip 1 Completed", getNested(data, "travel.trip1.completed") ? "Yes" : "No", 'metricTravelTrip1Completed');
+
+            // Finance
+            addSummaryItem("Trading Review Done", getNested(data, "finance.trading.review_done") ? "Yes" : "No", 'metricFinanceTradingReview');
+            addSummaryItem("Diversification Researched", getNested(data, "finance.diversification.researched") ? "Yes" : "No", 'metricFinanceDiversification');
+        }
+
+        // --- Event Listeners ---
+        document.addEventListener('DOMContentLoaded', () => {
+            const interactiveElements = document.querySelectorAll('input, textarea');
+            interactiveElements.forEach(element => {
+                if (element.id && elementDataMap[element.id]) {
+                    const eventType = (element.type === 'checkbox') ? 'change' : 'input';
+                    element.addEventListener(eventType, saveData);
+                }
+            });
+            loadData(); // Load data when the page is ready
+        });
+    </script>
+
+</body>
+</html>

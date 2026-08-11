@@ -1,0 +1,58 @@
+<!-- templates/dashboard.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Kite Dashboard</title>
+    <style>
+        body { font-family: sans-serif; }
+        table { border-collapse: collapse; width: 90%; margin: 20px auto; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        .account-header { background-color: #e0e0e0; font-weight: bold; }
+        .pnl-positive { color: green; }
+        .pnl-negative { color: red; }
+    </style>
+</head>
+<body>
+    <h1>Kite Account Positions</h1>
+    <p>Welcome, {{ session.get('user_id', 'Guest') }}!</p>
+    <p><a href="{{ url_for('link_kite') }}">Link Another Kite Account</a> (Note: Current example only supports one)</p>
+    <p><a href="{{ url_for('logout') }}">Logout</a></p>
+
+    {% if positions %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Account</th>
+                    <th>Symbol</th>
+                    <th>Exchange</th>
+                    <th>Quantity</th>
+                    <th>Buy Price</th>
+                    <th>Current Price</th>
+                    <th>P&L</th>
+                    <th>Margin</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for pos in positions %}
+                <tr>
+                    <td>{{ pos.get('account_identifier', 'N/A') }}</td>
+                    <td>{{ pos.get('tradingsymbol', 'N/A') }}</td>
+                    <td>{{ pos.get('exchange', 'N/A') }}</td>
+                    <td>{{ pos.get('quantity', 0) }}</td>
+                    <td>{{ pos.get('average_price', 'N/A') }}</td>
+                    <td>{{ pos.get('last_price', 'N/A') }}</td>
+                    {% set pnl = (pos.get('quantity', 0) * (pos.get('last_price', 0) - pos.get('average_price', 0))) %}
+                    <td class="{{ 'pnl-positive' if pnl > 0 else ('pnl-negative' if pnl < 0 else '') }}">
+                        {{ "%.2f"|format(pnl) }}
+                    </td>
+                    <td>{{ pos.get('margin', 'N/A') }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No positions found or an error occurred.</p>
+    {% endif %}
+</body>
+</html>

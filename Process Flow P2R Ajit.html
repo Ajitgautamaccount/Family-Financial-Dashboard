@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Procure to Receipt Process Flow Designer</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f7f6;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 20px auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        h1, h2 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 25px;
+            font-weight: 600;
+        }
+
+        .input-section, .actions-section {
+            background-color: #ecf0f1;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            border: 1px solid #bdc3c7;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #34495e;
+        }
+
+        input[type="text"],
+        textarea {
+            width: calc(100% - 22px); /* Adjust for padding and border */
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 1em;
+            box-sizing: border-box;
+            transition: border-color 0.2s;
+        }
+
+        input[type="text"]:focus,
+        textarea:focus {
+            border-color: #27ae60;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(39, 174, 96, 0.2);
+        }
+
+        textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            color: #fff;
+            background-color: #27ae60; /* Accent green */
+            transition: background-color 0.2s, transform 0.1s;
+            margin-right: 10px;
+        }
+
+        button:hover {
+            background-color: #219d55; /* Darker green */
+            transform: translateY(-1px);
+        }
+
+        button:active {
+            transform: translateY(0);
+            box-shadow: none;
+        }
+
+        button.secondary {
+            background-color: #7f8c8d; /* Muted gray */
+        }
+        button.secondary:hover {
+            background-color: #6c7a7b;
+        }
+
+        button.delete {
+            background-color: #e74c3c; /* Danger red */
+        }
+        button.delete:hover {
+            background-color: #c0392b;
+        }
+
+        .process-flow {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .process-step-card {
+            background: #fdfdfd;
+            border: 1px solid #e0e0e0;
+            border-left: 5px solid #2c3e50; /* Primary color accent */
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            position: relative;
+        }
+
+        .process-step-card h3 {
+            margin-top: 0;
+            color: #2c3e50;
+            font-size: 1.3em;
+            margin-bottom: 10px;
+        }
+
+        .process-step-card p {
+            margin-bottom: 8px;
+            color: #555;
+        }
+
+        .process-step-card .step-details label {
+            font-weight: 500;
+            color: #34495e;
+            margin-top: 10px;
+            margin-bottom: 3px;
+        }
+
+        .process-step-card .step-details input[type="text"],
+        .process-step-card .step-details textarea {
+            border: 1px solid #dcdcdc;
+            background-color: #f9f9f9;
+        }
+
+        .process-step-card .step-details input[type="text"]:disabled,
+        .process-step-card .step-details textarea:disabled {
+            background-color: transparent;
+            border: none;
+            padding: 10px 0;
+            color: #333;
+            font-size: 1em;
+            cursor: default;
+        }
+
+        .process-step-card .card-actions {
+            margin-top: 15px;
+            text-align: right;
+        }
+
+        .process-step-card .card-actions button {
+            margin-left: 10px;
+        }
+
+        /* Connector line (optional, for visual flow) */
+        .process-flow::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background-color: #bdc3c7;
+            transform: translateX(-50%);
+            z-index: -1; /* Behind the cards */
+        }
+        .process-step-card:not(:last-child)::after {
+            content: '↓'; /* Down arrow for flow */
+            position: absolute;
+            bottom: -25px; /* Position below the card */
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1.5em;
+            color: #7f8c8d;
+            z-index: 1;
+            background-color: #f4f7f6; /* Match body background to hide line */
+            padding: 0 5px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+                margin: 10px auto;
+            }
+            button {
+                width: 100%;
+                margin-bottom: 10px;
+                margin-right: 0;
+            }
+            .process-flow::before {
+                left: 20px; /* Adjust for smaller screens */
+                transform: translateX(0);
+            }
+            .process-step-card {
+                border-left: 5px solid #2c3e50;
+                margin-left: 30px; /* Make space for the line */
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Procure to Receipt Process Flow Designer</h1>
+        <p style="text-align: center; color: #555;">Outline your P2R steps, logic, and technical fields. Data is saved locally in your browser.</p>
+
+        <div class="input-section">
+            <h2>Add New Process Step</h2>
+            <div class="input-group">
+                <label for="stepName">Step Name:</label>
+                <input type="text" id="stepName" placeholder="e.g., Create Purchase Requisition (PR)">
+            </div>
+            <div class="input-group">
+                <label for="stepDescription">Description:</label>
+                <textarea id="stepDescription" placeholder="Briefly describe this step."></textarea>
+            </div>
+            <div class="input-group">
+                <label for="stepLogic">Logic & Technical Fields:</label>
+                <textarea id="stepLogic" placeholder="e.g., Logic: If PR value > 10,000, require Manager Approval. Technical: S/4HANA API: API_PURCHASEORDER_SRV, BTP Workflow Context: pr_id, Input: MaterialNumber, Quantity"></textarea>
+            </div>
+            <button onclick="addStep()">Add Step</button>
+            <button class="secondary" onclick="clearInputs()">Clear Inputs</button>
+        </div>
+
+        <div class="actions-section">
+            <h2>Manage Process Flow</h2>
+            <button onclick="saveProcess()">Save Process (Local Storage)</button>
+            <button class="secondary" onclick="loadProcess()">Load Process (Local Storage)</button>
+            <button class="delete" onclick="clearProcess()">Clear All Steps</button>
+        </div>
+
+        <h2>Your Defined Process Flow</h2>
+        <div id="processFlowDisplay" class="process-flow">
+            <p style="text-align: center; color: #777;">No steps defined yet. Add a new step above!</p>
+        </div>
+    </div>
+
+    <script>
+        const STORAGE_KEY = 'p2rProcessFlow';
+        let processSteps = [];
+
+        // --- DOM Elements ---
+        const stepNameInput = document.getElementById('stepName');
+        const stepDescriptionInput = document.getElementById('stepDescription');
+        const stepLogicInput = document.getElementById('stepLogic');
+        const processFlowDisplay = document.getElementById('processFlowDisplay');
+
+        // --- Functions ---
+
+        // Clears the input fields for adding a new step
+        function clearInputs() {
+            stepNameInput.value = '';
+            stepDescriptionInput.value = '';
+            stepLogicInput.value = '';
+        }
+
+        // Adds a new step to the process flow
+        function addStep() {
+            const name = stepNameInput.value.trim();
+            const description = stepDescriptionInput.value.trim();
+            const logic = stepLogicInput.value.trim();
+
+            if (!name) {
+                alert('Please enter a Step Name.');
+                return;
+            }
+
+            const newStep = {
+                name: name,
+                description: description,
+                logic: logic
+            };
+
+            processSteps.push(newStep);
+            saveProcess(); // Save immediately after adding
+            renderProcessFlow();
+            clearInputs();
+        }
+
+        // Renders all process steps to the display area
+        function renderProcessFlow() {
+            processFlowDisplay.innerHTML = ''; // Clear existing content
+
+            if (processSteps.length === 0) {
+                processFlowDisplay.innerHTML = '<p style="text-align: center; color: #777;">No steps defined yet. Add a new step above!</p>';
+                return;
+            }
+
+            processSteps.forEach((step, index) => {
+                const card = document.createElement('div');
+                card.className = 'process-step-card';
+                card.id = `step-card-${index}`;
+
+                card.innerHTML = `
+                    <h3 id="name-${index}">${step.name}</h3>
+                    <div class="step-details">
+                        <label for="desc-${index}">Description:</label>
+                        <textarea id="desc-${index}" disabled>${step.description}</textarea>
+                        <label for="logic-${index}">Logic & Technical Fields:</label>
+                        <textarea id="logic-${index}" disabled>${step.logic}</textarea>
+                    </div>
+                    <div class="card-actions">
+                        <button class="secondary" onclick="toggleEdit(${index})">Edit</button>
+                        <button class="delete" onclick="deleteStep(${index})">Delete</button>
+                    </div>
+                `;
+                processFlowDisplay.appendChild(card);
+            });
+        }
+
+        // Toggles edit mode for a specific step card
+        function toggleEdit(index) {
+            const nameElement = document.getElementById(`name-${index}`);
+            const descElement = document.getElementById(`desc-${index}`);
+            const logicElement = document.getElementById(`logic-${index}`);
+            const editButton = document.querySelector(`#step-card-${index} .card-actions .secondary`);
+
+            const isEditing = !descElement.disabled; // Check current state
+
+            if (isEditing) {
+                // Save changes
+                processSteps[index].name = nameElement.textContent.trim(); // Name is always editable via textContent
+                processSteps[index].description = descElement.value.trim();
+                processSteps[index].logic = logicElement.value.trim();
+                saveProcess();
+                editButton.textContent = 'Edit';
+                nameElement.contentEditable = 'false';
+            } else {
+                // Enable editing
+                editButton.textContent = 'Save';
+                nameElement.contentEditable = 'true'; // Make heading editable
+                nameElement.focus();
+            }
+
+            descElement.disabled = isEditing;
+            logicElement.disabled = isEditing;
+        }
+
+        // Deletes a step from the process flow
+        function deleteStep(index) {
+            if (confirm(`Are you sure you want to delete step: "${processSteps[index].name}"?`)) {
+                processSteps.splice(index, 1);
+                saveProcess();
+                renderProcessFlow();
+            }
+        }
+
+        // Saves the current processSteps array to local storage
+        function saveProcess() {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(processSteps));
+                console.log('Process flow saved to local storage.');
+            } catch (e) {
+                alert('Error saving process flow. Local storage might be full or unavailable.');
+                console.error('Save error:', e);
+            }
+        }
+
+        // Loads the processSteps array from local storage
+        function loadProcess() {
+            try {
+                const savedData = localStorage.getItem(STORAGE_KEY);
+                if (savedData) {
+                    processSteps = JSON.parse(savedData);
+                    renderProcessFlow();
+                    console.log('Process flow loaded from local storage.');
+                } else {
+                    alert('No saved process flow found in local storage.');
+                }
+            } catch (e) {
+                alert('Error loading process flow. Data might be corrupted.');
+                console.error('Load error:', e);
+                processSteps = []; // Clear corrupted data
+                saveProcess();
+                renderProcessFlow();
+            }
+        }
+
+        // Clears all steps from the process flow and local storage
+        function clearProcess() {
+            if (confirm('Are you sure you want to clear ALL process steps? This cannot be undone.')) {
+                processSteps = [];
+                localStorage.removeItem(STORAGE_KEY);
+                renderProcessFlow();
+                console.log('All process steps cleared.');
+            }
+        }
+
+        // --- Initialize on Load ---
+        document.addEventListener('DOMContentLoaded', () => {
+            loadProcess(); // Attempt to load saved data when the page opens
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Financial Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 20px;
+            background-color: #f4f7f6;
+            color: #333;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        h1, h2, h3 {
+            color: #003366;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 25px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: right;
+        }
+        th {
+            background-color: #e0f2f7;
+            color: #003366;
+            font-weight: bold;
+        }
+        /* Input styling adjusted for better fit */
+        input[type="number"], input[type="text"] {
+            width: 120px; /* Reduced width for input fields */
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            text-align: right;
+            box-sizing: border-box;
+        }
+
+        .chart-container {
+            margin: 40px 0;
+            height: 500px;
+            position: relative;
+        }
+        .add-month-section, .user-management-section {
+            background: #f0f8ff;
+            padding: 25px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            border: 1px solid #b2ebf2;
+        }
+        .user-management-section div {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .user-management-section label {
+            white-space: nowrap;
+        }
+        .summary-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin: 40px 0;
+        }
+        .year-card {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            margin: 12px 0;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #eee;
+        }
+        .summary-value {
+            font-weight: 600;
+            color: #003366;
+        }
+        button {
+            background-color: #009999;
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #007a7a;
+        }
+        .delete-button {
+            background-color: #ff6666;
+            color: white;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8em;
+            transition: background-color 0.3s;
+        }
+        .delete-button:hover {
+            background-color: #e60000;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Financial Performance Dashboard</h1>
+
+        <!-- User Management Section -->
+        <div class="user-management-section">
+            <h3>User Management</h3>
+            <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                <label for="userSelect">Select User:</label>
+                <select id="userSelect" onchange="switchUser(this.value)" style="padding: 8px; border-radius: 4px; border: 1px solid #ccc;">
+                    <!-- User options will be populated by JavaScript -->
+                </select>
+                <input type="text" id="newUsername" placeholder="New Username" style="padding: 8px; border-radius: 4px; border: 1px solid #ccc;">
+                <button onclick="addUser()" style="background-color: #00796b; color: white; padding: 8px 15px; border: none; border-radius: 4px; cursor: pointer;">Add User</button>
+            </div>
+        </div>
+        
+        <div class="add-month-section">
+            <h3>Add New Month Data</h3>
+            <div>
+                <input type="text" id="newMonth" placeholder="Month" readonly>
+                <input type="number" id="newEquity" placeholder="Equity Return">
+                <input type="number" id="newFO" placeholder="F&O Return">
+                <input type="number" id="newBond" placeholder="Bond Interest">
+                <input type="number" id="newDeposit" placeholder="Deposit">
+                <button onclick="addNewMonth()">Add Month</button>
+            </div>
+        </div>
+
+        <table id="dataTable">
+            <thead>
+                <tr>
+                    <th>Month</th>
+                    <th>Equity Return</th>
+                    <th>F&O Return</th>
+                    <th>Bond Interest</th>
+                    <th>Deposit</th>
+                    <th>Capital Used</th>
+                    <th>Equity+F&O</th>
+                    <th>Monthly Return</th>
+                    <th>% Return</th>
+                    <th>Delete</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+
+        <h2>Yearly Performance Summary</h2>
+        <div id="yearlySummary" class="summary-section"></div>
+
+        <div class="chart-container">
+            <canvas id="percentageChart"></canvas>
+        </div>
+        <div class="chart-container">
+            <canvas id="amountChart"></canvas>
+        </div>
+    </div>
+
+<script>
+// --- Global Data Structures ---
+let allUserData = {}; // Stores data for all users: { 'Username': [ { month: ..., ... }, ... ] }
+let currentUser = ''; // Stores the currently selected username
+let currentFinancialData = []; // The data array currently being displayed/edited
+
+// --- Local Storage Key ---
+const STORAGE_KEY = 'financialDashboardData';
+
+// --- Initial Data (Defaults) ---
+// Data for Ajit Gauta
+const initialAjitData = [
+    { month: 'Jan-24', equityReturn: -350, foReturn: 158000, bondInterest: 20000, deposit: 150000, capitalUsed: 4550000 },
+    { month: 'Feb-24', equityReturn: 7600, foReturn: -91300, bondInterest: 20000, deposit: 0, capitalUsed: 4877650 },
+    { month: 'Mar-24', equityReturn: 3330, foReturn: 189000, bondInterest: 20000, deposit: 100000, capitalUsed: 4813950 },
+    { month: 'Apr-24', equityReturn: 21100, foReturn: 211000, bondInterest: 25000, deposit: 100000, capitalUsed: 5821640 },
+    { month: 'May-24', equityReturn: 32580, foReturn: -822000, bondInterest: 28000, deposit: 100000, capitalUsed: 6369870 },
+    { month: 'Jun-24', equityReturn: 105000, foReturn: 363000, bondInterest: 30000, deposit: 1000000, capitalUsed: 6479020 },
+    { month: 'Jul-24', equityReturn: 19200, foReturn: 13610, bondInterest: 30000, deposit: 800000, capitalUsed: 6786320 },
+    { month: 'Aug-24', equityReturn: 3350, foReturn: 103000, bondInterest: 39415, deposit: 200000, capitalUsed: 7286320 },
+    { month: 'Sep-24', equityReturn: 12700, foReturn: 267000, bondInterest: 39415, deposit: -25000, capitalUsed: 7887540 },
+    { month: 'Oct-24', equityReturn: -4700, foReturn: -156000, bondInterest: 39415, deposit: 220000, capitalUsed: 8187486 },
+    { month: 'Nov-24', equityReturn: 24640, foReturn: -658000, bondInterest: 39415, deposit: 500000, capitalUsed: 8580496 },
+    { month: 'Dec-24', equityReturn: -345, foReturn: -394000, bondInterest: 39415, deposit: 500000, capitalUsed: 9280404 },
+    { month: 'Jan-25', equityReturn: -629, foReturn: 50308, bondInterest: 30000, deposit: 70000, capitalUsed: 9175404 },
+    { month: 'Feb-25', equityReturn: 16400, foReturn: 134313, bondInterest: 30000, deposit: 0, capitalUsed: 8503704 },
+    { month: 'Mar-25', equityReturn: -224, foReturn: 82000, bondInterest: 33000, deposit: 0, capitalUsed: 8502788 },
+    { month: 'Apr-25', equityReturn: 150923, foReturn: 406221, bondInterest: 30000, deposit: 800000, capitalUsed: 8502564 },
+    { month: 'May-25', equityReturn: 4967, foReturn: 326500, bondInterest: 30000, deposit: 0, capitalUsed: 8521724 },
+    { month: 'Jun-25', equityReturn: 11830, foReturn: 227715, bondInterest: 35000, deposit: 2200000, capitalUsed: 8539724 },
+    { month: 'Jul-25', equityReturn: 5120, foReturn: 239000, bondInterest: 59000, deposit: 325000, capitalUsed: 8562654 },
+    { month: 'Aug-25', equityReturn: 500, foReturn: 55000, bondInterest: 59000, deposit: 0, capitalUsed: 8565054 },
+    { month: 'Sep-25', equityReturn: 460, foReturn: 232900, bondInterest: 59000, deposit: 900000, capitalUsed: 8585054 },
+    { month: 'Oct-25', equityReturn: 62640, foReturn: 160000, bondInterest: 59000, deposit: 800000, capitalUsed: 8585054 },
+    { month: 'Nov-25', equityReturn: 54320, foReturn: -81000, bondInterest: 59000, deposit: 0, capitalUsed: 8599054 },
+    { month: 'Dec-25', equityReturn: 12380, foReturn: 68000, bondInterest: 59000, deposit: 0, capitalUsed: 8603054 },
+    { month: 'Jan-26', equityReturn: 5000, foReturn: 75000, bondInterest: 60000, deposit: 100000, capitalUsed: 8603054 },
+    { month: 'Feb-26', equityReturn: -2000, foReturn: 10000, bondInterest: 60000, deposit: 50000, capitalUsed: 8713054 },
+    { month: 'Mar-26', equityReturn: 15000, foReturn: 120000, bondInterest: 60000, deposit: 200000, capitalUsed: 8773054 }
+];
+
+// Data for Prem Singh
+const initialPremSinghData = [
+    { month: 'Jan-24', equityReturn: -1500, foReturn: 147000, bondInterest: 25000, deposit: 100000, capitalUsed: 5100000 },
+    { month: 'Feb-24', equityReturn: 15450, foReturn: 106000, bondInterest: 25000, deposit: 100000, capitalUsed: 5198500 },
+    { month: 'Mar-24', equityReturn: 7690, foReturn: 163000, bondInterest: 25000, deposit: 500000, capitalUsed: 5313950 },
+    { month: 'Apr-24', equityReturn: 48230, foReturn: 198000, bondInterest: 35000, deposit: 500000, capitalUsed: 5821640 },
+    { month: 'May-24', equityReturn: 9150, foReturn: -697000, bondInterest: 44000, deposit: 100000, capitalUsed: 6369870 },
+    { month: 'Jun-24', equityReturn: 7300, foReturn: 291000, bondInterest: 44000, deposit: 300000, capitalUsed: 6479020 },
+    { month: 'Jul-24', equityReturn: 0, foReturn: 170000, bondInterest: 44000, deposit: 500000, capitalUsed: 6786320 },
+    { month: 'Aug-24', equityReturn: 1220, foReturn: 187000, bondInterest: 49300, deposit: 600000, capitalUsed: 7286320 },
+    { month: 'Sep-24', equityReturn: -54, foReturn: 66250, bondInterest: 49300, deposit: 300000, capitalUsed: 7887540 },
+    { month: 'Oct-24', equityReturn: -6990, foReturn: -225000, bondInterest: 49300, deposit: 400000, capitalUsed: 8187486 },
+    { month: 'Nov-24', equityReturn: -92, foReturn: -514000, bondInterest: 49300, deposit: 700000, capitalUsed: 8580496 },
+    { month: 'Dec-24', equityReturn: 0, foReturn: 95000, bondInterest: 49300, deposit: -105000, capitalUsed: 9280404 },
+    { month: 'Jan-25', equityReturn: 28300, foReturn: 117000, bondInterest: 42272, deposit: -700000, capitalUsed: 9175404 },
+    { month: 'Feb-25', equityReturn: -916, foReturn: 87760, bondInterest: 42272, deposit: 0, capitalUsed: 8503704 },
+    { month: 'Mar-25', equityReturn: -224, foReturn: 82000, bondInterest: 42272, deposit: 0, capitalUsed: 8502788 },
+    { month: 'Apr-25', equityReturn: 19160, foReturn: 380000, bondInterest: 42272, deposit: 500000, capitalUsed: 8502564 },
+    { month: 'May-25', equityReturn: 18000, foReturn: 286000, bondInterest: 42272, deposit: 0, capitalUsed: 8521724 },
+    { month: 'Jun-25', equityReturn: 22930, foReturn: 132000, bondInterest: 42272, deposit: 0, capitalUsed: 8539724 },
+    { month: 'Jul-25', equityReturn: 2400, foReturn: 78000, bondInterest: 55423, deposit: 0, capitalUsed: 8562654 },
+    { month: 'Aug-25', equityReturn: 0, foReturn: 8500, bondInterest: 55423, deposit: 20000, capitalUsed: 8565054 },
+    { month: 'Sep-25', equityReturn: 0, foReturn: 98000, bondInterest: 55423, deposit: 0, capitalUsed: 8585054 },
+    { month: 'Oct-25', equityReturn: 14000, foReturn: -188000, bondInterest: 55423, deposit: 0, capitalUsed: 8585054 },
+    { month: 'Nov-25', equityReturn: 4000, foReturn: 70000, bondInterest: 55423, deposit: 0, capitalUsed: 8599054 },
+    { month: 'Dec-25', equityReturn: 0, foReturn: 60000, bondInterest: 55423, deposit: 0, capitalUsed: 8603054 }
+];
+
+// Data for Meenu Tyagi
+const initialMeenuTyagiData = [
+    { month: 'Jan-24', equityReturn: -664, foReturn: 22650, bondInterest: 3000, deposit: 50000, capitalUsed: 1700000 },
+    { month: 'Feb-24', equityReturn: 730, foReturn: 25820, bondInterest: 3000, deposit: 50000, capitalUsed: 1749336 },
+    { month: 'Mar-24', equityReturn: -850, foReturn: 46200, bondInterest: 3000, deposit: 50000, capitalUsed: 1800066 },
+    { month: 'Apr-24', equityReturn: 6510, foReturn: 60000, bondInterest: 3000, deposit: 300000, capitalUsed: 1849216 },
+    { month: 'May-24', equityReturn: 73610, foReturn: -249000, bondInterest: 3000, deposit: 100000, capitalUsed: 2155726 },
+    { month: 'Jun-24', equityReturn: 41930, foReturn: 89270, bondInterest: 5000, deposit: 200000, capitalUsed: 2329336 },
+    { month: 'Jul-24', equityReturn: 71640, foReturn: 21190, bondInterest: 8000, deposit: 200000, capitalUsed: 2571266 },
+    { month: 'Aug-24', equityReturn: 155000, foReturn: 75410, bondInterest: 11605, deposit: 400000, capitalUsed: 2842906 },
+    { month: 'Sep-24', equityReturn: 14000, foReturn: 82000, bondInterest: 11605, deposit: 300000, capitalUsed: 3397906 },
+    { month: 'Oct-24', equityReturn: -8000, foReturn: 112000, bondInterest: 19235, deposit: 25000, capitalUsed: 3711906 },
+    { month: 'Nov-24', equityReturn: 11050, foReturn: -75320, bondInterest: 19235, deposit: 0, capitalUsed: 3728906 },
+    { month: 'Dec-24', equityReturn: -5, foReturn: -28000, bondInterest: 19235, deposit: 10000, capitalUsed: 3739956 },
+    { month: 'Jan-25', equityReturn: 0, foReturn: 62610, bondInterest: 19235, deposit: 0, capitalUsed: 3749951 },
+    { month: 'Feb-25', equityReturn: -212, foReturn: 27670, bondInterest: 19235, deposit: 0, capitalUsed: 3749951 },
+    { month: 'Mar-25', equityReturn: -135, foReturn: 25000, bondInterest: 19235, deposit: 0, capitalUsed: 3749739 },
+    { month: 'Apr-25', equityReturn: -40, foReturn: 150000, bondInterest: 19235, deposit: 100000, capitalUsed: 3749604 },
+    { month: 'May-25', equityReturn: 0, foReturn: 155000, bondInterest: 19235, deposit: 0, capitalUsed: 3849564 },
+    { month: 'Jun-25', equityReturn: 10000, foReturn: 55620, bondInterest: 20326, deposit: 0, capitalUsed: 3849564 },
+    { month: 'Jul-25', equityReturn: 16690, foReturn: 41580, bondInterest: 20326, deposit: 0, capitalUsed: 3859564 },
+    { month: 'Aug-25', equityReturn: 0, foReturn: 10000, bondInterest: 20326, deposit: 0, capitalUsed: 3876254 },
+    { month: 'Sep-25', equityReturn: 10330, foReturn: 45000, bondInterest: 20326, deposit: 0, capitalUsed: 3876254 },
+    { month: 'Oct-25', equityReturn: 31800, foReturn: 41360, bondInterest: 20326, deposit: 0, capitalUsed: 3886584 },
+    { month: 'Nov-25', equityReturn: 52500, foReturn: 37690, bondInterest: 20326, deposit: 0, capitalUsed: 3918384 },
+    { month: 'Dec-25', equityReturn: 0, foReturn: 60000, bondInterest: 20326, deposit: 0, capitalUsed: 3970884 }
+];
+
+// Initialize charts and plugins
+let percentageChart, amountChart;
+Chart.register(ChartDataLabels);
+const chartConfig = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+        datalabels: {
+            anchor: 'end',
+            align: 'top',
+            formatter: function(value, context) {
+                const label = context.chart.data.labels[context.dataIndex];
+                const isPercentageChart = context.chart.canvas.id === 'percentageChart';
+                return label + '\n' + (isPercentageChart ? value + '%' : '₹' + value.toLocaleString('en-IN'));
+            },
+            color: '#333',
+            font: { weight: 'bold', size: 10 }
+        }
+    }
+};
+
+// --- Local Storage Functions ---
+function saveUserData() {
+    try {
+        // Ensure allUserData is not empty before saving
+        if (Object.keys(allUserData).length === 0) {
+            console.warn('allUserData is empty, not saving to localStorage.');
+            return;
+        }
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(allUserData));
+        console.log('User data saved successfully.');
+    } catch (e) {
+        console.error('Error saving user data to localStorage:', e);
+        // Inform the user if saving fails
+        alert('Could not save your data. Please ensure localStorage is enabled and has enough space.');
+    }
+}
+
+function loadUserData() {
+    const savedData = localStorage.getItem(STORAGE_KEY);
+    if (savedData) {
+        try {
+            const parsedData = JSON.parse(savedData);
+            // Basic validation: check if it's a non-null object and has at least one user
+            if (typeof parsedData === 'object' && parsedData !== null && Object.keys(parsedData).length > 0) {
+                console.log('User data loaded successfully from localStorage.');
+                console.log('Loaded data:', parsedData);
+                return parsedData;
+            } else {
+                console.warn('Invalid or empty data found in localStorage. Using default data.');
+                return null; // Return null if data is empty or invalid
+            }
+        } catch (e) {
+            console.error('Error parsing user data from localStorage:', e);
+            return null; // Return null if parsing fails
+        }
+    }
+    console.log('No data found in localStorage.');
+    return null; // Return null if no data is found
+}
+
+// --- User Management Functions ---
+function initializeUserManagement() {
+    const loadedData = loadUserData();
+
+    if (loadedData) {
+        // If data is loaded successfully, use it
+        allUserData = loadedData;
+        console.log("Initialized allUserData with loaded data.");
+    } else {
+        // If no data is loaded (first time, or cleared cache), initialize with default users and data
+        console.log("Initializing allUserData with default data.");
+        allUserData['Ajit Gauta'] = [...initialAjitData];
+        allUserData['Prem Singh'] = [...initialPremSinghData];
+        allUserData['Meenu Tyagi'] = [...initialMeenuTyagiData];
+    }
+
+    // --- Ensure Default Users Exist ---
+    // This block ensures that our known default users are present.
+    // If loadedData was valid but missing a default user, this will add them back.
+    // If loadedData was null, this block is redundant as the 'else' above already set them.
+    if (!allUserData['Ajit Gauta']) {
+        console.log("Ajit Gauta data missing from loaded data, adding default.");
+        allUserData['Ajit Gauta'] = [...initialAjitData];
+    }
+    if (!allUserData['Prem Singh']) {
+        console.log("Prem Singh data missing from loaded data, adding default.");
+        allUserData['Prem Singh'] = [...initialPremSinghData];
+    }
+    if (!allUserData['Meenu Tyagi']) {
+        console.log("Meenu Tyagi data missing from loaded data, adding default.");
+        allUserData['Meenu Tyagi'] = [...initialMeenuTyagiData];
+    }
+    
+    // --- Set Current User and Populate Dropdown ---
+    const userKeys = Object.keys(allUserData);
+    if (userKeys.length > 0) {
+        // If there are users (loaded or default), pick the first one as the current user
+        currentUser = userKeys[0]; 
+        console.log(`Setting initial currentUser to: ${currentUser}`);
+    } else {
+        // Fallback: If somehow allUserData is empty, default to Ajit Gauta
+        console.warn('No users found in allUserData, defaulting to Ajit Gauta.');
+        currentUser = 'Ajit Gauta'; 
+        allUserData[currentUser] = [...initialAjitData]; // Ensure Ajit exists
+    }
+
+    const userSelect = document.getElementById('userSelect');
+    userSelect.innerHTML = ''; // Clear existing options
+    for (const username in allUserData) {
+        const option = document.createElement('option');
+        option.value = username;
+        option.textContent = username;
+        if (username === currentUser) {
+            option.selected = true;
+        }
+        userSelect.appendChild(option);
+    }
+
+    // Load data for the current user and update the dashboard
+    switchUser(currentUser); // This will call updateAll()
+}
+
+function switchUser(username) {
+    if (allUserData[username] === undefined) {
+        console.error(`User "${username}" not found in allUserData.`);
+        // If user somehow doesn't exist, add them with empty data and re-initialize
+        allUserData[username] = []; 
+        initializeUserManagement(); 
+        return;
+    }
+    
+    // Save data of the currently active user before switching
+    saveUserData(); 
+
+    currentUser = username;
+    currentFinancialData = allUserData[currentUser]; // Load this user's data into the active array
+    updateAll(); // Refresh the dashboard with the new user's data
+    document.getElementById('newUsername').value = ''; // Clear new username input
+    
+    // Update the 'newMonth' input to reflect the next month for the current user
+    const lastMonthStr = currentFinancialData.length > 0 ? currentFinancialData[currentFinancialData.length-1].month : 'Dec-23'; // Default if no data yet
+    document.getElementById('newMonth').value = getNextMonth(lastMonthStr);
+}
+
+function addUser() {
+    const newUsernameInput = document.getElementById('newUsername');
+    const username = newUsernameInput.value.trim();
+
+    if (!username) {
+        alert('Please enter a username.');
+        return;
+    }
+    if (allUserData[username]) {
+        alert(`User "${username}" already exists.`);
+        return;
+    }
+
+    allUserData[username] = []; // Add new user with empty data
+
+    // Add to dropdown
+    const userSelect = document.getElementById('userSelect');
+    const option = document.createElement('option');
+    option.value = username;
+    option.textContent = username;
+    userSelect.appendChild(option);
+
+    // Select the newly added user
+    switchUser(username); // This will also save the data
+    newUsernameInput.value = ''; // Clear input
+}
+
+// --- Core Dashboard Functions (modified to use currentFinancialData) ---
+
+function calculateMetrics() {
+    currentFinancialData.forEach((item, index) => {
+        // Calculate derived values
+        item.equityFo = item.equityReturn + item.foReturn;
+        item.monthlyReturn = item.equityReturn + item.foReturn + item.bondInterest;
+        
+        // Calculate capital for subsequent months
+        if (index > 0) {
+            const prev = currentFinancialData[index - 1];
+            // Ensure capitalUsed is correctly calculated, considering previous month's return and deposit
+            // Use 0 if prev.capitalUsed, prev.monthlyReturn, or prev.deposit are undefined/null
+            item.capitalUsed = (prev.capitalUsed || 0) + (prev.monthlyReturn || 0) + (prev.deposit || 0);
+        } else {
+            // For the first entry, capitalUsed is either provided or defaults to 0
+            item.capitalUsed = item.capitalUsed || 0;
+        }
+        
+        // Calculate percentage return
+        // Added check for capitalUsed > 0 to prevent division by zero
+        item.percentage = (item.capitalUsed > 0 ? (item.monthlyReturn / item.capitalUsed) * 100 : 0).toFixed(2);
+    });
+}
+
+function updateTable() {
+    const tbody = document.querySelector('#dataTable tbody');
+    tbody.innerHTML = currentFinancialData.map(item => `
+        <tr>
+            <td>${item.month}</td>
+            <!-- Added onchange handlers to allow editing -->
+            <td><input type="number" value="${item.equityReturn}" onchange="updateEntry('${item.month}', this, 'equityReturn')"></td>
+            <td><input type="number" value="${item.foReturn}" onchange="updateEntry('${item.month}', this, 'foReturn')"></td>
+            <td><input type="number" value="${item.bondInterest}" onchange="updateEntry('${item.month}', this, 'bondInterest')"></td>
+            <td><input type="number" value="${item.deposit}" onchange="updateEntry('${item.month}', this, 'deposit')"></td>
+            <td>₹${item.capitalUsed?.toLocaleString('en-IN') || ''}</td>
+            <td>₹${(item.equityFo || 0).toLocaleString('en-IN')}</td>
+            <td>₹${(item.monthlyReturn || 0).toLocaleString('en-IN')}</td>
+            <td>${item.percentage}%</td>
+            <td><button onclick="deleteMonth('${item.month}')" class="delete-button">Delete</button></td>
+        </tr>
+    `).join('');
+}
+
+// New function to update an individual entry when an input field changes
+function updateEntry(month, inputElement, fieldName) {
+    const value = parseFloat(inputElement.value);
+    if (isNaN(value)) {
+        alert("Please enter a valid number.");
+        // Revert to the value stored in the data for this field
+        const itemToFind = allUserData[currentUser].find(item => item.month === month);
+        if (itemToFind) {
+            inputElement.value = itemToFind[fieldName];
+        }
+        return;
+    }
+
+    // Find the item in the current user's data and update the field
+    const item = allUserData[currentUser].find(item => item.month === month);
+    if (item) {
+        item[fieldName] = value;
+        updateAll(); // Recalculate and refresh the entire dashboard
+        saveUserData(); // Save after update
+    }
+}
+
+function deleteMonth(monthToDelete) {
+    // Find the index in the current user's data array
+    const indexToDelete = allUserData[currentUser].findIndex(item => item.month === monthToDelete);
+
+    if (indexToDelete !== -1) {
+        // Remove the item from the current user's array
+        allUserData[currentUser].splice(indexToDelete, 1);
+        // Recalculate and update everything
+        updateAll();
+        saveUserData(); // Save after deletion
+        console.log(`Deleted month: ${monthToDelete} for user: ${currentUser}`);
+    } else {
+        console.log(`Month not found for deletion: ${monthToDelete}`);
+    }
+}
+
+function updateCharts() {
+    // Destroy existing charts
+    if (percentageChart) percentageChart.destroy();
+    if (amountChart) amountChart.destroy();
+
+    // Percentage Chart
+    percentageChart = new Chart(document.getElementById('percentageChart'), {
+        type: 'bar',
+        data: {
+            labels: currentFinancialData.map(d => d.month), // Use currentFinancialData
+            datasets: [{
+                label: 'Monthly % Return',
+                data: currentFinancialData.map(d => parseFloat(d.percentage)), // Use currentFinancialData
+                backgroundColor: currentFinancialData.map(d => 
+                    d.percentage >= 0 ? 'rgba(54, 162, 235, 0.7)' : 'rgba(255, 99, 132, 0.7)'),
+                borderWidth: 1
+            }]
+        },
+        options: chartConfig
+    });
+
+    // Amount Chart
+    amountChart = new Chart(document.getElementById('amountChart'), {
+        type: 'bar',
+        data: {
+            labels: currentFinancialData.map(d => d.month), // Use currentFinancialData
+            datasets: [{
+                label: 'Monthly Return (₹)',
+                data: currentFinancialData.map(d => d.monthlyReturn), // Use currentFinancialData
+                backgroundColor: currentFinancialData.map(d => 
+                    d.monthlyReturn >= 0 ? 'rgba(75, 192, 192, 0.7)' : 'rgba(255, 99, 132, 0.7)'),
+                borderWidth: 1
+            }]
+        },
+        options: chartConfig
+    });
+}
+
+function calculateYearlySummary() {
+    const yearlyData = {};
+    
+    currentFinancialData.forEach(entry => { // Use currentFinancialData
+        const year = `20${entry.month.split('-')[1]}`;
+        
+        if (!yearlyData[year]) {
+            yearlyData[year] = {
+                equity: 0,
+                fo: 0,
+                bonds: 0,
+                totalReturn: 0,
+                capitalSum: 0,
+                monthCount: 0,
+                deposits: 0
+            };
+        }
+        
+        yearlyData[year].equity += entry.equityReturn;
+        yearlyData[year].fo += entry.foReturn;
+        yearlyData[year].bonds += entry.bondInterest;
+        yearlyData[year].totalReturn += entry.monthlyReturn;
+        yearlyData[year].capitalSum += entry.capitalUsed;
+        yearlyData[year].monthCount++;
+        yearlyData[year].deposits += entry.deposit;
+    });
+
+    return yearlyData;
+}
+
+function updateYearlySummary() {
+    const yearlyData = calculateYearlySummary();
+    const summaryContainer = document.getElementById('yearlySummary');
+    summaryContainer.innerHTML = '';
+    
+    for (const [year, data] of Object.entries(yearlyData)) {
+        // Added a check for monthCount to avoid division by zero if a year has no data
+        const avgCapital = data.monthCount > 0 ? data.capitalSum / data.monthCount : 0;
+        // Added a check for avgCapital to avoid division by zero for percentage calculation
+        const percentageReturn = avgCapital > 0 ? ((data.totalReturn / avgCapital) * 100).toFixed(2) : 'N/A';
+        
+        const card = document.createElement('div');
+        card.className = 'year-card';
+        card.innerHTML = `
+            <h3>${year}</h3>
+            <div class="summary-item">
+                <span>Equity Return:</span>
+                <span class="summary-value">₹${data.equity.toLocaleString('en-IN')}</span>
+            </div>
+            <div class="summary-item">
+                <span>F&O Return:</span>
+                <span class="summary-value">₹${data.fo.toLocaleString('en-IN')}</span>
+            </div>
+            <div class="summary-item">
+                <span>Bond Interest:</span>
+                <span class="summary-value">₹${data.bonds.toLocaleString('en-IN')}</span>
+            </div>
+            <div class="summary-item">
+                <span>Total Deposits:</span>
+                <span class="summary-value">₹${data.deposits.toLocaleString('en-IN')}</span>
+            </div>
+            <div class="summary-item">
+                <span>Total Return:</span>
+                <span class="summary-value">₹${data.totalReturn.toLocaleString('en-IN')}</span>
+            </div>
+            <div class="summary-item">
+                <span>Annual Return %:</span>
+                <span class="summary-value">${percentageReturn}%</span>
+            </div>
+            <div class="summary-item">
+                <span>Avg Capital:</span>
+                <span class="summary-value">₹${avgCapital.toLocaleString('en-IN')}</span>
+            </div>
+        `;
+        summaryContainer.appendChild(card);
+    }
+}
+
+function getNextMonth(current) {
+    const [month, year] = current.split('-');
+    const months = ['Jan','Feb','Mar','Apr','May','Jun',
+                   'Jul','Aug','Sep','Oct','Nov','Dec'];
+    let idx = months.indexOf(month);
+    let newYear = parseInt(year);
+    if(idx === 11) {
+        idx = 0;
+        newYear++;
+    } else {
+        idx++;
+    }
+    return `${months[idx]}-${newYear.toString().padStart(2,'0')}`;
+}
+
+function addNewMonth() {
+    const lastMonthData = currentFinancialData.length > 0 ? currentFinancialData[currentFinancialData.length-1] : null;
+    const lastMonthStr = lastMonthData ? lastMonthData.month : 'Dec-23'; // Default if no data yet
+
+    const newMonthObj = {
+        month: getNextMonth(lastMonthStr),
+        equityReturn: parseFloat(document.getElementById('newEquity').value) || 0,
+        foReturn: parseFloat(document.getElementById('newFO').value) || 0,
+        bondInterest: parseFloat(document.getElementById('newBond').value) || 0,
+        deposit: parseFloat(document.getElementById('newDeposit').value) || 0,
+        capitalUsed: 0 // Will be calculated in calculateMetrics
+    };
+    
+    // Add to the current user's data array in allUserData
+    allUserData[currentUser].push(newMonthObj);
+    
+    // Update the dashboard
+    updateAll();
+    saveUserData(); // Save after adding new month
+
+    // Reset the input field for the next month
+    document.getElementById('newMonth').value = getNextMonth(newMonthObj.month);
+    // Clear input fields for next entry
+    document.getElementById('newEquity').value = '';
+    document.getElementById('newFO').value = '';
+    document.getElementById('newBond').value = '';
+    document.getElementById('newDeposit').value = '';
+}
+
+// This function orchestrates all updates after data changes
+function updateAll() {
+    // Ensure currentFinancialData is always a reference to the active user's data
+    currentFinancialData = allUserData[currentUser]; 
+    calculateMetrics();
+    updateTable();
+    updateCharts();
+    updateYearlySummary();
+}
+
+// Initial setup when the page loads
+document.addEventListener('DOMContentLoaded', () => {
+    initializeUserManagement(); // Initialize user selection and load data
+});
+</script>
+</body>
+</html>

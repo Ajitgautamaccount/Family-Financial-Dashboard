@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Mass PO Import — Excel Upload</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    body { font-family: Arial, Helvetica, sans-serif; margin: 1.5rem; color:#222 }
+    h1 { margin-bottom: .25rem }
+    .grid { display:grid; grid-template-columns: 1fr 1fr; gap:1rem; align-items:start }
+    .card { border:1px solid #ddd; padding:1rem; border-radius:6px; background:#fff }
+    label { display:block; margin-top:.6rem; font-size:.95rem }
+    input[type="file"] { margin-top:.3rem }
+    .controls { margin-top: 1rem }
+    button { background:#0b6; color:#fff; padding:.5rem 1rem; border:0; border-radius:4px; cursor:pointer }
+    button.secondary { background:#677; margin-left:.5rem }
+    .status { margin-top: 1rem; padding:.6rem; border-radius:4px; background:#f7f7f7; font-size:.95rem }
+    .hint { font-size:.9rem; color:#666; margin-top:.5rem }
+    .small { font-size:.85rem; color:#666 }
+    .spinner { display:inline-block; width:18px; height:18px; border:3px solid #eee; border-left-color:#0b6; border-radius:50%; animation:spin 1s linear infinite; vertical-align:middle; margin-right:.5rem }
+    @keyframes spin { to { transform:rotate(360deg) } }
+    .full-width { width:100% }
+  </style>
+</head>
+<body>
+  <h1>Mass Purchase Order Import</h1>
+  <p class="hint">Upload a single Excel (.xlsx) containing two sheets named <code>Header</code> and <code>Items</code>, or upload two CSV files (Header and Items). Choose Dry Run first to validate payloads.</p>
+
+  <div class="grid">
+    <div class="card">
+      <form id="uploadForm">
+        <label>Excel (.xlsx) with sheets <code>Header</code> & <code>Items</code> (preferred):
+          <input type="file" id="excel" name="excel" accept=".xlsx,.xls" />
+        </label>
+
+        <div class="small hint">OR</div>
+
+        <label>Header CSV:
+          <input type="file" id="header" name="header" accept=".csv" />
+        </label>
+
+        <label>Items CSV:
+          <input type="file" id="items" name="items" accept=".csv" />
+        </label>
+
+        <label>Mode:
+          <select name="mode" id="mode" class="full-width">
+            <option value="dryrun">Dry Run — prepare JSON payloads only</option>
+            <option value="api">API — post to endpoint</option>
+          </select>
+        </label>
+
+        <label>API Endpoint (optional; required in API mode if not configured server-side):
+          <input type="text" id="endpoint" name="endpoint" placeholder="https://your-s4-tenant/.../A_PurchaseOrder" class="full-width" />
+        </label>
+
+        <label>Bearer token (optional):
+          <input type="text" id="token" name="token" placeholder="Bearer token (preferred)" class="full-width" />
+        </label>
+
+        <label>Basic auth user (optional):
+          <input type="text" id="user" name="user" placeholder="username" />
+        </label>
+
+        <label>Basic auth password (optional):
+          <input type="password" id="password" name="password" placeholder="password" />
+        </label>
+
+        <div class="controls">
+          <button id="submitBtn" type="submit">Upload & Process</button>
+          <button id="clearBtn" type="button" class="secondary">Clear</button>
+        </div>
+
+        <div id="status" class="status" style="display:none"></div>
+      </form>
+    </div>
+
+    <div class="card">
+      <h3>Logs & Guidance</h3>
+      <ul>
+        <li class="small">Dry run writes payload JSON files to the server <code>logs/</code> folder: <code>payload_&lt;UploadKey&gt;.json</code></li>
+        <li class="small">API responses are saved as <code>response_&lt;UploadKey&gt;.txt</code>. Errors are saved as <code>error_&lt;UploadKey&gt;.txt</code></li>
+        <li class="small">Use the result page links to download payloads and responses after processing.</li>
+      </ul>
+
+      <h4 style="margin-top:.6rem">Quick checklist before running</h4>
+      <ol class="small">
+        <li>Vendor, material, plant, cost center values must exist in the target tenant.</li>
+        <li>Run in a test/non-production tenant first.</li>
+        <li>Start the server with <code>python web_app.py</code> and keep the console open for logs.</li>
+      </ol>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      const form = document.getElementById('uploadForm');
+      const statusEl = document.getElementById('status');
+      const submitBtn = document.getElementById('submitBtn');
+      const clearBtn = document.getElementById('clearBtn');
+
+      clearBtn.addEventListener('click', () => {
+        form.reset();
+        statusEl.style.display = 'none';
+        statusEl.innerHTML = '';
+      });
+
+      form.addEventListener('submit', async (ev) => {
+        ev.preventDefault();
+        statusEl.style.display = '';
+        statusEl.innerHTML = '<span class="spinner"></span>Uploading and processing... (this may take a few moments for many POs)';
+        submitBtn.disabled = true;
+
+        try {
+          const formData = new FormData();
+          const excel = document.getElementById('excel').files[0];
+          const header = document.getElementById('header').files[0];
+          const items = document.getElementById('items').files[0];
+
+          if (excel) formData.append('excel', excel);
+          if (header) formData.append('header', header);
+          if (items) formData.append('items', items);
+
+          formData.append('mode', document.getElementById('mode').value || 'dryrun');
+          formData.append('endpoint', document.getElementById('endpoint').value || '');
+          formData.append('token', document.getElementById('token').value || '');
+          formData.append('user', document.getElementById('user').value || '');
+          formData.append('password', document.getElementById('password').value || '');
+
+          // POST to the server '/upload' endpoint which renders the results page.
+          // We fetch response as text and replace document body with the rendered HTML so the user sees server-side results and links.
+          const resp = await fetch('/upload', {
+            method: 'POST',
+            body: formData
+          });
+
+          const text = await resp.text();
+
+          if (resp.ok) {
+            // Replace current document with server response (rendered results page).
+            document.open();
+            document.write(text);
+            document.close();
+          } else {
+            // Show server HTML or plain text in the status area
+            statusEl.innerHTML = '<strong>Error from server (status ' + resp.status + ')</strong><pre style="white-space:pre-wrap;margin-top:.5rem;">' + escapeHtml(text) + '</pre>';
+          }
+        } catch (err) {
+          statusEl.innerHTML = '<strong>Client error:</strong> ' + escapeHtml(String(err));
+        } finally {
+          submitBtn.disabled = false;
+        }
+      });
+
+      // small helper to escape text for display
+      function escapeHtml(s) {
+        return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+      }
+    })();
+  </script>
+</body>
+</html>

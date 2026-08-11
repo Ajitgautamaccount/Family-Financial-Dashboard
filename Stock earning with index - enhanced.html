@@ -1,0 +1,1989 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Financial Performance Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        :root {
+            --navy: #1a2744;
+            --navy-mid: #243356;
+            --navy-light: #2e4070;
+            --gold: #c9a84c;
+            --gold-light: #e8c97a;
+            --gold-pale: #faf3e0;
+            --emerald: #1a7a4a;
+            --emerald-light: #22a05e;
+            --crimson: #c0392b;
+            --crimson-light: #e74c3c;
+            --sky: #2980b9;
+            --bg: #f4f6fa;
+            --bg-card: #ffffff;
+            --text: #1a2744;
+            --text-mid: #4a5568;
+            --text-muted: #8896a8;
+            --border: #dde3ee;
+            --shadow-sm: 0 2px 8px rgba(26,39,68,0.07);
+            --shadow-md: 0 6px 24px rgba(26,39,68,0.10);
+            --shadow-lg: 0 16px 48px rgba(26,39,68,0.13);
+            --radius: 14px;
+            --radius-sm: 8px;
+            --off-white: #f8fafc;
+            /* Family colours */
+            --fam1: #2563eb;
+            --fam1-bg: #eff6ff;
+            --fam1-border: #bfdbfe;
+            --fam2: #7c3aed;
+            --fam2-bg: #f5f3ff;
+            --fam2-border: #ddd6fe;
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            font-size: 14px;
+            min-height: 100vh;
+        }
+
+        /* ── HEADER ── */
+        .page-header {
+            background: linear-gradient(135deg, var(--navy) 0%, var(--navy-light) 100%);
+            padding: 36px 40px 32px;
+            position: relative;
+            overflow: hidden;
+        }
+        .page-header::before {
+            content: '';
+            position: absolute;
+            top: -60px; right: -60px;
+            width: 280px; height: 280px;
+            border-radius: 50%;
+            background: rgba(201,168,76,0.08);
+            pointer-events: none;
+        }
+        .page-header::after {
+            content: '';
+            position: absolute;
+            bottom: -80px; left: 30%;
+            width: 200px; height: 200px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.03);
+            pointer-events: none;
+        }
+        .header-inner { max-width: 1400px; margin: 0 auto; position: relative; z-index: 1; }
+        .hero-panel {
+            margin: 24px 0 18px;
+            padding: 24px 26px;
+            border-radius: 22px;
+            background: linear-gradient(125deg, rgba(255,255,255,0.96), rgba(244,246,250,0.95));
+            border: 1px solid rgba(26,39,68,0.08);
+            box-shadow: 0 16px 40px rgba(15,23,42,0.08);
+            display: grid;
+            grid-template-columns: 1.3fr 0.8fr;
+            gap: 18px;
+            align-items: center;
+        }
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: linear-gradient(90deg, rgba(37,99,235,0.12), rgba(124,58,237,0.12));
+            color: var(--navy);
+            padding: 7px 12px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            width: fit-content;
+        }
+        .hero-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 28px;
+            line-height: 1.2;
+            margin: 10px 0 8px;
+            color: var(--navy);
+        }
+        .hero-copy p { color: var(--text-mid); max-width: 680px; }
+        .hero-credit {
+            display: inline-block;
+            color: #102241;
+            background: rgba(255,255,255,0.95);
+            padding: 10px 14px;
+            border-radius: 14px;
+            font-weight: 800;
+            font-size: 15px;
+            margin-top: 12px;
+            box-shadow: 0 10px 24px rgba(16,34,65,0.08);
+            letter-spacing: 0.02em;
+        }
+        .hero-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+        .hero-kpis { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+        .hero-stat {
+            padding: 14px 16px;
+            border-radius: 14px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            min-height: 92px;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.55);
+        }
+        .hero-stat .label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-muted); margin-bottom: 6px; }
+        .hero-stat .value { font-size: 17px; font-weight: 700; color: var(--navy); }
+        .hero-stat .best-value { color: var(--emerald); font-size: 20px; font-weight: 800; }
+        .hero-stat .worst-value { color: var(--crimson); font-size: 16px; font-weight: 700; }
+        .header-top { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+        .header-logo { display: flex; align-items: center; gap: 14px; }
+        .logo-icon {
+            width: 48px; height: 48px;
+            background: linear-gradient(135deg, var(--gold), var(--gold-light));
+            border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 22px;
+            box-shadow: 0 4px 12px rgba(201,168,76,0.35);
+        }
+        .header-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 28px;
+            font-weight: 700;
+            color: #fff;
+            letter-spacing: 0.3px;
+            line-height: 1.1;
+        }
+        .header-subtitle { font-size: 13px; color: rgba(255,255,255,0.55); margin-top: 3px; }
+        .dev-badge {
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(201,168,76,0.3);
+            border-radius: 20px;
+            padding: 6px 16px;
+            font-size: 12px;
+            color: var(--gold-light);
+            display: flex; align-items: center; gap: 6px;
+        }
+        .blinking {
+            font-weight: 800;
+            animation: blink 1.6s step-end infinite;
+            color: inherit;
+            text-shadow: 0 1px 0 rgba(255,255,255,0.6);
+        }
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.65; }
+        }
+
+        /* ── TRADINGVIEW LIVE TICKER ── */
+        .tv-ticker-wrap {
+            margin-top: 16px;
+            border-radius: 10px;
+            overflow: visible;          /* never clip the iframe */
+            border: 1px solid rgba(201,168,76,0.25);
+            background: transparent;   /* TV widget has its own background */
+            height: 78px;              /* TV ticker-tape iframe = 78px tall */
+            position: relative;
+        }
+        /* The outer container TV injects must fill its parent */
+        .tv-ticker-wrap .tradingview-widget-container,
+        .tv-ticker-wrap .tradingview-widget-container__widget {
+            width: 100% !important;
+            height: 78px !important;
+        }
+        /* The iframe TV injects */
+        .tv-ticker-wrap iframe {
+            width: 100% !important;
+            height: 78px !important;
+            border: none !important;
+            border-radius: 10px;
+            display: block !important;  /* removes inline gap */
+        }
+
+        /* ── CONTAINER ── */
+        .container { max-width: 1400px; margin: 0 auto; padding: 28px 28px 48px; }
+
+        /* ── SECTION HEADINGS ── */
+        .section-heading {
+            display: flex; align-items: center; gap: 12px;
+            margin: 40px 0 20px;
+        }
+        .section-heading .sh-icon {
+            width: 36px; height: 36px;
+            background: var(--navy-mid);
+            color: #fff;
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 17px;
+            flex-shrink: 0;
+        }
+        .section-heading h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 22px; font-weight: 600;
+            color: #102241;
+        }
+
+        /* Dark backgrounds should use off-white text for contrast */
+        .page-header,
+        .family-header,
+        .dark-bg {
+            color: var(--off-white) !important;
+        }
+        .page-header .header-title,
+        .page-header .header-subtitle,
+        .family-header .family-header-text h3,
+        .family-header .family-header-text p,
+        .dark-bg h2,
+        .dark-bg h3,
+        .dark-bg p,
+        .dark-bg .sh-icon,
+        .dark-bg .family-icon,
+        .dark-bg .family-header-text,
+        .dark-bg .family-header-text * {
+            color: var(--off-white) !important;
+        }
+        .dark-bg .family-header-text p { color: rgba(248,250,252,0.85) !important; }
+
+        /* Ensure important callouts remain readable when nested in .dark-bg */
+        .hero-credit.blinking {
+            color: #102241 !important;
+            background: rgba(255,255,255,0.96) !important;
+            opacity: 1 !important;
+            text-shadow: 0 1px 0 rgba(16,34,65,0.06) !important;
+            box-shadow: 0 10px 24px rgba(16,34,65,0.06) !important;
+        }
+        /* Make blink animate a subtle lift + shadow instead of text opacity (keeps text legible) */
+        .blinking { animation: blink 1.6s ease-in-out infinite !important; }
+        @keyframes blink {
+            0%, 100% { transform: translateY(0); box-shadow: 0 10px 24px rgba(16,34,65,0.06); }
+            50% { transform: translateY(-3px); box-shadow: 0 18px 36px rgba(16,34,65,0.10); }
+        }
+
+        /* Force user pills to remain high contrast even when parent sets color via !important */
+        .user-radio-group .user-pill {
+            color: #102241 !important;
+            background: rgba(255,255,255,0.98) !important;
+            border: 1px solid rgba(16,34,65,0.06) !important;
+            box-shadow: 0 6px 18px rgba(16,34,65,0.04) !important;
+            font-weight: 700;
+        }
+        .user-radio-group .user-pill .family-dot { border: none !important; }
+
+        .section-heading .sh-line {
+            flex: 1; height: 1px;
+            background: linear-gradient(to right, var(--border), transparent);
+        }
+
+        /* ── CONTROL PANELS ── */
+        .panel {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 22px 26px;
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 18px;
+        }
+        .panel-title {
+            font-size: 12px; font-weight: 600;
+            text-transform: uppercase; letter-spacing: .06em;
+            color: var(--text-muted);
+            margin-bottom: 14px;
+        }
+        .panel-row {
+            display: flex; flex-wrap: wrap; gap: 12px; align-items: center;
+        }
+
+        /* User radio pills */
+        .user-radio-group { display: flex; flex-wrap: wrap; gap: 8px; }
+        .user-pill {
+            display: flex; align-items: center; gap: 7px;
+            padding: 8px 16px;
+            border-radius: 30px;
+            border: 1.5px solid rgba(26,39,68,0.06);
+            background: rgba(255,255,255,0.92);
+            color: var(--navy);
+            cursor: pointer;
+            transition: all .18s;
+            font-size: 13px; font-weight: 600;
+            box-shadow: 0 6px 16px rgba(16,34,65,0.04);
+        }
+        .user-pill:hover { border-color: rgba(26,39,68,0.12); background: #ffffff; }
+        .user-pill.active-f1 { background: var(--fam1-bg); border-color: var(--fam1); color: var(--fam1); box-shadow: none; }
+        .user-pill.active-f2 { background: var(--fam2-bg); border-color: var(--fam2); color: var(--fam2); box-shadow: none; }
+        .user-pill input[type="radio"] { display: none; }
+        .user-pill .family-dot {
+            width: 8px; height: 8px; border-radius: 50%; opacity: 1; border: 2px solid rgba(255,255,255,0.7);
+        }
+        .user-pill:not(.active-f1):not(.active-f2) { color: #102241; }
+        .f1-dot { background: var(--fam1); }
+        .f2-dot { background: var(--fam2); }
+
+        /* Inputs */
+        input[type="number"], input[type="text"] {
+            padding: 9px 13px;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 13px;
+            background: var(--bg);
+            color: var(--text);
+            transition: border-color .18s, box-shadow .18s;
+            outline: none;
+            width: 130px;
+        }
+        input[type="number"]:focus, input[type="text"]:focus {
+            border-color: var(--navy);
+            box-shadow: 0 0 0 3px rgba(26,39,68,0.1);
+            background: #fff;
+        }
+        input[type="text"] { text-align: left; }
+        input[type="number"] { text-align: right; }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex; align-items: center; gap: 7px;
+            padding: 9px 20px;
+            border: none; border-radius: var(--radius-sm);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 13px; font-weight: 600;
+            cursor: pointer;
+            transition: all .18s;
+            white-space: nowrap;
+        }
+        .btn-primary { background: var(--navy); color: #fff; box-shadow: 0 3px 10px rgba(26,39,68,0.25); }
+        .btn-primary:hover { background: var(--navy-mid); transform: translateY(-1px); box-shadow: 0 5px 16px rgba(26,39,68,0.3); }
+        .btn-success { background: var(--emerald); color: #fff; box-shadow: 0 3px 10px rgba(26,122,74,0.25); }
+        .btn-success:hover { background: var(--emerald-light); transform: translateY(-1px); }
+        .btn-danger { background: var(--crimson); color: #fff; box-shadow: 0 3px 10px rgba(192,57,43,0.25); }
+        .btn-danger:hover { background: var(--crimson-light); transform: translateY(-1px); }
+        .btn-secondary { background: var(--bg); color: var(--text-mid); border: 1.5px solid var(--border); }
+        .btn-secondary:hover { background: #e9eef7; border-color: var(--navy); color: var(--navy); }
+        .btn-gold { background: linear-gradient(135deg, var(--gold), var(--gold-light)); color: var(--navy); box-shadow: 0 3px 10px rgba(201,168,76,0.3); }
+        .btn-gold:hover { transform: translateY(-1px); box-shadow: 0 5px 16px rgba(201,168,76,0.4); }
+        .btn-sm { padding: 5px 12px; font-size: 12px; }
+        .file-btn-wrap { position: relative; display: inline-flex; }
+        .file-btn-wrap input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; }
+
+        /* ── DATA TABLE ── */
+        .table-wrap {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
+            overflow: hidden;
+            margin: 20px 0;
+        }
+        .table-scroll { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        thead tr { background: var(--navy); }
+        thead th {
+            padding: 13px 14px;
+            color: rgba(255,255,255,0.9);
+            font-weight: 600; font-size: 12px;
+            text-transform: uppercase; letter-spacing: .05em;
+            text-align: right; white-space: nowrap;
+        }
+        thead th:first-child { text-align: left; }
+        tbody tr { border-bottom: 1px solid var(--border); transition: background .12s; }
+        tbody tr:last-child { border-bottom: none; }
+        tbody tr:nth-child(even) { background: #f8fafd; }
+        tbody tr:hover { background: #eef2fb; }
+        td { padding: 10px 14px; text-align: right; vertical-align: middle; color: var(--text-mid); }
+        td:first-child { text-align: left; font-weight: 600; color: var(--text); }
+        td input[type="number"] {
+            width: 110px; padding: 5px 10px; font-size: 12px;
+            border-radius: 6px; border: 1.5px solid var(--border);
+            background: #fff;
+        }
+        td input[type="number"]:focus { border-color: var(--navy); box-shadow: 0 0 0 2px rgba(26,39,68,0.1); }
+        .neg { color: var(--crimson) !important; font-weight: 600; }
+        .pos { color: var(--emerald) !important; font-weight: 600; }
+        .neutral { color: var(--text-mid); }
+
+        /* ── STAT CARDS ── */
+        .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px; margin: 16px 0 28px; }
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 18px 20px;
+            box-shadow: var(--shadow-sm);
+            transition: transform .2s, box-shadow .2s;
+        }
+        .stat-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); }
+        .stat-label { font-size: 11.5px; color: var(--text-muted); font-weight: 500; text-transform: uppercase; letter-spacing: .04em; margin-bottom: 6px; }
+        .stat-value { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 600; color: var(--navy); line-height: 1.2; }
+        .stat-value.pos { color: var(--emerald); }
+        .stat-value.neg { color: var(--crimson); }
+        .stat-sub { font-size: 11px; color: var(--text-muted); margin-top: 3px; }
+
+        /* ── YEAR CARDS ── */
+        .cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; margin: 16px 0 32px; }
+        .year-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 22px 24px;
+            box-shadow: var(--shadow-sm);
+            transition: transform .2s, box-shadow .2s;
+        }
+        .year-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
+        .year-card-header {
+            display: flex; align-items: center; justify-content: space-between;
+            margin-bottom: 16px; padding-bottom: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+        .year-card-header h3 { font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 600; color: var(--navy); }
+        .year-badge {
+            font-size: 11px; font-weight: 600;
+            padding: 3px 10px; border-radius: 20px;
+        }
+        .badge-positive { background: #dcfce7; color: var(--emerald); }
+        .badge-negative { background: #fee2e2; color: var(--crimson); }
+        .summary-row {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px dashed var(--border);
+            font-size: 13px;
+        }
+        .summary-row:last-child { border-bottom: none; padding-bottom: 0; }
+        .summary-row .sr-label { color: var(--text-muted); font-size: 12px; }
+        .summary-row .sr-value { font-weight: 600; color: var(--navy); }
+
+        /* ── FAMILY SUMMARY ── */
+        .family-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+        .family-header {
+            padding: 18px 24px;
+            display: flex; align-items: center; gap: 14px;
+        }
+        .fam1-header { background: linear-gradient(135deg, #1e40af, #2563eb); }
+        .fam2-header { background: linear-gradient(135deg, #5b21b6, #7c3aed); }
+        .family-icon {
+            width: 44px; height: 44px;
+            background: rgba(255,255,255,0.15);
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 20px;
+        }
+        .family-header-text h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 20px; font-weight: 600; color: #fff;
+        }
+        .family-header-text p { font-size: 12px; color: rgba(255,255,255,0.65); margin-top: 2px; }
+        .family-body { padding: 20px 24px; }
+        .family-members-row { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 20px; }
+        .member-chip {
+            display: flex; align-items: center; gap: 8px;
+            padding: 7px 14px;
+            border-radius: 30px;
+            font-size: 13px; font-weight: 500;
+        }
+        .fam1-chip { background: var(--fam1-bg); border: 1.5px solid var(--fam1-border); color: var(--fam1); }
+        .fam2-chip { background: var(--fam2-bg); border: 1.5px solid var(--fam2-border); color: var(--fam2); }
+        .family-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; }
+        .fam-stat {
+            background: var(--bg);
+            border-radius: var(--radius-sm);
+            padding: 14px 16px;
+            border: 1px solid var(--border);
+        }
+        .fam-stat .fs-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: .04em; font-weight: 500; margin-bottom: 4px; }
+        .fam-stat .fs-val { font-family: 'Playfair Display', serif; font-size: 19px; font-weight: 600; }
+        .fam1-val { color: var(--fam1); }
+        .fam2-val { color: var(--fam2); }
+        .family-year-table { width: 100%; border-collapse: collapse; margin-top: 16px; font-size: 13px; }
+        .family-year-table thead tr { background: var(--bg); }
+        .family-year-table thead th { padding: 9px 12px; font-size: 11px; text-transform: uppercase; letter-spacing:.04em; color: var(--text-muted); font-weight: 600; text-align: right; border-bottom: 1.5px solid var(--border); background: var(--bg); }
+        .family-year-table thead th:first-child { text-align: left; }
+        .family-year-table tbody td { padding: 9px 12px; text-align: right; border-bottom: 1px solid var(--border); color: var(--text-mid); }
+        .family-year-table tbody td:first-child { text-align: left; font-weight: 500; color: var(--text); }
+        .family-year-table tbody tr:last-child td { border-bottom: none; }
+        .family-year-table tfoot td { padding: 10px 12px; text-align: right; font-weight: 700; color: var(--navy); border-top: 2px solid var(--border); background: #f8fafd; font-size: 13px; }
+        .family-year-table tfoot td:first-child { text-align: left; }
+        /* Gautam family 9-col table special highlight headers */
+        #gautamFamilyTable thead th:nth-child(6) { background: #dbeafe; color: #1e40af; }
+        #gautamFamilyTable thead th:nth-child(9) { background: #dcfce7; color: #166534; }
+        .yearly-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 16px;
+            font-size: 13px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            overflow: hidden;
+        }
+        .yearly-table thead {
+            background: var(--navy);
+        }
+        .yearly-table thead th {
+            padding: 14px 16px;
+            text-align: left;
+            color: #fff;
+            font-weight: 600;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: .06em;
+        }
+        .yearly-table tbody tr {
+            border-bottom: 1px solid var(--border);
+            transition: background .12s;
+        }
+        .yearly-table tbody tr:nth-child(even) { background: #f8fafd; }
+        .yearly-table tbody tr:hover { background: #eef2fb; }
+        .yearly-table tbody tr.group-row { background: #e8f0ff; }
+        .yearly-table tbody tr.group-row td {
+            padding: 14px 16px;
+            font-weight: 700;
+            color: var(--navy);
+            letter-spacing: .02em;
+            text-transform: uppercase;
+        }
+        .yearly-table tbody tr.year-row td:first-child { padding-left: 20px; }
+        .yearly-table td {
+            padding: 12px 16px;
+            color: var(--text);
+            text-align: left;
+            vertical-align: middle;
+        }
+        .yearly-table td span { display: inline-block; min-width: 80px; }
+        .yearly-table tbody tr:last-child { border-bottom: none; }
+
+        /* ── CHARTS ── */
+        .chart-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin: 18px 0; }
+        .chart-grid.full { grid-template-columns: 1fr; }
+        .chart-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 22px;
+            box-shadow: var(--shadow-sm);
+            transition: transform .2s, box-shadow .2s;
+        }
+        .chart-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); }
+        .chart-card-title { font-size: 13px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 14px; }
+        .chart-canvas-wrap { position: relative; height: 300px; }
+
+        /* ── ACTION BAR ── */
+        .action-bar {
+            display: flex; flex-wrap: wrap; gap: 10px;
+            justify-content: center;
+            padding: 18px 0;
+        }
+
+        /* ── TABS (for individual vs family summary) ── */
+        .tab-bar { display: flex; gap: 4px; background: var(--bg); border-radius: var(--radius-sm); padding: 4px; width: fit-content; margin-bottom: 20px; }
+        .tab-btn {
+            padding: 8px 18px; border-radius: 6px; border: none;
+            font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500;
+            cursor: pointer; background: transparent; color: var(--text-muted);
+            transition: all .18s;
+        }
+        .tab-btn.active { background: var(--bg-card); color: var(--navy); box-shadow: var(--shadow-sm); font-weight: 600; }
+
+        /* ── FOOTER ── */
+        .footer { text-align: center; padding: 24px 0 0; color: var(--text-muted); font-size: 12px; border-top: 1px solid var(--border); margin-top: 40px; }
+
+        /* ── RESPONSIVE ── */
+        @media (max-width: 900px) {
+            .chart-grid { grid-template-columns: 1fr; }
+            .page-header { padding: 24px 20px 20px; }
+            .container { padding: 18px 16px 32px; }
+        }
+        @media (max-width: 600px) {
+            .header-title { font-size: 20px; }
+            .stat-grid { grid-template-columns: 1fr 1fr; }
+            .family-stats { grid-template-columns: 1fr 1fr; }
+            input[type="number"], input[type="text"] { width: 100%; }
+            .btn { width: 100%; justify-content: center; }
+            .panel-row { flex-direction: column; align-items: stretch; }
+        }
+
+        /* ── ANIMATIONS ── */
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+        .fade-up { animation: fadeUp .4s ease both; }
+        .fade-up-2 { animation: fadeUp .4s .1s ease both; }
+        .fade-up-3 { animation: fadeUp .4s .2s ease both; }
+
+        /* Tab content visibility */
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+    </style>
+</head>
+<body>
+
+<div class="page-header dark-bg">
+    <div class="header-inner">
+        <div class="header-top">
+            <div class="header-logo">
+                <div class="logo-icon">📈</div>
+                <div>
+                    <div class="header-title">Financial Performance Dashboard</div>
+                    <div class="header-subtitle">Stock &amp; Investment Tracker · Family Portfolio Overview</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <div class="container">
+
+    <div class="hero-panel fade-up">
+        <div class="hero-copy">
+            <div class="hero-badge">✦ High-level tracker for monthly performance, user comparisons and portfolio mix.</div>
+            <h1 class="hero-title">Monitor returns, asset allocation and user performance all in one place.</h1>
+            <p class="hero-credit blinking">Developed by Ajit Gautam</p>
+            <div class="hero-actions">
+                <button onclick="document.getElementById('newEquity').focus()" class="btn btn-primary">➕ Add new month</button>
+                <button onclick="downloadExcel()" class="btn btn-gold">⬇ Export Excel</button>
+            </div>
+        </div>
+        <div>
+            <div class="hero-kpis" id="heroLiveStats"></div>
+        </div>
+    </div>
+
+    <!-- ── USER MANAGEMENT ── -->
+    <div class="panel fade-up">
+        <div class="panel-title">👤 User Management</div>
+        <div class="panel-row">
+            <div>
+                <div style="font-size:11px;color:var(--text-muted);margin-bottom:6px;font-weight:500">SELECT USER</div>
+                <div id="userSelectionRadios" class="user-radio-group"></div>
+            </div>
+            <div style="display:flex;gap:8px;align-items:center;margin-left:auto;flex-wrap:wrap">
+                <input type="text" id="newUsername" placeholder="New username" style="width:160px">
+                <button onclick="addUser()" class="btn btn-primary">＋ Add User</button>
+                <button onclick="deleteUser()" class="btn btn-danger">✕ Delete User</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── ADD MONTH ── -->
+    <div class="panel fade-up-2">
+        <div class="panel-title">➕ Add Monthly Data</div>
+        <div class="panel-row">
+            <input type="text" id="newMonth" placeholder="Month" readonly>
+            <input type="number" id="newEquity" placeholder="Equity Return">
+            <input type="number" id="newFO" placeholder="F&amp;O Return">
+            <input type="number" id="newBond" placeholder="Bond Interest">
+            <input type="number" id="newDeposit" placeholder="Deposit">
+            <input type="number" id="newCommodity" placeholder="Commodity Return">
+            <button onclick="addNewMonth()" class="btn btn-success">Add Month</button>
+        </div>
+    </div>
+
+    <!-- ── KPI STRIP ── -->
+    <div id="kpiStrip" class="stat-grid fade-up-3"></div>
+
+    <!-- ── DATA TABLE ── -->
+    <div class="section-heading">
+        <div class="sh-icon">📋</div>
+        <h2 id="tableTitle">Monthly Data</h2>
+        <div class="sh-line"></div>
+    </div>
+    <div class="table-wrap">
+        <div class="table-scroll">
+            <table id="dataTable">
+                <thead>
+                    <tr>
+                        <th>Month</th>
+                        <th>Equity Return</th>
+                        <th>F&amp;O Return</th>
+                        <th>Commodity</th>
+                        <th>Bond Interest</th>
+                        <th>Deposit</th>
+                        <th>Capital Used</th>
+                        <th>Equity+F&amp;O</th>
+                        <th>Monthly Return</th>
+                        <th>% Return</th>
+                        <th style="text-align:center">Action</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+    <div class="action-bar">
+        <button onclick="downloadExcel()" class="btn btn-gold">⬇ Download Excel</button>
+        <div class="file-btn-wrap">
+            <button class="btn btn-secondary">⬆ Upload Excel</button>
+            <input type="file" id="excelFile" accept=".xlsx,.xls" onchange="uploadExcel(event)">
+        </div>
+    </div>
+
+    <!-- ── INDIVIDUAL CHARTS ── -->
+    <div class="section-heading">
+        <div class="sh-icon">📊</div>
+        <h2 id="chartsTitle">Individual Monthly Performance</h2>
+        <div class="sh-line"></div>
+    </div>
+    <div class="chart-grid full">
+        <div class="chart-card">
+            <div class="chart-card-title">Monthly % Return</div>
+            <div class="chart-canvas-wrap" style="height:320px"><canvas id="percentageChart"></canvas></div>
+        </div>
+    </div>
+    <div class="chart-grid full">
+        <div class="chart-card">
+            <div class="chart-card-title">Monthly Return (₹)</div>
+            <div class="chart-canvas-wrap" style="height:320px"><canvas id="amountChart"></canvas></div>
+        </div>
+    </div>
+    <div class="chart-grid full">
+        <div class="chart-card">
+            <div class="chart-card-title">Cumulative Return</div>
+            <div class="chart-canvas-wrap" style="height:320px"><canvas id="cumulativeUserChart"></canvas></div>
+        </div>
+    </div>
+
+    <!-- ── INDIVIDUAL YEARLY SUMMARY ── -->
+    <div class="section-heading">
+        <div class="sh-icon">🗂</div>
+        <h2>Individual Yearly Performance</h2>
+        <div class="sh-line"></div>
+    </div>
+    <div class="table-wrap">
+        <div class="table-scroll">
+            <table class="yearly-table" id="yearlySummary">
+                <thead>
+                    <tr>
+                        <th>User</th>
+                        <th>Year</th>
+                        <th>Total Return</th>
+                        <th>Equity + F&O</th>
+                        <th>Commodity</th>
+                        <th>Bond Interest</th>
+                        <th>Avg Capital</th>
+                        <th>Annual Return %</th>
+                        <th>Group</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ── FAMILY SUMMARIES ── -->
+    <div class="section-heading">
+        <div class="sh-icon">👨‍👩‍👧‍👦</div>
+        <h2>Family Portfolio Summary</h2>
+        <div class="sh-line"></div>
+    </div>
+
+    <!-- Family 1 -->
+    <div class="family-section" id="fam1Section">
+        <div class="family-header fam1-header dark-bg">
+            <div class="family-icon">🏠</div>
+            <div class="family-header-text">
+                <h3>Family 1</h3>
+                <p>Combined portfolio performance</p>
+            </div>
+        </div>
+        <div class="family-body">
+            <div class="family-members-row">
+                <div class="member-chip fam1-chip">👤 Ajit Gautam</div>
+                <div class="member-chip fam1-chip">👤 Meenu Tyagi</div>
+            </div>
+            <div id="fam1Stats" class="family-stats"></div>
+            <div style="overflow-x:auto;margin-top:8px">
+                <table class="family-year-table" id="fam1Table">
+                    <thead><tr>
+                        <th>Year</th>
+                        <th>Ajit Return</th>
+                        <th>Meenu Return</th>
+                        <th>Combined Return</th>
+                        <th>Avg Capital</th>
+                        <th>Avg % Return</th>
+                    </tr></thead>
+                    <tbody></tbody>
+                    <tfoot><tr><td>Total</td><td id="f1AjitTotal">—</td><td id="f1MeenuTotal">—</td><td id="f1CombinedTotal">—</td><td>—</td><td id="f1AvgPct">—</td></tr></tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Family 2 -->
+    <div class="family-section" id="fam2Section">
+        <div class="family-header fam2-header dark-bg">
+            <div class="family-icon">🏡</div>
+            <div class="family-header-text">
+                <h3>Family 2</h3>
+                <p>Combined portfolio performance</p>
+            </div>
+        </div>
+        <div class="family-body">
+            <div class="family-members-row">
+                <div class="member-chip fam2-chip">👤 Prem Singh</div>
+                <div class="member-chip fam2-chip">👤 Ganga</div>
+            </div>
+            <div id="fam2Stats" class="family-stats"></div>
+            <div style="overflow-x:auto;margin-top:8px">
+                <table class="family-year-table" id="fam2Table">
+                    <thead><tr>
+                        <th>Year</th>
+                        <th>Prem Return</th>
+                        <th>Ganga Return</th>
+                        <th>Combined Return</th>
+                        <th>Avg Capital</th>
+                        <th>Avg % Return</th>
+                    </tr></thead>
+                    <tbody></tbody>
+                    <tfoot><tr><td>Total</td><td id="f2PremTotal">—</td><td id="f2GangaTotal">—</td><td id="f2CombinedTotal">—</td><td>—</td><td id="f2AvgPct">—</td></tr></tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── GAUTAM FAMILY (ALL 4) ── -->
+    <div class="section-heading">
+        <div class="sh-icon">🏆</div>
+        <h2>Gautam Family — All Members Combined</h2>
+        <div class="sh-line"></div>
+    </div>
+
+    <div class="family-section" id="gautamFamilySection">
+        <div class="family-header dark-bg" style="background:linear-gradient(135deg,#0f2027,#203a43,#2c5364)">
+            <div class="family-icon" style="font-size:26px">👨‍👩‍👧‍👦</div>
+            <div class="family-header-text">
+                <h3>Gautam Family Portfolio</h3>
+                <p>Ajit Gautam · Meenu Tyagi · Prem Singh · Ganga — Consolidated view</p>
+            </div>
+        </div>
+        <div class="family-body">
+            <!-- Member chips -->
+            <div class="family-members-row">
+                <div class="member-chip fam1-chip">👤 Ajit Gautam <span style="font-size:10px;opacity:.6;margin-left:4px">F1</span></div>
+                <div class="member-chip fam1-chip">👤 Meenu Tyagi <span style="font-size:10px;opacity:.6;margin-left:4px">F1</span></div>
+                <div class="member-chip fam2-chip">👤 Prem Singh <span style="font-size:10px;opacity:.6;margin-left:4px">F2</span></div>
+                <div class="member-chip fam2-chip">👤 Ganga <span style="font-size:10px;opacity:.6;margin-left:4px">F2</span></div>
+            </div>
+
+            <!-- KPI headline strip -->
+            <div id="gautamFamilyKPI" class="family-stats" style="margin-bottom:20px"></div>
+
+            <!-- Year-wise breakdown table -->
+            <div style="overflow-x:auto">
+                <table class="family-year-table" id="gautamFamilyTable">
+                    <thead>
+                        <tr>
+                            <th style="text-align:left;min-width:60px">Year</th>
+                            <th>Ajit Return</th>
+                            <th>Meenu Return</th>
+                            <th>Prem Return</th>
+                            <th>Ganga Return</th>
+                            <th style="background:#f0f9ff;border-left:2px solid #bfdbfe">Combined Return</th>
+                            <th>Total Capital Used</th>
+                            <th>Total Deposits</th>
+                            <th style="background:#f0fdf4;border-left:2px solid #bbf7d0">Overall % Return</th>
+                        </tr>
+                    </thead>
+                    <tbody id="gautamFamilyTbody"></tbody>
+                    <tfoot>
+                        <tr>
+                            <td><strong>TOTAL</strong></td>
+                            <td id="gfAjitTotal">—</td>
+                            <td id="gfMeenuTotal">—</td>
+                            <td id="gfPremTotal">—</td>
+                            <td id="gfGangaTotal">—</td>
+                            <td id="gfCombinedTotal" style="background:#eff6ff;border-left:2px solid #bfdbfe;font-size:14px">—</td>
+                            <td id="gfCapitalTotal">—</td>
+                            <td id="gfDepositTotal">—</td>
+                            <td id="gfOverallPct" style="background:#f0fdf4;border-left:2px solid #bbf7d0">—</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+
+            <!-- Gautam Family Charts -->
+            <div style="margin-top:28px">
+                <div style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);margin-bottom:14px">Year-wise Combined Return</div>
+                <div class="chart-canvas-wrap" style="height:280px"><canvas id="gautamFamilyYearChart"></canvas></div>
+            </div>
+            <div style="margin-top:24px">
+                <div style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);margin-bottom:14px">Cumulative Return — All 4 Members</div>
+                <div class="chart-canvas-wrap" style="height:300px"><canvas id="gautamFamilyCumChart"></canvas></div>
+            </div>
+            <div style="margin-top:24px">
+                <div style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);margin-bottom:14px">Member Return Contribution by Year (%)</div>
+                <div class="chart-canvas-wrap" style="height:280px"><canvas id="gautamFamilyContribChart"></canvas></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── OVERALL SUMMARY ── -->
+    <div class="section-heading">
+        <div class="sh-icon">🌐</div>
+        <h2>Overall Yearly Performance (All Users)</h2>
+        <div class="sh-line"></div>
+    </div>
+    <div id="overallYearlySummary" class="cards-grid"></div>
+
+    <!-- ── OVERALL CHARTS ── -->
+    <div class="section-heading">
+        <div class="sh-icon">📉</div>
+        <h2>Overall Performance (All Users Combined)</h2>
+        <div class="sh-line"></div>
+    </div>
+    <div class="chart-grid">
+        <div class="chart-card">
+            <div class="chart-card-title">Total Yearly Return (₹)</div>
+            <div class="chart-canvas-wrap"><canvas id="overallReturnChart"></canvas></div>
+        </div>
+        <div class="chart-card">
+            <div class="chart-card-title">Average Yearly Return (%)</div>
+            <div class="chart-canvas-wrap"><canvas id="overallPercentageChart"></canvas></div>
+        </div>
+    </div>
+    <div class="chart-grid full">
+        <div class="chart-card">
+            <div class="chart-card-title">Cumulative Return — All Users Comparison</div>
+            <div class="chart-canvas-wrap"><canvas id="cumulativeAllUsersChart"></canvas></div>
+        </div>
+    </div>
+    <div class="chart-grid full">
+        <div class="chart-card">
+            <div class="chart-card-title">Monthly % Return — All Users Compared</div>
+            <div class="chart-canvas-wrap"><canvas id="overallMonthlyPercentageChart"></canvas></div>
+        </div>
+    </div>
+
+    <div class="footer">Financial Performance Dashboard &copy; 2024–2025 · Developed by <strong class="blinking">Ajit Gautam</strong></div>
+
+</div><!-- /container -->
+
+<script>
+// ── Global State ──
+let allUserData = {};
+let currentUser = '';
+let currentFinancialData = [];
+const STORAGE_KEY = 'financialDashboardData_v2';
+const FORM_FIELDS = ['newEquity','newFO','newCommodity','newBond','newDeposit'];
+function persistFormValues() {
+    const values = {};
+    FORM_FIELDS.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) values[id] = el.value;
+    });
+    sessionStorage.setItem('dashboardFormValues', JSON.stringify(values));
+}
+
+function restoreFormValues() {
+    try {
+        const saved = JSON.parse(sessionStorage.getItem('dashboardFormValues') || '{}');
+        FORM_FIELDS.forEach(id => {
+            const el = document.getElementById(id);
+            if (el && saved[id] !== undefined) el.value = saved[id];
+        });
+    } catch (e) {}
+}
+
+function updateHeroSummary() {
+    if (!currentFinancialData.length) {
+        document.getElementById('heroLiveStats').innerHTML = '';
+        return;
+    }
+    const totalReturn = currentFinancialData.reduce((s, i) => s + (i.monthlyReturn || 0), 0);
+    const totalEquity = currentFinancialData.reduce((s, i) => s + (i.equityReturn || 0), 0);
+    const totalFO = currentFinancialData.reduce((s, i) => s + (i.foReturn || 0), 0);
+    const totalBond = currentFinancialData.reduce((s, i) => s + (i.bondInterest || 0), 0);
+    const totalCommodity = currentFinancialData.reduce((s, i) => s + (i.commodityReturn || 0), 0);
+    const bestMonth = currentFinancialData.reduce((best, item) => (item.monthlyReturn || 0) > (best.monthlyReturn || 0) ? item : best, currentFinancialData[0]);
+    const worstMonth = currentFinancialData.reduce((worst, item) => (item.monthlyReturn || 0) < (worst.monthlyReturn || 0) ? item : worst, currentFinancialData[0]);
+    const profileName = currentUser || '';
+    const bestAmount = bestMonth && bestMonth.monthlyReturn !== undefined ? fcPlain(bestMonth.monthlyReturn) : '—';
+    const worstAmount = worstMonth && worstMonth.monthlyReturn !== undefined ? fcPlain(worstMonth.monthlyReturn) : '—';
+    document.getElementById('heroLiveStats').innerHTML = `
+        <div class="hero-stat"><div class="label">Total return</div><div class="value">${fcPlain(totalReturn)}</div>
+            <div class="stat-sub" style="margin-top:8px">Equity: ${fcPlain(totalEquity)} &nbsp; | &nbsp; F&amp;O: ${fcPlain(totalFO)} &nbsp; | &nbsp; Bond: ${fcPlain(totalBond)} &nbsp; | &nbsp; Commodity: ${fcPlain(totalCommodity)}</div>
+        </div>
+        <div class="hero-stat"><div class="label">Best month</div><div class="best-value">${bestMonth.month || '—'}</div><div class="stat-sub" style="margin-top:6px;color:var(--emerald);font-weight:700">${bestAmount}</div></div>
+        <div class="hero-stat"><div class="label">Worst month</div><div class="worst-value">${worstMonth.month || '—'}</div><div class="stat-sub" style="margin-top:6px;color:var(--crimson);font-weight:700">${worstAmount}</div></div>
+        <div class="hero-stat"><div class="label">Profile</div><div class="value">${profileName}</div></div>
+    `;
+}
+
+// ── Family Definitions ──
+const FAMILY_1 = ['Ajit Gautam', 'Meenu Tyagi'];
+const FAMILY_2 = ['Prem Singh', 'Ganga'];
+
+function getFamilyForUser(username) {
+    if (FAMILY_1.includes(username)) return 1;
+    if (FAMILY_2.includes(username)) return 2;
+    return 0;
+}
+
+// ── Initial Data ──
+const initialAjitData = [
+    { month: 'Jan-24', equityReturn: -350, foReturn: 158000, bondInterest: 20000, deposit: 150000, capitalUsed: 4550000 },
+    { month: 'Feb-24', equityReturn: 7600, foReturn: -91300, bondInterest: 20000, deposit: 0, capitalUsed: 4877650 },
+    { month: 'Mar-24', equityReturn: 3330, foReturn: 189000, bondInterest: 20000, deposit: 100000, capitalUsed: 4813950 },
+    { month: 'Apr-24', equityReturn: 21100, foReturn: 211000, bondInterest: 25000, deposit: 100000, capitalUsed: 5821640 },
+    { month: 'May-24', equityReturn: 32580, foReturn: -822000, bondInterest: 28000, deposit: 100000, capitalUsed: 6369870 },
+    { month: 'Jun-24', equityReturn: 105000, foReturn: 363000, bondInterest: 30000, deposit: 1000000, capitalUsed: 6479020 },
+    { month: 'Jul-24', equityReturn: 19200, foReturn: 13610, bondInterest: 30000, deposit: 800000, capitalUsed: 6786320 },
+    { month: 'Aug-24', equityReturn: 3350, foReturn: 103000, bondInterest: 39415, deposit: 200000, capitalUsed: 7286320 },
+    { month: 'Sep-24', equityReturn: 12700, foReturn: 267000, bondInterest: 39415, deposit: -25000, capitalUsed: 7887540 },
+    { month: 'Oct-24', equityReturn: -4700, foReturn: -156000, bondInterest: 39415, deposit: 220000, capitalUsed: 8187486 },
+    { month: 'Nov-24', equityReturn: 24640, foReturn: -658000, bondInterest: 39415, deposit: 500000, capitalUsed: 8580496 },
+    { month: 'Dec-24', equityReturn: -345, foReturn: -394000, bondInterest: 39415, deposit: 500000, capitalUsed: 9280404 },
+    { month: 'Jan-25', equityReturn: -629, foReturn: 50308, bondInterest: 30000, deposit: 70000, capitalUsed: 9175404 },
+    { month: 'Feb-25', equityReturn: 16400, foReturn: 134313, bondInterest: 30000, deposit: 0, capitalUsed: 8503704 },
+    { month: 'Mar-25', equityReturn: -224, foReturn: 82000, bondInterest: 33000, deposit: 0, capitalUsed: 8502788 },
+    { month: 'Apr-25', equityReturn: 150923, foReturn: 406221, bondInterest: 30000, deposit: 800000, capitalUsed: 8502564 },
+    { month: 'May-25', equityReturn: 4967, foReturn: 326500, bondInterest: 30000, deposit: 0, capitalUsed: 8521724 },
+    { month: 'Jun-25', equityReturn: 11830, foReturn: 227715, bondInterest: 35000, deposit: 2200000, capitalUsed: 8539724 },
+    { month: 'Jul-25', equityReturn: 5120, foReturn: 239000, bondInterest: 59000, deposit: 325000, capitalUsed: 8562654 },
+    { month: 'Aug-25', equityReturn: 500, foReturn: 55000, bondInterest: 59000, deposit: 0, capitalUsed: 8565054 },
+    { month: 'Sep-25', equityReturn: 460, foReturn: 232900, bondInterest: 59000, deposit: 900000, capitalUsed: 8585054 },
+    { month: 'Oct-25', equityReturn: 62640, foReturn: 160000, bondInterest: 59000, deposit: 800000, capitalUsed: 8585054 },
+    { month: 'Nov-25', equityReturn: 54320, foReturn: -81000, bondInterest: 59000, deposit: 0, capitalUsed: 8599054 },
+    { month: 'Dec-25', equityReturn: 12380, foReturn: 68000, bondInterest: 59000, deposit: 0, capitalUsed: 8603054 },
+    { month: 'Jan-26', equityReturn: 5000, foReturn: 75000, bondInterest: 60000, deposit: 100000, capitalUsed: 8603054 },
+    { month: 'Feb-26', equityReturn: -2000, foReturn: 10000, bondInterest: 60000, deposit: 50000, capitalUsed: 8713054 },
+    { month: 'Mar-26', equityReturn: 15000, foReturn: 120000, bondInterest: 60000, deposit: 200000, capitalUsed: 8773054 }
+];
+
+const initialPremSinghData = [
+    { month: 'Jan-24', equityReturn: -1500, foReturn: 147000, bondInterest: 25000, deposit: 100000, capitalUsed: 5100000 },
+    { month: 'Feb-24', equityReturn: 15450, foReturn: 106000, bondInterest: 25000, deposit: 100000, capitalUsed: 5198500 },
+    { month: 'Mar-24', equityReturn: 7690, foReturn: 163000, bondInterest: 25000, deposit: 500000, capitalUsed: 5313950 },
+    { month: 'Apr-24', equityReturn: 48230, foReturn: 198000, bondInterest: 35000, deposit: 500000, capitalUsed: 5821640 },
+    { month: 'May-24', equityReturn: 9150, foReturn: -697000, bondInterest: 44000, deposit: 100000, capitalUsed: 6369870 },
+    { month: 'Jun-24', equityReturn: 7300, foReturn: 291000, bondInterest: 44000, deposit: 300000, capitalUsed: 6479020 },
+    { month: 'Jul-24', equityReturn: 0, foReturn: 170000, bondInterest: 44000, deposit: 500000, capitalUsed: 6786320 },
+    { month: 'Aug-24', equityReturn: 1220, foReturn: 187000, bondInterest: 49300, deposit: 600000, capitalUsed: 7286320 },
+    { month: 'Sep-24', equityReturn: -54, foReturn: 66250, bondInterest: 49300, deposit: 300000, capitalUsed: 7887540 },
+    { month: 'Oct-24', equityReturn: -6990, foReturn: -225000, bondInterest: 49300, deposit: 400000, capitalUsed: 8187486 },
+    { month: 'Nov-24', equityReturn: -92, foReturn: -514000, bondInterest: 49300, deposit: 700000, capitalUsed: 8580496 },
+    { month: 'Dec-24', equityReturn: 0, foReturn: 95000, bondInterest: 49300, deposit: -105000, capitalUsed: 9280404 },
+    { month: 'Jan-25', equityReturn: 28300, foReturn: 117000, bondInterest: 42272, deposit: -700000, capitalUsed: 9175404 },
+    { month: 'Feb-25', equityReturn: -916, foReturn: 87760, bondInterest: 42272, deposit: 0, capitalUsed: 8503704 },
+    { month: 'Mar-25', equityReturn: -224, foReturn: 82000, bondInterest: 42272, deposit: 0, capitalUsed: 8502788 },
+    { month: 'Apr-25', equityReturn: 19160, foReturn: 380000, bondInterest: 42272, deposit: 500000, capitalUsed: 8502564 },
+    { month: 'May-25', equityReturn: 18000, foReturn: 286000, bondInterest: 42272, deposit: 0, capitalUsed: 8521724 },
+    { month: 'Jun-25', equityReturn: 22930, foReturn: 132000, bondInterest: 42272, deposit: 0, capitalUsed: 8539724 },
+    { month: 'Jul-25', equityReturn: 2400, foReturn: 78000, bondInterest: 55423, deposit: 0, capitalUsed: 8562654 },
+    { month: 'Aug-25', equityReturn: 0, foReturn: 8500, bondInterest: 55423, deposit: 20000, capitalUsed: 8565054 },
+    { month: 'Sep-25', equityReturn: 0, foReturn: 98000, bondInterest: 55423, deposit: 0, capitalUsed: 8585054 },
+    { month: 'Oct-25', equityReturn: 14000, foReturn: -188000, bondInterest: 55423, deposit: 0, capitalUsed: 8585054 },
+    { month: 'Nov-25', equityReturn: 4000, foReturn: 70000, bondInterest: 55423, deposit: 0, capitalUsed: 8599054 },
+    { month: 'Dec-25', equityReturn: 0, foReturn: 60000, bondInterest: 55423, deposit: 0, capitalUsed: 8603054 }
+];
+
+const initialMeenuTyagiData = [
+    { month: 'Jan-24', equityReturn: -664, foReturn: 22650, bondInterest: 3000, deposit: 50000, capitalUsed: 1700000 },
+    { month: 'Feb-24', equityReturn: 730, foReturn: 25820, bondInterest: 3000, deposit: 50000, capitalUsed: 1749336 },
+    { month: 'Mar-24', equityReturn: -850, foReturn: 46200, bondInterest: 3000, deposit: 50000, capitalUsed: 1800066 },
+    { month: 'Apr-24', equityReturn: 6510, foReturn: 60000, bondInterest: 3000, deposit: 300000, capitalUsed: 1849216 },
+    { month: 'May-24', equityReturn: 73610, foReturn: -249000, bondInterest: 3000, deposit: 100000, capitalUsed: 2155726 },
+    { month: 'Jun-24', equityReturn: 41930, foReturn: 89270, bondInterest: 5000, deposit: 200000, capitalUsed: 2329336 },
+    { month: 'Jul-24', equityReturn: 71640, foReturn: 21190, bondInterest: 8000, deposit: 200000, capitalUsed: 2571266 },
+    { month: 'Aug-24', equityReturn: 155000, foReturn: 75410, bondInterest: 11605, deposit: 400000, capitalUsed: 2842906 },
+    { month: 'Sep-24', equityReturn: 14000, foReturn: 82000, bondInterest: 11605, deposit: 300000, capitalUsed: 3397906 },
+    { month: 'Oct-24', equityReturn: -8000, foReturn: 112000, bondInterest: 19235, deposit: 25000, capitalUsed: 3711906 },
+    { month: 'Nov-24', equityReturn: 11050, foReturn: -75320, bondInterest: 19235, deposit: 0, capitalUsed: 3728906 },
+    { month: 'Dec-24', equityReturn: -5, foReturn: -28000, bondInterest: 19235, deposit: 10000, capitalUsed: 3739956 },
+    { month: 'Jan-25', equityReturn: 0, foReturn: 62610, bondInterest: 19235, deposit: 0, capitalUsed: 3749951 },
+    { month: 'Feb-25', equityReturn: -212, foReturn: 27670, bondInterest: 19235, deposit: 0, capitalUsed: 3749951 },
+    { month: 'Mar-25', equityReturn: -135, foReturn: 25000, bondInterest: 19235, deposit: 0, capitalUsed: 3749739 },
+    { month: 'Apr-25', equityReturn: -40, foReturn: 150000, bondInterest: 19235, deposit: 100000, capitalUsed: 3749604 },
+    { month: 'May-25', equityReturn: 0, foReturn: 155000, bondInterest: 19235, deposit: 0, capitalUsed: 3849564 },
+    { month: 'Jun-25', equityReturn: 10000, foReturn: 55620, bondInterest: 20326, deposit: 0, capitalUsed: 3849564 },
+    { month: 'Jul-25', equityReturn: 16690, foReturn: 41580, bondInterest: 20326, deposit: 0, capitalUsed: 3859564 },
+    { month: 'Aug-25', equityReturn: 0, foReturn: 10000, bondInterest: 20326, deposit: 0, capitalUsed: 3876254 },
+    { month: 'Sep-25', equityReturn: 10330, foReturn: 45000, bondInterest: 20326, deposit: 0, capitalUsed: 3876254 },
+    { month: 'Oct-25', equityReturn: 31800, foReturn: 41360, bondInterest: 20326, deposit: 0, capitalUsed: 3886584 },
+    { month: 'Nov-25', equityReturn: 52500, foReturn: 37690, bondInterest: 20326, deposit: 0, capitalUsed: 3918384 },
+    { month: 'Dec-25', equityReturn: 0, foReturn: 60000, bondInterest: 20326, deposit: 0, capitalUsed: 3970884 }
+];
+
+const initialGangaData = [];  // Ganga data to be added by user
+
+// ── Chart Instances ──
+let percentageChart, amountChart, cumulativeUserChart, overallReturnChart, overallPercentageChart, cumulativeAllUsersChart, overallMonthlyPercentageChart;
+let gautamFamilyYearChart, gautamFamilyCumChart, gautamFamilyContribChart;
+Chart.register(ChartDataLabels);
+
+const CHART_COLORS = ['#2563eb','#7c3aed','#059669','#dc2626','#d97706','#0891b2','#be185d'];
+let colorIndex = 0;
+function getNextChartColor() { return CHART_COLORS[colorIndex++ % CHART_COLORS.length]; }
+
+const baseChartConfig = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+        datalabels: {
+            anchor: 'end', align: 'top',
+            formatter: function(value, context) {
+                if (value === null || value === undefined) return '';
+                const id = context.chart.canvas.id;
+                if (id.includes('percentage') || id.includes('Percentage')) return value.toFixed(2) + '%';
+                if (id.includes('cumulative') || id.includes('amount') || id.includes('Return')) {
+                    return '₹' + (value/100000).toFixed(1) + 'L';
+                }
+                return value;
+            },
+            color: ctx => ctx.dataset.data[ctx.dataIndex] < 0 ? '#c0392b' : '#1a7a4a',
+            font: { weight: 'bold', size: 9 }
+        },
+        legend: { labels: { font: { family: "'DM Sans', sans-serif", size: 12 }, color: '#4a5568' } },
+        tooltip: { backgroundColor: '#1a2744', titleFont: { family: "'DM Sans'" }, bodyFont: { family: "'DM Sans'" } }
+    },
+    scales: {
+        y: {
+            beginAtZero: false,
+            grid: { color: 'rgba(189,195,199,0.2)' },
+            ticks: { color: '#8896a8', font: { size: 11 }, callback: function(v) { return v.toLocaleString('en-IN'); } }
+        },
+        x: {
+            grid: { display: false },
+            ticks: { color: '#8896a8', font: { size: 10 } }
+        }
+    },
+    interaction: { mode: 'index', intersect: false }
+};
+
+// ── Storage ──
+function saveUserData() {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(allUserData)); } catch(e) { console.error(e); }
+}
+function loadUserData() {
+    try {
+        const d = localStorage.getItem(STORAGE_KEY);
+        if (d) { const p = JSON.parse(d); if (p && Object.keys(p).length) return p; }
+    } catch(e) {}
+    return null;
+}
+
+// ── Formatting ──
+function fc(v) {
+    const abs = Math.abs(v);
+    let str;
+    if (abs >= 10000000) str = '₹' + (v/10000000).toFixed(2) + 'Cr';
+    else if (abs >= 100000) str = '₹' + (v/100000).toFixed(2) + 'L';
+    else str = '₹' + v.toLocaleString('en-IN', {maximumFractionDigits:0});
+    return v < 0 ? `<span class="neg">${str}</span>` : str;
+}
+function fcPlain(v) {
+    const abs = Math.abs(v);
+    if (abs >= 10000000) return '₹' + (v/10000000).toFixed(2) + 'Cr';
+    if (abs >= 100000) return '₹' + (v/100000).toFixed(2) + 'L';
+    return '₹' + v.toLocaleString('en-IN', {maximumFractionDigits:0});
+}
+function fp(v) {
+    const pct = parseFloat(v);
+    const str = pct.toFixed(2) + '%';
+    if (pct >= 1.5) return `<span class="pos">${str}</span>`;
+    if (pct < 0) return `<span class="neg">${str}</span>`;
+    return `<span class="neutral">${str}</span>`;
+}
+
+// ── User Management ──
+function initializeUserManagement() {
+    const loaded = loadUserData();
+    if (loaded) {
+        allUserData = loaded;
+    } else {
+        allUserData['Ajit Gautam'] = [...initialAjitData];
+        allUserData['Prem Singh'] = [...initialPremSinghData];
+        allUserData['Meenu Tyagi'] = [...initialMeenuTyagiData];
+        allUserData['Ganga'] = [...initialGangaData];
+    }
+    if (!allUserData['Ajit Gautam']) allUserData['Ajit Gautam'] = [...initialAjitData];
+    if (!allUserData['Prem Singh']) allUserData['Prem Singh'] = [...initialPremSinghData];
+    if (!allUserData['Meenu Tyagi']) allUserData['Meenu Tyagi'] = [...initialMeenuTyagiData];
+    if (!allUserData['Ganga']) allUserData['Ganga'] = [...initialGangaData];
+
+    rebuildRadios();
+    const keys = Object.keys(allUserData).sort();
+    currentUser = keys[0];
+    switchUser(currentUser);
+}
+
+function rebuildRadios() {
+    const wrap = document.getElementById('userSelectionRadios');
+    wrap.innerHTML = '';
+    Object.keys(allUserData).sort().forEach(username => {
+        const fam = getFamilyForUser(username);
+        const div = document.createElement('label');
+        div.className = 'user-pill' + (fam === 1 ? '' : '');
+        div.setAttribute('data-user', username);
+        div.innerHTML = `
+            <input type="radio" name="userSelection" value="${username}" id="ur_${username.replace(/\s+/g,'-')}">
+            <span class="family-dot ${fam === 1 ? 'f1-dot' : fam === 2 ? 'f2-dot' : ''}"></span>
+            ${username}
+            ${fam ? `<span style="font-size:10px;opacity:.6">F${fam}</span>` : ''}
+        `;
+        div.addEventListener('click', () => {
+            document.querySelectorAll('.user-pill').forEach(p => p.classList.remove('active-f1','active-f2'));
+            const f = getFamilyForUser(username);
+            div.classList.add(f === 1 ? 'active-f1' : 'active-f2');
+            document.querySelector(`input[name="userSelection"][value="${username}"]`).checked = true;
+            switchUser(username);
+        });
+        wrap.appendChild(div);
+    });
+}
+
+function switchUser(username) {
+    saveUserData();
+    currentUser = username;
+    currentFinancialData = allUserData[currentUser] || [];
+    document.getElementById('tableTitle').textContent = `${username} — Monthly Data`;
+    document.getElementById('chartsTitle').textContent = `${username} — Monthly Performance`;
+    // Highlight active pill
+    document.querySelectorAll('.user-pill').forEach(p => {
+        p.classList.remove('active-f1','active-f2');
+        if (p.getAttribute('data-user') === username) {
+            const f = getFamilyForUser(username);
+            p.classList.add(f === 1 ? 'active-f1' : 'active-f2');
+            p.querySelector('input[type="radio"]').checked = true;
+        }
+    });
+    const last = currentFinancialData.length > 0 ? currentFinancialData[currentFinancialData.length-1].month : 'Dec-23';
+    document.getElementById('newMonth').value = getNextMonth(last);
+    updateAll();
+}
+
+function addUser() {
+    const input = document.getElementById('newUsername');
+    const name = input.value.trim();
+    if (!name) { alert('Please enter a username.'); return; }
+    if (allUserData[name]) { alert(`"${name}" already exists.`); return; }
+    allUserData[name] = [];
+    rebuildRadios();
+    switchUser(name);
+    input.value = '';
+}
+
+function deleteUser() {
+    const checked = document.querySelector('input[name="userSelection"]:checked');
+    if (!checked) { alert('Select a user to delete.'); return; }
+    const del = checked.value;
+    if (Object.keys(allUserData).length <= 1) { alert('Cannot delete last user.'); return; }
+    if (!confirm(`Delete "${del}" and all their data?`)) return;
+    delete allUserData[del];
+    rebuildRadios();
+    const remaining = Object.keys(allUserData).sort();
+    switchUser(remaining[0]);
+    saveUserData();
+}
+
+function getNextMonth(str) {
+    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const [m, y] = str.split('-');
+    let mi = months.indexOf(m), yr = parseInt(y);
+    mi++; if (mi > 11) { mi = 0; yr++; }
+    return `${months[mi]}-${yr}`;
+}
+
+function addNewMonth() {
+    const month = document.getElementById('newMonth').value.trim();
+    if (!month) { alert('Month cannot be empty.'); return; }
+    if (currentFinancialData.some(i => i.month === month)) {
+        alert(`Data for ${month} already exists.`); return;
+    }
+    currentFinancialData.push({
+        month,
+        equityReturn: parseFloat(document.getElementById('newEquity').value) || 0,
+        foReturn: parseFloat(document.getElementById('newFO').value) || 0,
+        commodityReturn: parseFloat(document.getElementById('newCommodity').value) || 0,
+        bondInterest: parseFloat(document.getElementById('newBond').value) || 0,
+        deposit: parseFloat(document.getElementById('newDeposit').value) || 0,
+        capitalUsed: 0
+    });
+    sortData(currentFinancialData);
+    persistFormValues();
+    document.getElementById('newMonth').value = getNextMonth(month);
+    updateAll(); saveUserData();
+}
+
+function sortData(arr) {
+    const mi = {Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,Jul:6,Aug:7,Sep:8,Oct:9,Nov:10,Dec:11};
+    arr.sort((a,b) => {
+        const [ma,ya] = a.month.split('-'), [mb,yb] = b.month.split('-');
+        return (parseInt(ya)-parseInt(yb)) || (mi[ma]-mi[mb]);
+    });
+}
+
+// ── Metrics ──
+function calculateMetrics() {
+    currentFinancialData.forEach((item, i) => {
+        item.equityFo = (item.equityReturn||0) + (item.foReturn||0);
+        item.monthlyReturn = item.equityFo + (item.bondInterest||0) + (item.commodityReturn||0);
+        if (i === 0) {
+            item.capitalUsed = parseFloat(item.capitalUsed) || 0;
+        } else {
+            const prev = currentFinancialData[i-1];
+            item.capitalUsed = Math.max(0, (prev.capitalUsed||0) + (prev.monthlyReturn||0) + (prev.deposit||0) - (prev.bondInterest||0));
+        }
+        item.percentage = item.capitalUsed > 0 ? ((item.monthlyReturn / item.capitalUsed) * 100).toFixed(2) : '0.00';
+    });
+}
+
+// ── KPI Strip ──
+function updateKPIStrip() {
+    if (!currentFinancialData.length) { document.getElementById('kpiStrip').innerHTML = ''; return; }
+    const totalReturn = currentFinancialData.reduce((s,i) => s + (i.monthlyReturn||0), 0);
+    const totalEquityFo = currentFinancialData.reduce((s,i) => s + (i.equityFo||0), 0);
+    const totalBond = currentFinancialData.reduce((s,i) => s + (i.bondInterest||0), 0);
+    const totalCommodity = currentFinancialData.reduce((s,i) => s + (i.commodityReturn||0), 0);
+    const lastCapital = currentFinancialData[currentFinancialData.length-1].capitalUsed || 0;
+    const avgPct = currentFinancialData.reduce((s,i) => s + parseFloat(i.percentage||0), 0) / currentFinancialData.length;
+    const bestMonth = currentFinancialData.reduce((best,i) => (i.monthlyReturn||0) > (best.monthlyReturn||0) ? i : best, currentFinancialData[0]);
+
+    document.getElementById('kpiStrip').innerHTML = `
+        <div class="stat-card"><div class="stat-label">Total Return</div><div class="stat-value ${totalReturn>=0?'pos':'neg'}">${fcPlain(totalReturn)}</div><div class="stat-sub">${currentFinancialData.length} months</div></div>
+        <div class="stat-card"><div class="stat-label">Equity + F&O</div><div class="stat-value ${totalEquityFo>=0?'pos':'neg'}">${fcPlain(totalEquityFo)}</div><div class="stat-sub">Trading returns</div></div>
+        <div class="stat-card"><div class="stat-label">Commodity</div><div class="stat-value ${totalCommodity>=0?'pos':'neg'}">${fcPlain(totalCommodity)}</div><div class="stat-sub">Commodity returns</div></div>
+        <div class="stat-card"><div class="stat-label">Bond Income</div><div class="stat-value pos">${fcPlain(totalBond)}</div><div class="stat-sub">Interest earned</div></div>
+        <div class="stat-card"><div class="stat-label">Current Capital</div><div class="stat-value">${fcPlain(lastCapital)}</div><div class="stat-sub">Latest month</div></div>
+        <div class="stat-card"><div class="stat-label">Avg Monthly %</div><div class="stat-value ${avgPct>=0?'pos':'neg'}">${avgPct.toFixed(2)}%</div><div class="stat-sub">Return rate</div></div>
+        <div class="stat-card"><div class="stat-label">Best Month</div><div class="stat-value pos">${bestMonth.month}</div><div class="stat-sub">${fcPlain(bestMonth.monthlyReturn||0)}</div></div>
+    `;
+}
+
+// ── Table ──
+function updateTable() {
+    document.querySelector('#dataTable tbody').innerHTML = currentFinancialData.map((item, i) => {
+        const inp = (val, field) => `<input type="number" value="${val}" onchange="updateEntry('${item.month}',this,'${field}')">`;
+        return `<tr>
+            <td>${item.month}</td>
+            <td>${inp(item.equityReturn,'equityReturn')}</td>
+            <td>${inp(item.foReturn,'foReturn')}</td>
+            <td>${inp(item.commodityReturn||0,'commodityReturn')}</td>
+            <td>${inp(item.bondInterest,'bondInterest')}</td>
+            <td>${inp(item.deposit,'deposit')}</td>
+            <td>${i===0 ? inp(item.capitalUsed,'capitalUsed') : fc(item.capitalUsed||0)}</td>
+            <td>${fc(item.equityFo||0)}</td>
+            <td>${fc(item.monthlyReturn||0)}</td>
+            <td>${fp(item.percentage)}</td>
+            <td style="text-align:center"><button onclick="deleteMonth('${item.month}')" class="btn btn-danger btn-sm">Delete</button></td>
+        </tr>`;
+    }).join('');
+}
+
+function updateEntry(month, el, field) {
+    const v = parseFloat(el.value);
+    if (isNaN(v)) { alert('Enter a valid number.'); return; }
+    const item = allUserData[currentUser].find(i => i.month === month);
+    if (item) { item[field] = v; updateAll(); saveUserData(); }
+}
+
+function deleteMonth(m) {
+    const idx = allUserData[currentUser].findIndex(i => i.month === m);
+    if (idx !== -1) { allUserData[currentUser].splice(idx,1); updateAll(); saveUserData(); }
+}
+
+// ── Individual Charts ──
+function updateCharts() {
+    if (percentageChart) percentageChart.destroy();
+    if (amountChart) amountChart.destroy();
+    const labels = currentFinancialData.map(d => d.month);
+    const mkColor = arr => arr.map(v => v >= 0 ? 'rgba(26,122,74,0.75)' : 'rgba(192,57,43,0.75)');
+
+    percentageChart = new Chart(document.getElementById('percentageChart'), {
+        type: 'bar',
+        data: { labels, datasets: [{ label: '% Return', data: currentFinancialData.map(d => parseFloat(d.percentage)), backgroundColor: mkColor(currentFinancialData.map(d => parseFloat(d.percentage))), borderRadius: 4, borderWidth: 0 }] },
+        options: { ...baseChartConfig, scales: { ...baseChartConfig.scales, y: { ...baseChartConfig.scales.y, ticks: { callback: v => v.toFixed(2)+'%', color:'#8896a8', font:{size:10} } } } }
+    });
+    amountChart = new Chart(document.getElementById('amountChart'), {
+        type: 'bar',
+        data: { labels, datasets: [{ label: 'Monthly Return (₹)', data: currentFinancialData.map(d => d.monthlyReturn), backgroundColor: mkColor(currentFinancialData.map(d => d.monthlyReturn)), borderRadius: 4, borderWidth: 0 }] },
+        options: baseChartConfig
+    });
+}
+
+function updateCumulativeUserChart() {
+    if (cumulativeUserChart) cumulativeUserChart.destroy();
+    let cum = 0;
+    const cumData = currentFinancialData.map(d => { cum += d.monthlyReturn; return cum; });
+    cumulativeUserChart = new Chart(document.getElementById('cumulativeUserChart'), {
+        type: 'line',
+        data: { labels: currentFinancialData.map(d => d.month), datasets: [{ label: `Cumulative — ${currentUser}`, data: cumData, borderColor: '#2563eb', backgroundColor: 'rgba(37,99,235,0.08)', fill: true, tension: 0.35, pointRadius: 3, pointBackgroundColor: cumData.map(v => v < 0 ? '#c0392b' : '#2563eb') }] },
+        options: { ...baseChartConfig, scales: { ...baseChartConfig.scales, y: { ...baseChartConfig.scales.y, ticks: { callback: v => '₹'+(v/100000).toFixed(1)+'L', color:'#8896a8', font:{size:10} } } } }
+    });
+}
+
+// ── Yearly Summary ──
+function calcYearlyForUser(userData) {
+    const y = {};
+    userData.forEach(e => {
+        const yr = '20'+e.month.split('-')[1];
+        if (!y[yr]) y[yr] = { equity:0, fo:0, commodity:0, bonds:0, total:0, capSum:0, count:0, deposits:0 };
+        y[yr].equity += e.equityReturn||0;
+        y[yr].fo += e.foReturn||0;
+        y[yr].commodity += e.commodityReturn||0;
+        y[yr].bonds += e.bondInterest||0;
+        y[yr].total += e.monthlyReturn||0;
+        y[yr].capSum += e.capitalUsed||0;
+        y[yr].count++;
+        y[yr].deposits += e.deposit||0;
+    });
+    for (const yr in y) {
+        const d = y[yr];
+        const avg = d.count ? d.capSum/d.count : 0;
+        d.avgCapital = avg;
+        d.annualPct = avg > 0 ? (d.total/avg)*100 : 0;
+    }
+    return y;
+}
+
+function displayAllUsersYearlySummaries() {
+    const container = document.querySelector('#yearlySummary tbody');
+    container.innerHTML = '';
+    Object.keys(allUserData).sort().forEach(username => {
+        const yd = calcYearlyForUser(allUserData[username]);
+        const fam = getFamilyForUser(username);
+        const familyLabel = fam ? `Family ${fam}` : 'Other';
+        const years = Object.keys(yd).sort();
+
+        const groupRow = document.createElement('tr');
+        groupRow.className = 'group-row';
+        groupRow.innerHTML = `<td colspan="9">${username} — ${familyLabel} (${years.length} year${years.length !== 1 ? 's' : ''})</td>`;
+        container.appendChild(groupRow);
+
+        if (!years.length) {
+            const emptyRow = document.createElement('tr');
+            emptyRow.className = 'year-row';
+            emptyRow.innerHTML = `<td colspan="9" style="color:var(--text-muted);font-style:italic;padding:14px 16px">No yearly performance data available yet.</td>`;
+            container.appendChild(emptyRow);
+            return;
+        }
+
+        years.forEach(yr => {
+            const d = yd[yr];
+            const row = document.createElement('tr');
+            row.className = 'year-row';
+            row.innerHTML = `
+                <td></td>
+                <td>${yr}</td>
+                <td><span class="${d.total>=0?'pos':'neg'}">${fcPlain(d.total)}</span></td>
+                <td>${fcPlain(d.equity + d.fo)}</td>
+                <td><span class="${d.commodity>=0?'pos':'neg'}">${fcPlain(d.commodity || 0)}</span></td>
+                <td class="pos">${fcPlain(d.bonds)}</td>
+                <td>${fcPlain(d.avgCapital)}</td>
+                <td><span class="${d.annualPct>=0?'pos':'neg'}">${d.annualPct.toFixed(2)}%</span></td>
+                <td>${familyLabel}</td>
+            `;
+            container.appendChild(row);
+        });
+    });
+}
+
+// ── Family Summary ──
+function updateFamilySummaries() {
+    updateFamilySection(1, ['Ajit Gautam','Meenu Tyagi'], 'fam1Stats', 'fam1Table', 'f1AjitTotal', 'f1MeenuTotal', 'f1CombinedTotal', 'f1AvgPct', 'fam1-val', ['Ajit','Meenu']);
+    updateFamilySection(2, ['Prem Singh','Ganga'], 'fam2Stats', 'fam2Table', 'f2PremTotal', 'f2GangaTotal', 'f2CombinedTotal', 'f2AvgPct', 'fam2-val', ['Prem','Ganga']);
+}
+
+function updateFamilySection(famNum, members, statsId, tableId, m1TotalId, m2TotalId, combinedId, avgPctId, valClass, shortNames) {
+    const m1Data = allUserData[members[0]] || [];
+    const m2Data = allUserData[members[1]] || [];
+
+    const m1Yearly = calcYearlyForUser(m1Data);
+    const m2Yearly = calcYearlyForUser(m2Data);
+
+    // Combined totals
+    const allYears = [...new Set([...Object.keys(m1Yearly), ...Object.keys(m2Yearly)])].sort();
+    let totM1 = 0, totM2 = 0, totCombined = 0, totalCap = 0, pctSum = 0, pctCount = 0;
+
+    const tbody = document.querySelector(`#${tableId} tbody`);
+    tbody.innerHTML = '';
+
+    allYears.forEach(yr => {
+        const d1 = m1Yearly[yr] || { total: 0, avgCapital: 0, annualPct: 0, count: 0 };
+        const d2 = m2Yearly[yr] || { total: 0, avgCapital: 0, annualPct: 0, count: 0 };
+        const combined = d1.total + d2.total;
+        const avgCap = (d1.avgCapital + d2.avgCapital);
+        const avgPct = avgCap > 0 ? (combined / avgCap) * 100 : 0;
+        totM1 += d1.total; totM2 += d2.total; totCombined += combined;
+        totalCap += avgCap; pctSum += avgPct; pctCount++;
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td><strong>${yr}</strong></td>
+            <td>${d1.count > 0 ? `<span class="${d1.total>=0?'pos':'neg'}">${fcPlain(d1.total)}</span>` : '<span style="color:var(--text-muted)">No data</span>'}</td>
+            <td>${d2.count > 0 ? `<span class="${d2.total>=0?'pos':'neg'}">${fcPlain(d2.total)}</span>` : '<span style="color:var(--text-muted)">No data yet</span>'}</td>
+            <td><span class="${combined>=0?'pos':'neg'}" style="font-weight:700">${fcPlain(combined)}</span></td>
+            <td>${fcPlain(avgCap)}</td>
+            <td><span class="${avgPct>=0?'pos':'neg'}">${avgPct.toFixed(2)}%</span></td>
+        `;
+        tbody.appendChild(tr);
+    });
+
+    // Footer totals
+    document.getElementById(m1TotalId).innerHTML = `<span class="${totM1>=0?'pos':'neg'}">${fcPlain(totM1)}</span>`;
+    document.getElementById(m2TotalId).innerHTML = `<span class="${totM2>=0?'pos':'neg'}">${fcPlain(totM2)}</span>`;
+    document.getElementById(combinedId).innerHTML = `<span class="${totCombined>=0?'pos':'neg'}" style="font-weight:700">${fcPlain(totCombined)}</span>`;
+    document.getElementById(avgPctId).innerHTML = `<span class="${(pctSum/Math.max(pctCount,1))>=0?'pos':'neg'}">${(pctSum/Math.max(pctCount,1)).toFixed(2)}%</span>`;
+
+    // Stats cards
+    const totalMembers = (m1Data.length > 0 ? 1 : 0) + (m2Data.length > 0 ? 1 : 0);
+    const avgMonthlyPct = pctCount ? pctSum/pctCount : 0;
+    document.getElementById(statsId).innerHTML = `
+        <div class="fam-stat"><div class="fs-label">Combined Return</div><div class="fs-val ${valClass} ${totCombined>=0?'':''}" style="color:${totCombined>=0?'var(--emerald)':'var(--crimson)'}">${fcPlain(totCombined)}</div></div>
+        <div class="fam-stat"><div class="fs-label">${shortNames[0]} Total</div><div class="fs-val" style="color:${totM1>=0?'var(--emerald)':'var(--crimson)'}">${m1Data.length?fcPlain(totM1):'—'}</div></div>
+        <div class="fam-stat"><div class="fs-label">${shortNames[1]} Total</div><div class="fs-val" style="color:${totM2>=0?'var(--emerald)':'var(--crimson)'}">${m2Data.length?fcPlain(totM2):'No data yet'}</div></div>
+        <div class="fam-stat"><div class="fs-label">Avg Annual %</div><div class="fs-val" style="color:${avgMonthlyPct>=0?'var(--emerald)':'var(--crimson)'}">${avgMonthlyPct.toFixed(2)}%</div></div>
+        <div class="fam-stat"><div class="fs-label">Active Members</div><div class="fs-val ${valClass}">${totalMembers}/2</div></div>
+        <div class="fam-stat"><div class="fs-label">Total Months</div><div class="fs-val">${m1Data.length + m2Data.length}</div></div>
+    `;
+}
+
+// ── Overall Summary ──
+function calcOverallYearly() {
+    const oy = {};
+    const usersPerYear = {};
+    Object.values(allUserData).forEach(ud => {
+        const y = calcYearlyForUser(ud);
+        for (const yr in y) {
+            if (!oy[yr]) { oy[yr] = { total:0, capSum:0, deposits:0, pctSum:0, count:0 }; usersPerYear[yr] = 0; }
+            oy[yr].total += y[yr].total;
+            oy[yr].capSum += y[yr].capSum;
+            oy[yr].deposits += y[yr].deposits;
+            if (y[yr].count > 0) { oy[yr].pctSum += y[yr].annualPct; usersPerYear[yr]++; oy[yr].count += y[yr].count; }
+        }
+    });
+    for (const yr in oy) {
+        const u = usersPerYear[yr] || 1;
+        oy[yr].avgPct = oy[yr].pctSum / u;
+        oy[yr].avgCapital = oy[yr].count ? oy[yr].capSum / oy[yr].count : 0;
+    }
+    return oy;
+}
+
+function updateOverallYearlySummary() {
+    const oy = calcOverallYearly();
+    const container = document.getElementById('overallYearlySummary');
+    container.innerHTML = '';
+    Object.keys(oy).sort().forEach(yr => {
+        const d = oy[yr];
+        const card = document.createElement('div');
+        card.className = 'year-card';
+        const isPos = d.total >= 0;
+        card.innerHTML = `
+            <div class="year-card-header">
+                <h3>${yr}</h3>
+                <span class="${isPos?'badge-positive':'badge-negative'} year-badge">${d.avgPct.toFixed(2)}%</span>
+            </div>
+            <div class="summary-row"><span class="sr-label">Total Return (All)</span><span class="sr-value ${isPos?'pos':'neg'}">${fcPlain(d.total)}</span></div>
+            <div class="summary-row"><span class="sr-label">Total Deposits</span><span class="sr-value">${fcPlain(d.deposits)}</span></div>
+            <div class="summary-row"><span class="sr-label">Avg Capital</span><span class="sr-value">${fcPlain(d.avgCapital)}</span></div>
+            <div class="summary-row"><span class="sr-label">Avg Annual %</span><span class="sr-value ${d.avgPct>=0?'pos':'neg'}">${d.avgPct.toFixed(2)}%</span></div>
+        `;
+        container.appendChild(card);
+    });
+}
+
+function updateOverallCharts() {
+    if (overallReturnChart) overallReturnChart.destroy();
+    if (overallPercentageChart) overallPercentageChart.destroy();
+    const oy = calcOverallYearly();
+    const years = Object.keys(oy).sort();
+    const mkColor = arr => arr.map(v => v>=0?'rgba(26,122,74,0.75)':'rgba(192,57,43,0.75)');
+
+    overallReturnChart = new Chart(document.getElementById('overallReturnChart'), {
+        type: 'bar',
+        data: { labels: years, datasets: [{ label: 'Total Return (₹)', data: years.map(y => oy[y].total), backgroundColor: mkColor(years.map(y=>oy[y].total)), borderRadius: 5, borderWidth: 0 }] },
+        options: baseChartConfig
+    });
+    overallPercentageChart = new Chart(document.getElementById('overallPercentageChart'), {
+        type: 'bar',
+        data: { labels: years, datasets: [{ label: 'Avg % Return', data: years.map(y => oy[y].avgPct), backgroundColor: mkColor(years.map(y=>oy[y].avgPct)), borderRadius: 5, borderWidth: 0 }] },
+        options: { ...baseChartConfig, scales: { ...baseChartConfig.scales, y: { ...baseChartConfig.scales.y, ticks: { callback: v => v.toFixed(2)+'%', color:'#8896a8', font:{size:10} } } } }
+    });
+}
+
+function updateCumulativeAllUsersChart() {
+    if (cumulativeAllUsersChart) cumulativeAllUsersChart.destroy();
+    const allMonthsSet = new Set();
+    Object.values(allUserData).forEach(ud => ud.forEach(d => allMonthsSet.add(d.month)));
+    const mi = {Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,Jul:6,Aug:7,Sep:8,Oct:9,Nov:10,Dec:11};
+    const allMonths = Array.from(allMonthsSet).sort((a,b) => {
+        const [ma,ya] = a.split('-'), [mb,yb] = b.split('-');
+        return (parseInt(ya)-parseInt(yb)) || (mi[ma]-mi[mb]);
+    });
+    colorIndex = 0;
+    const datasets = Object.keys(allUserData).sort().map(username => {
+        const ud = allUserData[username];
+        let cum = 0;
+        const map = new Map(ud.map(i => [i.month, i.monthlyReturn]));
+        const color = getNextChartColor();
+        return { label: username, data: allMonths.map(m => { if(map.has(m)){cum+=map.get(m);return cum;} return null; }), borderColor: color, backgroundColor: 'transparent', fill: false, tension: 0.3, pointRadius: 3, spanGaps: true };
+    });
+    cumulativeAllUsersChart = new Chart(document.getElementById('cumulativeAllUsersChart'), {
+        type: 'line', data: { labels: allMonths, datasets },
+        options: { ...baseChartConfig, scales: { ...baseChartConfig.scales, y: { ...baseChartConfig.scales.y, ticks: { callback: v => '₹'+(v/100000).toFixed(1)+'L', color:'#8896a8', font:{size:10} } } } }
+    });
+}
+
+function updateMonthlyPercentageAllUsersChart() {
+    if (overallMonthlyPercentageChart) overallMonthlyPercentageChart.destroy();
+    const allMonthsSet = new Set();
+    Object.values(allUserData).forEach(ud => ud.forEach(d => allMonthsSet.add(d.month)));
+    const mi = {Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,Jul:6,Aug:7,Sep:8,Oct:9,Nov:10,Dec:11};
+    const allMonths = Array.from(allMonthsSet).sort((a,b) => {
+        const [ma,ya] = a.split('-'), [mb,yb] = b.split('-');
+        return (parseInt(ya)-parseInt(yb)) || (mi[ma]-mi[mb]);
+    });
+    colorIndex = 0;
+    const datasets = Object.keys(allUserData).sort().map(username => {
+        const ud = allUserData[username];
+        const map = new Map(ud.map(i => [i.month, parseFloat(i.percentage||0)]));
+        const color = getNextChartColor();
+        return { label: username, data: allMonths.map(m => map.has(m) ? map.get(m) : null), borderColor: color, backgroundColor: 'transparent', fill: false, tension: 0.3, pointRadius: 3, spanGaps: true };
+    });
+    overallMonthlyPercentageChart = new Chart(document.getElementById('overallMonthlyPercentageChart'), {
+        type: 'line', data: { labels: allMonths, datasets },
+        options: { ...baseChartConfig, scales: { ...baseChartConfig.scales, y: { ...baseChartConfig.scales.y, ticks: { callback: v => v.toFixed(2)+'%', color:'#8896a8', font:{size:10} } } } }
+    });
+}
+
+// ── Excel ──
+function downloadExcel() {
+    const data = allUserData[currentUser] || [];
+    if (!data.length) { alert('No data to download.'); return; }
+    const rows = [['Month','Equity Return','F&O Return','Bond Interest','Deposit','Capital Used','Equity+F&O','Monthly Return','% Return']];
+    data.forEach(i => rows.push([i.month, i.equityReturn, i.foReturn, i.commodityReturn||0, i.bondInterest, i.deposit, i.capitalUsed, i.equityFo, i.monthlyReturn, (parseFloat(i.percentage||0)/100)]));
+    const wb = XLSX.utils.book_new();
+    const ws = XLSX.utils.aoa_to_sheet(rows);
+    const range = XLSX.utils.decode_range(ws['!ref']);
+    for (let R = range.s.r+1; R <= range.e.r; R++) {
+        const ref = XLSX.utils.encode_cell({c:8,r:R});
+        if (ws[ref]) ws[ref].z = '0.00%';
+    }
+    XLSX.utils.book_append_sheet(wb, ws, `${currentUser}`);
+    XLSX.writeFile(wb, `${currentUser}_Financial_${new Date().toISOString().slice(0,10)}.xlsx`);
+}
+
+function uploadExcel(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+        const wb = XLSX.read(e.target.result, {type:'binary'});
+        const ws = wb.Sheets[wb.SheetNames[0]];
+        const rows = XLSX.utils.sheet_to_json(ws, {header:1});
+        if (rows.length < 2) { alert('File is empty.'); return; }
+        const headers = rows[0];
+        const entries = [];
+        for (let i = 1; i < rows.length; i++) {
+            const r = rows[i];
+            const month = r[headers.indexOf('Month')];
+            if (!month || !/^[A-Za-z]{3}-\d{2}$/.test(String(month).trim())) continue;
+            entries.push({
+                month: String(month).trim(),
+                equityReturn: parseFloat(r[headers.indexOf('Equity Return')])||0,
+                foReturn: parseFloat(r[headers.indexOf('F&O Return')])||0,
+                commodityReturn: parseFloat(r[headers.indexOf('Commodity')])||0,
+                bondInterest: parseFloat(r[headers.indexOf('Bond Interest')])||0,
+                deposit: parseFloat(r[headers.indexOf('Deposit')])||0,
+                capitalUsed: parseFloat(r[headers.indexOf('Capital Used')])||0
+            });
+        }
+        currentFinancialData = currentFinancialData.filter(i => !entries.some(u => u.month === i.month));
+        currentFinancialData.push(...entries);
+        sortData(currentFinancialData);
+        allUserData[currentUser] = currentFinancialData;
+        updateAll(); saveUserData();
+        alert(`Uploaded ${entries.length} months successfully.`);
+    };
+    reader.readAsBinaryString(file);
+}
+
+// ── Gautam Family (All 4 Members) ──
+function updateGautamFamilySection() {
+    const MEMBERS = [
+        { key: 'Ajit Gautam',  shortName: 'Ajit',  kpiId: 'gfAjitTotal'  },
+        { key: 'Meenu Tyagi',  shortName: 'Meenu', kpiId: 'gfMeenuTotal' },
+        { key: 'Prem Singh',   shortName: 'Prem',  kpiId: 'gfPremTotal'  },
+        { key: 'Ganga',        shortName: 'Ganga', kpiId: 'gfGangaTotal' }
+    ];
+
+    // Build per-year per-member data
+    const memberYearly = {};
+    MEMBERS.forEach(m => {
+        memberYearly[m.key] = calcYearlyForUser(allUserData[m.key] || []);
+    });
+
+    const allYears = [...new Set(MEMBERS.flatMap(m => Object.keys(memberYearly[m.key])))].sort();
+
+    // Grand totals per member
+    const grandTotals = {};
+    MEMBERS.forEach(m => { grandTotals[m.key] = 0; });
+    let grandCombined = 0, grandCapital = 0, grandDeposits = 0;
+    let grandPctSum = 0, grandPctCount = 0;
+
+    const tbody = document.getElementById('gautamFamilyTbody');
+    tbody.innerHTML = '';
+
+    // Year-chart data
+    const yearLabels = allYears;
+    const memberReturns = MEMBERS.map(() => []);
+    const combinedByYear = [];
+    const capitalByYear = [];
+    const pctByYear = [];
+
+    allYears.forEach(yr => {
+        let combined = 0, capSum = 0, depSum = 0;
+        const memberVals = MEMBERS.map(m => {
+            const d = memberYearly[m.key][yr] || { total:0, avgCapital:0, annualPct:0, count:0 };
+            return d;
+        });
+
+        memberVals.forEach((d, i) => {
+            combined += d.total;
+            capSum += d.avgCapital;
+            depSum += (memberYearly[MEMBERS[i].key][yr] || { deposits:0 }).deposits;
+            grandTotals[MEMBERS[i].key] += d.total;
+            memberReturns[i].push(d.total);
+        });
+
+        const pct = capSum > 0 ? (combined / capSum) * 100 : 0;
+        grandCombined += combined;
+        grandCapital += capSum;
+        grandDeposits += depSum;
+        grandPctSum += pct; grandPctCount++;
+        combinedByYear.push(combined);
+        capitalByYear.push(capSum);
+        pctByYear.push(pct);
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td><strong>${yr}</strong></td>
+            ${memberVals.map((d, i) => `<td>${memberYearly[MEMBERS[i].key][yr] 
+                ? `<span class="${d.total>=0?'pos':'neg'}">${fcPlain(d.total)}</span>` 
+                : `<span style="color:var(--text-muted);font-size:11px">—</span>`}</td>`).join('')}
+            <td style="background:#eff6ff;border-left:2px solid #bfdbfe;font-weight:700">
+                <span class="${combined>=0?'pos':'neg'}">${fcPlain(combined)}</span>
+            </td>
+            <td>${fcPlain(capSum)}</td>
+            <td>${fcPlain(depSum)}</td>
+            <td style="background:#f0fdf4;border-left:2px solid #bbf7d0">
+                <span class="${pct>=0?'pos':'neg'}">${pct.toFixed(2)}%</span>
+            </td>
+        `;
+        tbody.appendChild(tr);
+    });
+
+    // Footer totals
+    MEMBERS.forEach(m => {
+        const el = document.getElementById(m.kpiId);
+        if (el) el.innerHTML = `<span class="${grandTotals[m.key]>=0?'pos':'neg'}">${fcPlain(grandTotals[m.key])}</span>`;
+    });
+    const avgPct = grandPctCount ? grandPctSum / grandPctCount : 0;
+    document.getElementById('gfCombinedTotal').innerHTML = `<span class="${grandCombined>=0?'pos':'neg'}" style="font-size:14px;font-weight:700">${fcPlain(grandCombined)}</span>`;
+    document.getElementById('gfCapitalTotal').innerHTML = fcPlain(grandCapital);
+    document.getElementById('gfDepositTotal').innerHTML = fcPlain(grandDeposits);
+    document.getElementById('gfOverallPct').innerHTML = `<span class="${avgPct>=0?'pos':'neg'}" style="font-weight:700">${avgPct.toFixed(2)}%</span>`;
+
+    // KPI strip
+    const activeMembers = MEMBERS.filter(m => (allUserData[m.key]||[]).length > 0).length;
+    document.getElementById('gautamFamilyKPI').innerHTML = `
+        <div class="fam-stat"><div class="fs-label">Total Combined Return</div><div class="fs-val" style="color:${grandCombined>=0?'var(--emerald)':'var(--crimson)'}">${fcPlain(grandCombined)}</div></div>
+        <div class="fam-stat"><div class="fs-label">Ajit Gautam</div><div class="fs-val" style="color:${grandTotals['Ajit Gautam']>=0?'var(--emerald)':'var(--crimson)'};font-size:17px">${fcPlain(grandTotals['Ajit Gautam'])}</div></div>
+        <div class="fam-stat"><div class="fs-label">Meenu Tyagi</div><div class="fs-val" style="color:${grandTotals['Meenu Tyagi']>=0?'var(--emerald)':'var(--crimson)'};font-size:17px">${fcPlain(grandTotals['Meenu Tyagi'])}</div></div>
+        <div class="fam-stat"><div class="fs-label">Prem Singh</div><div class="fs-val" style="color:${grandTotals['Prem Singh']>=0?'var(--emerald)':'var(--crimson)'};font-size:17px">${fcPlain(grandTotals['Prem Singh'])}</div></div>
+        <div class="fam-stat"><div class="fs-label">Ganga</div><div class="fs-val" style="color:${grandTotals['Ganga']>=0?'var(--emerald)':'var(--crimson)'};font-size:17px">${(allUserData['Ganga']||[]).length?fcPlain(grandTotals['Ganga']):'No data yet'}</div></div>
+        <div class="fam-stat"><div class="fs-label">Avg Annual %</div><div class="fs-val" style="color:${avgPct>=0?'var(--emerald)':'var(--crimson)'}">${avgPct.toFixed(2)}%</div></div>
+        <div class="fam-stat"><div class="fs-label">Total Capital Deployed</div><div class="fs-val" style="font-size:16px">${fcPlain(grandCapital)}</div></div>
+        <div class="fam-stat"><div class="fs-label">Active Members</div><div class="fs-val">${activeMembers} / 4</div></div>
+    `;
+
+    // ── Year-wise combined return chart ──
+    if (gautamFamilyYearChart) gautamFamilyYearChart.destroy();
+    gautamFamilyYearChart = new Chart(document.getElementById('gautamFamilyYearChart'), {
+        type: 'bar',
+        data: {
+            labels: yearLabels,
+            datasets: [{
+                label: 'Combined Return (₹)',
+                data: combinedByYear,
+                backgroundColor: combinedByYear.map(v => v>=0 ? 'rgba(37,99,235,0.75)' : 'rgba(192,57,43,0.75)'),
+                borderRadius: 6, borderWidth: 0
+            }, {
+                label: 'Total Capital Used (₹)',
+                data: capitalByYear,
+                backgroundColor: 'rgba(124,58,237,0.25)',
+                borderColor: 'rgba(124,58,237,0.7)',
+                borderWidth: 2,
+                type: 'line',
+                fill: false,
+                tension: 0.3,
+                pointRadius: 5,
+                yAxisID: 'y1'
+            }]
+        },
+        options: {
+            ...baseChartConfig,
+            plugins: {
+                ...baseChartConfig.plugins,
+                datalabels: {
+                    anchor: 'end', align: 'top',
+                    formatter: (v, ctx) => ctx.datasetIndex === 0 ? '₹'+(v/100000).toFixed(1)+'L' : '',
+                    color: ctx => ctx.dataset.data[ctx.dataIndex] < 0 ? '#c0392b' : '#1a7a4a',
+                    font: { weight: 'bold', size: 9 }
+                }
+            },
+            scales: {
+                y: { beginAtZero: false, grid: { color: 'rgba(189,195,199,0.2)' }, ticks: { callback: v => '₹'+(v/100000).toFixed(0)+'L', color:'#8896a8', font:{size:10} }, title: { display: true, text: 'Return (₹)', color:'#8896a8' } },
+                y1: { beginAtZero: false, position: 'right', grid: { drawOnChartArea: false }, ticks: { callback: v => '₹'+(v/10000000).toFixed(1)+'Cr', color:'#7c3aed', font:{size:10} }, title: { display: true, text: 'Capital (₹)', color:'#7c3aed' } },
+                x: { grid: { display: false }, ticks: { color:'#8896a8', font:{size:11} } }
+            }
+        }
+    });
+
+    // ── Cumulative all-4 chart ──
+    if (gautamFamilyCumChart) gautamFamilyCumChart.destroy();
+    const allMonthsSet = new Set();
+    MEMBERS.forEach(m => (allUserData[m.key]||[]).forEach(d => allMonthsSet.add(d.month)));
+    const mi2 = {Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,Jul:6,Aug:7,Sep:8,Oct:9,Nov:10,Dec:11};
+    const allMonths = Array.from(allMonthsSet).sort((a,b) => {
+        const [ma,ya] = a.split('-'), [mb,yb] = b.split('-');
+        return (parseInt(ya)-parseInt(yb)) || (mi2[ma]-mi2[mb]);
+    });
+    const memberColors = ['#2563eb','#7c3aed','#059669','#d97706'];
+    const cumDatasets = MEMBERS.map((m, i) => {
+        const ud = allUserData[m.key] || [];
+        const map = new Map(ud.map(d => [d.month, d.monthlyReturn]));
+        let cum = 0;
+        const color = memberColors[i];
+        return {
+            label: m.shortName,
+            data: allMonths.map(mo => { if(map.has(mo)){cum+=map.get(mo);return cum;} return null; }),
+            borderColor: color,
+            backgroundColor: color+'18',
+            fill: i === 0,
+            tension: 0.35,
+            pointRadius: 3,
+            spanGaps: true
+        };
+    });
+    // Combined total line
+    const combinedCumMap = {};
+    MEMBERS.forEach(m => {
+        (allUserData[m.key]||[]).forEach(d => {
+            combinedCumMap[d.month] = (combinedCumMap[d.month]||0) + (d.monthlyReturn||0);
+        });
+    });
+    let cumComb = 0;
+    cumDatasets.push({
+        label: '★ All Combined',
+        data: allMonths.map(mo => { cumComb += (combinedCumMap[mo]||0); return cumComb; }),
+        borderColor: '#0f2027',
+        backgroundColor: 'transparent',
+        borderWidth: 2.5,
+        borderDash: [5,3],
+        fill: false,
+        tension: 0.35,
+        pointRadius: 4,
+        pointBackgroundColor: '#0f2027'
+    });
+    gautamFamilyCumChart = new Chart(document.getElementById('gautamFamilyCumChart'), {
+        type: 'line',
+        data: { labels: allMonths, datasets: cumDatasets },
+        options: {
+            ...baseChartConfig,
+            plugins: { ...baseChartConfig.plugins, datalabels: { display: false } },
+            scales: {
+                y: { beginAtZero: false, grid: { color:'rgba(189,195,199,0.2)' }, ticks: { callback: v => '₹'+(v/100000).toFixed(1)+'L', color:'#8896a8', font:{size:10} } },
+                x: { grid: { display:false }, ticks: { color:'#8896a8', font:{size:10} } }
+            }
+        }
+    });
+
+    // ── Member contribution stacked bar ──
+    if (gautamFamilyContribChart) gautamFamilyContribChart.destroy();
+    gautamFamilyContribChart = new Chart(document.getElementById('gautamFamilyContribChart'), {
+        type: 'bar',
+        data: {
+            labels: yearLabels,
+            datasets: MEMBERS.map((m, i) => ({
+                label: m.shortName,
+                data: memberReturns[i],
+                backgroundColor: memberColors[i]+'bb',
+                borderColor: memberColors[i],
+                borderWidth: 1,
+                borderRadius: 4
+            }))
+        },
+        options: {
+            ...baseChartConfig,
+            plugins: {
+                ...baseChartConfig.plugins,
+                datalabels: {
+                    display: ctx => Math.abs(ctx.dataset.data[ctx.dataIndex]) > 50000,
+                    anchor: 'center', align: 'center',
+                    formatter: v => v >= 0 ? '₹'+(v/100000).toFixed(1)+'L' : '-₹'+(Math.abs(v)/100000).toFixed(1)+'L',
+                    color: '#fff',
+                    font: { weight: 'bold', size: 8 }
+                }
+            },
+            scales: {
+                x: { stacked: true, grid: { display: false }, ticks: { color:'#8896a8', font:{size:11} } },
+                y: { stacked: true, grid: { color:'rgba(189,195,199,0.2)' }, ticks: { callback: v => '₹'+(v/100000).toFixed(0)+'L', color:'#8896a8', font:{size:10} } }
+            }
+        }
+    });
+}
+
+// ── Master Update ──
+function updateAll() {
+    currentFinancialData = allUserData[currentUser] || [];
+    calculateMetrics();
+    updateHeroSummary();
+    updateKPIStrip();
+    updateTable();
+    updateCharts();
+    updateCumulativeUserChart();
+    displayAllUsersYearlySummaries();
+    updateFamilySummaries();
+    updateGautamFamilySection();
+    updateOverallYearlySummary();
+    updateOverallCharts();
+    updateCumulativeAllUsersChart();
+    updateMonthlyPercentageAllUsersChart();
+}
+
+// ── Dynamic Developer Name ──
+function editDevName() {
+    const current = document.getElementById('devName').textContent.trim();
+    const newName = prompt('Enter developer name:', current);
+    if (newName && newName.trim()) {
+        document.getElementById('devName').textContent = newName.trim();
+        localStorage.setItem('devName', newName.trim());
+    }
+}
+function loadDevName() {
+    const saved = localStorage.getItem('devName');
+    if (saved) document.getElementById('devName').textContent = saved;
+}
+
+// Market ticker powered by TradingView widget (see HTML header section)
+
+document.addEventListener('DOMContentLoaded', () => {
+    initializeUserManagement();
+    loadDevName();
+    restoreFormValues();
+    FORM_FIELDS.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+            el.addEventListener('input', persistFormValues);
+            el.addEventListener('change', persistFormValues);
+        }
+    });
+});
+</script>
+</body>
+</html>

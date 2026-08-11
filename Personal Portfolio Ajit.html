@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Professional Wealth Dashboard</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Google Fonts for a modern look -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-dark: #1a1d24;
+            --primary-light: #2c3e50;
+            --accent-green: #27ae60;
+            --accent-blue: #2980b9;
+            --accent-purple: #8e44ad;
+            --text-light: #f8f9fa;
+            --chart-red: #e74c3c;
+            --chart-yellow: #f1c40f;
+        }
+
+        body {
+            background: #f5f6fa;
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            color: var(--primary-dark);
+            display: flex; /* Use flexbox for sticky footer */
+            flex-direction: column; /* Stack content vertically */
+        }
+
+        .dashboard-container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 2rem;
+            flex-grow: 1; /* Allow content to grow and push footer down */
+        }
+
+        /* Welcome Message Styles */
+        .welcome-message {
+            text-align: center;
+            margin-top: 2rem;
+            margin-bottom: 2rem;
+        }
+        .welcome-message h1 {
+            color: var(--primary-light);
+            font-weight: 700;
+        }
+        .welcome-message p {
+            color: #6c757d;
+            font-size: 1.1rem;
+        }
+
+        .input-panel {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            padding: 1.5rem;
+        }
+
+        .input-section-title {
+            color: var(--primary-light);
+            margin-bottom: 1rem;
+            font-weight: 600;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 0.5rem;
+        }
+
+        /* Styles for the new side-by-side label/input layout */
+        .input-group-row { /* Custom class to wrap label and input */
+            margin-bottom: 1.2rem; /* Space between input groups */
+        }
+        .input-group-row .form-label {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--primary-light);
+            margin-bottom: 0; /* Remove default margin-bottom as row handles spacing */
+            padding-top: 0.375rem; /* Align with input field's vertical center */
+        }
+        .input-group-row .form-control {
+            border: 1px solid #ced4da;
+            border-radius: 8px;
+            padding: 0.6rem 0.8rem;
+            font-size: 0.95rem;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            width: 100%; /* Ensure input field takes full width of its container */
+        }
+        .input-group-row .form-control:focus {
+            border-color: var(--accent-green);
+            box-shadow: 0 0 0 0.25rem rgba(39, 174, 96, 0.25);
+        }
+
+        .metric-card {
+            background: white;
+            border-radius: 10px;
+            padding: 1.2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            transition: transform 0.2s, box-shadow 0.2s;
+            text-align: center; /* Center align content */
+            cursor: help; /* Indicate that it's hoverable for info */
+        }
+
+        .metric-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+        }
+
+        .chart-container {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            height: 350px; /* Fixed height for consistency */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .metric-value {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: var(--primary-dark);
+            margin-top: 0.5rem;
+        }
+
+        .metric-label {
+            font-size: 0.9rem;
+            color: #6c757d;
+            font-weight: 500;
+        }
+
+        /* Specific chart heights */
+        #netWorthChartContainer, #assetAllocationChartContainer {
+            height: 350px; /* Match chart-container height */
+        }
+        
+        /* Adjust for smaller screens */
+        @media (max-width: 992px) {
+            .dashboard-container {
+                padding: 1rem;
+            }
+            .chart-container, #netWorthChartContainer, #assetAllocationChartContainer {
+                height: 280px; /* Slightly smaller charts on medium screens */
+            }
+            .metric-value {
+                font-size: 1.3rem;
+            }
+        }
+        @media (max-width: 768px) {
+            .input-panel {
+                margin-bottom: 2rem;
+            }
+            .chart-container, #netWorthChartContainer, #assetAllocationChartContainer {
+                height: 250px; /* Smaller charts on small screens */
+            }
+            .metric-value {
+                font-size: 1.2rem;
+            }
+        }
+
+        /* Footer Styles */
+        .footer-message {
+            text-align: center;
+            padding: 1rem 0; /* Vertical padding */
+            color: #6c757d;
+            font-size: 0.9rem;
+            border-top: 1px solid #eee; /* Subtle separator */
+            margin-top: 2rem; /* Space above footer */
+            width: 100%; /* Ensure it spans full width */
+        }
+    </style>
+</head>
+<body>
+    <!-- Welcome Message -->
+    <div class="welcome-message container text-center">
+        <h1 class="display-5">Welcome to Your Financial Dashboard!</h1>
+        <p class="lead">Gain insights into your wealth and investments.</p>
+    </div>
+
+    <div class="dashboard-container">
+        <div class="row g-4">
+            <!-- Input Panel -->
+            <div class="col-lg-4">
+                <div class="input-panel">
+                    <h4 class="input-section-title">Financial Inputs</h4>
+                    
+                    <!-- Income Section -->
+                    <div class="mb-4">
+                        <h6 class="input-section-title" style="color: var(--accent-green);">Income Sources</h6>
+                        <div class="input-group-row">
+                            <div class="row g-2 align-items-center">
+                                <div class="col-md-4">
+                                    <label class="form-label">Monthly Salary (₹)</label>
+                                </div>
+                                <div class="col-md-8">
+                                    <input type="number" class="form-control" id="salary" placeholder="Enter monthly salary">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="input-group-row">
+                            <div class="row g-2 align-items-center">
+                                <div class="col-md-4">
+                                    <label class="form-label">Annual Bonus (₹)</label>
+                                </div>
+                                <div class="col-md-8">
+                                    <input type="number" class="form-control" id="bonus" placeholder="Enter annual bonus">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="input-group-row">
+                            <div class="row g-2 align-items-center">
+                                <div class="col-md-4">
+                                    <label class="form-label">Rental Income (₹)</label>
+                                </div>
+                                <div class="col-md-8">
+                                    <input type="number" class="form-control" id="rental" placeholder="Enter rental income">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="input-group-row">
+                            <div class="row g-2 align-items-center">
+                                <div class="col-md-4">
+                                    <label class="form-label">Monthly Bond Interest (₹)</label>
+                                </div>
+                                <div class="col-md-8">
+                                    <input type="number" class="form-control" id="monthlyBondInterest" placeholder="Enter bond interest">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Investments Section -->
+                    <div class="mb-4">
+                        <h6 class="input-section-title" style="color: var(--accent-blue);">Investments</h6>
+                        <div class="input-group-row">
+                            <div class="row g-2 align-items-center">
+                                <div class="col-md-4">
+                                    <label class="form-label">Equity Investments (₹)</label>
+                                </div>
+                                <div class="col-md-8">
+                                    <input type="number" class="form-control" id="equity" placeholder="Enter equity value">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="input-group-row">
+                            <div class="row g-2 align-items-center">
+                                <div class="col-md-4">
+                                    <label class="form-label">Real Estate Value (₹)</label>
+                                </div>
+                                <div class="col-md-8">
+                                    <input type="number" class="form-control" id="realEstate" placeholder="Enter property value">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="input-group-row">
+                            <div class="row g-2 align-items-center">
+                                <div class="col-md-4">
+                                    <label class="form-label">Bond Holdings (₹)</label>
+                                </div>
+                                <div class="col-md-8">
+                                    <input type="number" class="form-control" id="bonds" placeholder="Enter bond value">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Expenses Section -->
+                    <div class="mb-4">
+                        <h6 class="input-section-title" style="color: var(--accent-purple);">Expenses</h6>
+                        <div class="input-group-row">
+                            <div class="row g-2 align-items-center">
+                                <div class="col-md-4">
+                                    <label class="form-label">Rent/EMI (₹)</label>
+                                </div>
+                                <div class="col-md-8">
+                                    <input type="number" class="form-control" id="rentEmi" placeholder="Enter rent or EMI">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="input-group-row">
+                            <div class="row g-2 align-items-center">
+                                <div class="col-md-4">
+                                    <label class="form-label">Living Expenses (₹)</label>
+                                </div>
+                                <div class="col-md-8">
+                                    <input type="number" class="form-control" id="livingCosts" placeholder="Enter living costs">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="input-group-row">
+                            <div class="row g-2 align-items-center">
+                                <div class="col-md-4">
+                                    <label class="form-label">Other Expenses (₹)</label>
+                                </div>
+                                <div class="col-md-8">
+                                    <input type="number" class="form-control" id="otherExpenses" placeholder="Enter other expenses">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Output Panel -->
+            <div class="col-lg-8">
+                <div class="row g-4">
+                    <!-- Key Metrics -->
+                    <div class="col-12">
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <div class="metric-card" title="Net Worth = Total Assets + Yearly Savings. Yearly Savings = (Monthly Income - Monthly Expenses) * 12.">
+                                    <div class="metric-label">Net Worth</div>
+                                    <div class="metric-value" id="netWorth">₹0</div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="metric-card" title="Monthly Cash Flow = Total Monthly Income - Total Monthly Expenses.">
+                                    <div class="metric-label">Monthly Cash Flow</div>
+                                    <div class="metric-value" id="cashFlow">₹0</div>
+                                </div>
+                            </div>
+                             <!-- Added Yearly Savings Metric -->
+                            <div class="col-md-4">
+                                <div class="metric-card" title="Yearly Savings = Monthly Cash Flow * 12.">
+                                    <div class="metric-label">Yearly Savings</div>
+                                    <div class="metric-value" id="yearlySavings">₹0</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Detailed Metrics -->
+                    <div class="col-12">
+                        <div class="row g-3">
+                            <div class="col-md-6"> <!-- Total Assets -->
+                                <div class="metric-card" title="Total Assets = Equity Investments + Real Estate Value + Bond Holdings.">
+                                    <div class="metric-label">Total Assets</div>
+                                    <div class="metric-value" id="totalAssets">₹0</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6"> <!-- Liquid Assets -->
+                                <div class="metric-card" title="Liquid Assets = Equity Investments + Bond Holdings.">
+                                    <div class="metric-label">Liquid Assets</div>
+                                    <div class="metric-value" id="liquidAssets">₹0</div>
+                                </div>
+                            </div>
+                            <!-- Removed Debt Ratio and Investment Yield -->
+                        </div>
+                    </div>
+
+                    <!-- Main Charts -->
+                    <div class="col-12">
+                        <div class="chart-container" id="netWorthChartContainer">
+                            <canvas id="netWorthChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="chart-container" id="assetAllocationChartContainer">
+                            <canvas id="assetAllocationChart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <!-- Removed the Cash Flow Chart container as requested -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer-message">
+        <p>Developed by Ajit Gautam</p>
+    </footer>
+
+    <!-- Chart.js Library -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Function to check if localStorage is available and usable
+        function isLocalStorageAvailable() {
+            try {
+                const testKey = '__storage_test__';
+                if (typeof localStorage === 'undefined' || localStorage === null) {
+                    console.warn("localStorage is not available.");
+                    return false;
+                }
+                localStorage.setItem(testKey, testKey);
+                localStorage.removeItem(testKey);
+                return true;
+            } catch (e) {
+                console.warn("localStorage is not available or is disabled:", e);
+                return false;
+            }
+        }
+
+        const localStorageAvailable = isLocalStorageAvailable();
+        console.log("localStorage available:", localStorageAvailable);
+
+        // Define CSS variables as JS constants for chart colors
+        const colors = {
+            primaryDark: '#1a1d24',
+            primaryLight: '#2c3e50',
+            accentGreen: '#27ae60',
+            accentBlue: '#2980b9',
+            accentPurple: '#8e44ad',
+            chartRed: '#e74c3c',
+            chartYellow: '#f1c40f'
+        };
+
+        // --- Chart Initialization ---
+        let netWorthChart = null;
+        let assetAllocationChart = null;
+
+        const netWorthChartCanvas = document.getElementById('netWorthChart');
+        const assetAllocationChartCanvas = document.getElementById('assetAllocationChart');
+
+        // Initialize Net Worth Chart
+        if (netWorthChartCanvas) {
+            try {
+                console.log("Attempting to initialize Net Worth Chart...");
+                netWorthChart = new Chart(netWorthChartCanvas, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Total Assets', 'Liabilities', 'Net Worth'],
+                        datasets: [{
+                            label: 'Value (₹)',
+                            data: [0, 0, 0], // Initial data
+                            backgroundColor: [colors.accentGreen, colors.chartRed, colors.primaryLight],
+                            borderRadius: 5 // Rounded bars
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { position: 'top' },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        let label = context.dataset.label || '';
+                                        if (label) {
+                                            label += ': ';
+                                        }
+                                        if (context.parsed.y !== null) {
+                                            label += `₹${context.parsed.y.toLocaleString('en-IN')}`;
+                                        }
+                                        return label;
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: function(value) {
+                                        if (typeof value === 'number' && !isNaN(value)) {
+                                            return `₹${value.toLocaleString('en-IN')}`;
+                                        }
+                                        return '';
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+                console.log("Net Worth Chart initialized successfully.");
+            } catch (e) {
+                console.error("Error initializing Net Worth Chart:", e);
+            }
+        } else {
+            console.error("Canvas element for 'netWorthChart' not found! Please check the HTML ID.");
+        }
+
+        // Initialize Asset Allocation Chart
+        if (assetAllocationChartCanvas) {
+            try {
+                console.log("Attempting to initialize Asset Allocation Chart...");
+                assetAllocationChart = new Chart(assetAllocationChartCanvas, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Equity', 'Real Estate', 'Bonds'],
+                        datasets: [{
+                            data: [0, 0, 0], // Initial data
+                            backgroundColor: [colors.accentBlue, colors.accentPurple, colors.chartYellow],
+                            hoverOffset: 4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { position: 'bottom' },
+                            tooltip: {
+                                callbacks: {
+                                    label: (context) => {
+                                        const rawValue = parseFloat(context.raw);
+                                        if (typeof rawValue === 'number' && !isNaN(rawValue)) {
+                                            return ` ₹${rawValue.toLocaleString('en-IN')}`;
+                                        }
+                                        return ' ₹0';
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+                console.log("Asset Allocation Chart initialized successfully.");
+            } catch (e) {
+                console.error("Error initializing Asset Allocation Chart:", e);
+            }
+        } else {
+            console.error("Canvas element for 'assetAllocationChart' not found! Please check the HTML ID.");
+        }
+
+        // Function to safely get and parse number inputs
+        function getNumericInputValue(id) {
+            const element = document.getElementById(id);
+            if (!element) {
+                console.warn(`Input element with ID "${id}" not found.`);
+                return 0;
+            }
+            const value = parseFloat(element.value);
+            return isNaN(value) ? 0 : value;
+        }
+
+        // Function to update dashboard metrics and charts
+        function updateDashboard() {
+            console.log("--- updateDashboard START ---");
+            try {
+                // Save all inputs to localStorage if available
+                if (localStorageAvailable) {
+                    document.querySelectorAll('input').forEach(input => {
+                        try {
+                            localStorage.setItem(input.id, input.value);
+                            // console.log(`Saved localStorage for ${input.id}: ${input.value}`);
+                        } catch (e) {
+                            console.error(`Error saving localStorage for input ${input.id}:`, e);
+                        }
+                    });
+                } else {
+                    console.log("localStorage not available, skipping save.");
+                }
+
+                // Get values from inputs
+                const salary = getNumericInputValue('salary');
+                const bonus = getNumericInputValue('bonus');
+                const rental = getNumericInputValue('rental');
+                const monthlyBondInterest = getNumericInputValue('monthlyBondInterest');
+                
+                const equity = getNumericInputValue('equity');
+                const realEstate = getNumericInputValue('realEstate');
+                const bonds = getNumericInputValue('bonds');
+                
+                const rentEmi = getNumericInputValue('rentEmi');
+                const livingCosts = getNumericInputValue('livingCosts');
+                const otherExpenses = getNumericInputValue('otherExpenses');
+
+                console.log("Input values:", { salary, bonus, rental, monthlyBondInterest, equity, realEstate, bonds, rentEmi, livingCosts, otherExpenses });
+
+                // --- Calculations ---
+                console.log("Performing calculations...");
+                const monthlyIncome = salary + rental + monthlyBondInterest;
+                const monthlyExpenses = rentEmi + livingCosts + otherExpenses;
+                const monthlyCashFlow = monthlyIncome - monthlyExpenses;
+                const yearlySavings = monthlyCashFlow * 12;
+                const totalAssets = equity + realEstate + bonds;
+                const totalLiabilities = 0; // Hardcoded as no liabilities are tracked
+                const netWorth = totalAssets + yearlySavings;
+                
+                const savingsRate = (monthlyIncome > 0) ? ((monthlyCashFlow / monthlyIncome) * 100) : 0;
+                const savingsRateFormatted = savingsRate.toFixed(1);
+
+                const liquidAssets = equity + bonds;
+
+                console.log("Calculated values:", { monthlyIncome, monthlyExpenses, monthlyCashFlow, yearlySavings, totalAssets, totalLiabilities, netWorth, savingsRateFormatted, liquidAssets });
+
+                // --- Update Metrics Display ---
+                console.log("Updating DOM metrics...");
+                document.getElementById('netWorth').textContent = `₹${typeof netWorth === 'number' && !isNaN(netWorth) ? netWorth.toLocaleString('en-IN') : '0'}`;
+                document.getElementById('cashFlow').textContent = `₹${typeof monthlyCashFlow === 'number' && !isNaN(monthlyCashFlow) ? monthlyCashFlow.toLocaleString('en-IN') : '0'}`;
+                document.getElementById('yearlySavings').textContent = `₹${typeof yearlySavings === 'number' && !isNaN(yearlySavings) ? yearlySavings.toLocaleString('en-IN') : '0'}`;
+                document.getElementById('savingsRate').textContent = `${typeof savingsRate === 'number' && !isNaN(savingsRate) ? savingsRateFormatted : '0.0'}%`;
+                document.getElementById('totalAssets').textContent = `₹${typeof totalAssets === 'number' && !isNaN(totalAssets) ? totalAssets.toLocaleString('en-IN') : '0'}`;
+                document.getElementById('liquidAssets').textContent = `₹${typeof liquidAssets === 'number' && !isNaN(liquidAssets) ? liquidAssets.toLocaleString('en-IN') : '0'}`;
+                console.log("DOM metrics updated.");
+
+                // --- Update Charts ---
+                console.log("Attempting to update charts...");
+                // Net Worth Chart
+                if (netWorthChart && netWorthChart.data && netWorthChart.data.datasets && netWorthChart.data.datasets[0]) {
+                    const netWorthChartData = [
+                        typeof totalAssets === 'number' && !isNaN(totalAssets) ? totalAssets : 0,
+                        typeof totalLiabilities === 'number' && !isNaN(totalLiabilities) ? totalLiabilities : 0,
+                        typeof netWorth === 'number' && !isNaN(netWorth) ? netWorth : 0
+                    ];
+                    console.log("Data for netWorthChart:", netWorthChartData);
+                    netWorthChart.data.datasets[0].data = netWorthChartData;
+                    netWorthChart.update();
+                    console.log("Net Worth Chart updated.");
+                } else {
+                    console.warn("netWorthChart not initialized or data structure missing. Cannot update.");
+                }
+
+                // Asset Allocation Chart
+                if (assetAllocationChart && assetAllocationChart.data && assetAllocationChart.data.datasets && assetAllocationChart.data.datasets[0]) {
+                    const assetAllocationData = [
+                        typeof equity === 'number' && !isNaN(equity) ? equity : 0,
+                        typeof realEstate === 'number' && !isNaN(realEstate) ? realEstate : 0,
+                        typeof bonds === 'number' && !isNaN(bonds) ? bonds : 0
+                    ];
+                    console.log("Data for assetAllocationChart:", assetAllocationData);
+                    assetAllocationChart.data.datasets[0].data = assetAllocationData;
+                    assetAllocationChart.update();
+                    console.log("Asset Allocation Chart updated.");
+                } else {
+                    console.warn("assetAllocationChart not initialized or data structure missing. Cannot update.");
+                }
+                console.log("--- updateDashboard END ---");
+
+            } catch (error) {
+                console.error("An uncaught error occurred in updateDashboard:", error); // Log the full error object
+                // Display a user-friendly message if an error occurs
+                alert("An error occurred while updating the dashboard. Please check the browser's developer console for more details.");
+            }
+        }
+
+        // --- Event Listeners Setup ---
+        document.querySelectorAll('input').forEach(input => {
+            // Load saved value or default to empty
+            if (localStorageAvailable) {
+                try {
+                    const savedValue = localStorage.getItem(input.id);
+                    input.value = savedValue === null ? '' : savedValue;
+                    // console.log(`Loaded localStorage for ${input.id}: ${input.value}`);
+                } catch (e) {
+                    console.error(`Error loading localStorage for input ${input.id}:`, e);
+                    input.value = ''; // Default to empty if error occurs
+                }
+            }
+            // Add event listener for input changes
+            input.addEventListener('input', updateDashboard);
+        });
+
+        // Initial calculation on page load
+        console.log("Page loaded, attempting initial updateDashboard call.");
+        updateDashboard();
+    </script>
+</body>
+</html>

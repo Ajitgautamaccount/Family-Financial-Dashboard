@@ -1,0 +1,1938 @@
+----------------------------------------------------------------------------------------------------
+Category               ABAP programming error                                                       
+Runtime Errors         CONVT_OVERFLOW                                                               
+Except.                CX_SY_CONVERSION_OVERFLOW                                                    
+ABAP: Program          CL_RSTXT_DEFAULT_PERSISTENCE==CP                                             
+Application Component  BC-SRV-SCR                                                                   
+Date and Time          18.03.2026 09:53:15 (UTC)                                                    
+----------------------------------------------------------------------------------------------------
+
+----------------------------------------------------------------------------------------------------
+|Short Text                                                                                        |
+|    Overflow when converting 256                                                                  |
+----------------------------------------------------------------------------------------------------
+
+----------------------------------------------------------------------------------------------------
+|What happened?                                                                                    |
+|    Error in the ABAP application program.                                                        |
+|                                                                                                  |
+|    The current ABAP program "CL_RSTXT_DEFAULT_PERSISTENCE==CP" had to be                         |
+|     terminated because it found a                                                                |
+|    statement that could not be executed.                                                         |
+----------------------------------------------------------------------------------------------------
+
+----------------------------------------------------------------------------------------------------
+|What can you do?                                                                                  |
+|    Note which actions and entries caused the error to occur.                                     |
+|                                                                                                  |
+|    Consult your SAP administrator.                                                               |
+|                                                                                                  |
+|    Using transaction ST22 for ABAP dump analysis, you can view, manage,                          |
+|    and retain termination messages for longer periods.                                           |
+|    Note which actions and entries caused the error to occur.                                     |
+|                                                                                                  |
+|    Consult your SAP administrator.                                                               |
+|                                                                                                  |
+|    Using transaction ST22 for ABAP dump analysis, you can view, manage,                          |
+|    and retain termination messages for longer periods.                                           |
+----------------------------------------------------------------------------------------------------
+
+----------------------------------------------------------------------------------------------------
+|Error analysis                                                                                    |
+|    During COMMIT WORK processing, an exception has occurred that could not                       |
+|    be intercepted during processing. To avoid inconsistencies, this                              |
+|    situation causes the session to abort, regardless of whether or not                           |
+|    there is an exception handler outside the COMMIT WORK statement. The                          |
+|    reason for the exception occurring was:                                                       |
+|    An overflow occurred while attempting to convert value 256.                                   |
+----------------------------------------------------------------------------------------------------
+
+----------------------------------------------------------------------------------------------------
+|How to correct the error                                                                          |
+|    COMMIT WORK processing cannot be interrupted. If the exception cannot                         |
+|    be prevented, "CX_SY_CONVERSION_OVERFLOW" must be caught when processing the                  |
+|     COMMIT WORK. To                                                                              |
+|    prevent the exception, note the following:                                                    |
+|                                                                                                  |
+|    If the error occurs in one of your own ABAP programs or an SAP program                        |
+|    that you have modified, try to remedy the error.                                              |
+|    If the error occurs in a non-modfied SAP program, you might be able to                        |
+|    find a solution in the SAP Notes system. If you have access to the SAP                        |
+|    Notes system, check there first using the following keywords:                                 |
+|                                                                                                  |
+|    "CONVT_OVERFLOW" CX_SY_CONVERSION_OVERFLOW                                                    |
+|    "CL_RSTXT_DEFAULT_PERSISTENCE==CP" bzw. CL_RSTXT_DEFAULT_PERSISTENCE==CM00F                   |
+|    "MODIFY_MULTIPLE"                                                                             |
+|    If you cannot solve the problem yourself, please send the following                           |
+|    information to SAP:                                                                           |
+|                                                                                                  |
+|    1. The description of the problem (short dump)                                                |
+|    Please press the "Local File” button in the current display.                                  |
+|                                                                                                  |
+|    2. The relevant system log                                                                    |
+|    To do this, call the system log in transaction SM21. Restrict the time                        |
+|    interval to ten minutes before the short dump and five minutes after                          |
+|    it. In the display, choose System -> List -> Save -> Local File                               |
+|    (unconverted).                                                                                |
+|                                                                                                  |
+|    3. If these are programs of your own, or modified SAP programs: The                           |
+|    source text of the programs                                                                   |
+|    To do this, please choose                                                                     |
+|    "Other Utilities -> Upload/Download -> Download".                                             |
+|                                                                                                  |
+|    4. Details regarding the conditions under which the error occurred or                         |
+|    which actions and input caused the error.                                                     |
+|    which actions and input caused the error.                                                     |
+----------------------------------------------------------------------------------------------------
+
+----------------------------------------------------------------------------------------------------
+|System environment                                                                                |
+|    SAP Release..... 758                                                                          |
+|    SAP Basis level 0002                                                                          |
+|                                                                                                  |
+|    Application server... vhsiss4pci                                                              |
+|    Instance name....... vhsiss4pci_S4P_02                                                        |
+|    Network address...... 10.133.254.15                                                           |
+|    Operating system... Linux                                                                     |
+|    Release.............. 5.14.21-150500.55.11                                                    |
+|    Hardware type....... x86_64                                                                   |
+|    Character length..... 16 Bits                                                                 |
+|    Pointer length........ 64 Bits                                                                |
+|    Work process number... 74                                                                     |
+|    Work process ID....... 3603679                                                                |
+|    ABAP load version.... 3236                                                                    |
+|    Shortdump setting. full                                                                       |
+|                                                                                                  |
+|    Database server... vhsishp4db01                                                               |
+|    Database type..... HDB                                                                        |
+|    Database name..... S4P                                                                        |
+|    Database user ID SAPDAT                                                                       |
+|                                                                                                  |
+|    Terminal.......... 10.133.252.7                                                               |
+|                                                                                                  |
+|    Character set C                                                                               |
+|                                                                                                  |
+|    SAP kernel....... 793                                                                         |
+|    Created on....... Sep 19 2025 20:30:55                                                        |
+|    Created at....... Linux GNU SLES-15 x86_64  cc10.3.0 use-pr250919                             |
+|    Database version SQLDBC 2.26.018.1753711400                                                   |
+|    Patch level....... 329                                                                        |
+|    Patch text.......                                                                             |
+|    Hash............. b7117e5e769dca5c06774c2710f73c648968f9dd                                    |
+|    Version.......... v7.93-7143-gb7117e5e                                                        |
+|                                                                                                  |
+|    Database............ HANA 1.0, HANA 2.0                                                       |
+|    SAP database version. 793                                                                     |
+|    Operating system... Linux,   GitVers: v7.93-7143-gb7117e5e,   GitHash:                        |
+|     b7117e5e769dca5c06774c2710f73c648968f9dd                                                     |
+|                                                                                                  |
+|    Memory consumption                                                                            |
+|    EM...... 642368119 Bytes                                                                      |
+|    Heap........................ 0 Bytes                                                          |
+|    Page........................ 483540992 Bytes                                                  |
+|    MM used memory..... 194289040 Bytes                                                           |
+|    MM free memory.......... 1874872 Bytes                                                        |
+|    MM largest free block... 1815112 Bytes                                                        |
+|    MM used blocks....... 22743                                                                   |
+|    MM free blocks............ 40                                                                 |
+|    MM maximum memory used... 194289040 Bytes                                                     |
+----------------------------------------------------------------------------------------------------
+
+----------------------------------------------------------------------------------------------------
+|User and Transaction                                                                              |
+|    Client................. 100                                                                   |
+|    User.................. RFC_ZIND                                                               |
+|    Language key.......... E                                                                      |
+|    Transaction.........                                                                          |
+|    Transaction ID...... 99624A8A43EA04A0E0069BA2E8060E26                                         |
+|                                                                                                  |
+|    EPP Root Context ID.... EBBC04F5D6B11FE188D6048E876055A0                                      |
+|    EPP Connection ID...... EBBC04F5D6B11FE188D6048E876075A0                                      |
+|    EPP Connection Counter. 1                                                                     |
+|    EPP Component Name..... S4P/vhsiss4pci_S4P_02                                                 |
+|                                                                                                  |
+|    Program....................... CL_RSTXT_DEFAULT_PERSISTENCE==CP                               |
+|    Screen......................... SAPMSSY0                                1000                  |
+|    Screen line.................... 6                                                             |
+|    Debugger interpretor loop... "none"                                                           |
+----------------------------------------------------------------------------------------------------
+
+----------------------------------------------------------------------------------------------------
+|Server-Side Connection Information                                                                |
+|    Information on caller of "HTTPS" connection: Plug-in type.........  HTTPS                     |
+|    Caller IP.............. 10.133.252.7                                                          |
+|    Caller port............  44309                                                                |
+|    Universal resource ID                                                                         |
+|     /sap/opu/odata4/sap/api_purchaserequisition_2/srvd_a2x/sap/purchaserequisition               |
+|    /0001/$batch                                                                                  |
+|                                                                                                  |
+|    Program.............. CL_RSTXT_DEFAULT_PERSISTENCE==CP                                        |
+|    Screen.............. SAPMSSY0                                1000                             |
+|    Screen line.......... 6                                                                       |
+|                                                                                                  |
+|    Information on caller of "HTTPS" connection: Plug-in type.........  HTTPS                     |
+|    Caller IP.............. 10.133.252.7                                                          |
+|    Caller port............  44309                                                                |
+|    Universal resource ID                                                                         |
+|     "/sap/opu/odata4/sap/api_purchaserequisition_2/srvd_a2x/sap/purchaserequisitio               |
+|    n/0001/$batch"                                                                                |
+----------------------------------------------------------------------------------------------------
+
+----------------------------------------------------------------------------------------------------
+|Chain of Exception Objects                                                                        |
+----------------------------------------------------------------------------------------------------
+|Level        Class                                                                                |
+|Attrib. Name                   Value                                                              |
+----------------------------------------------------------------------------------------------------
+|1            CX_SY_CONVERSION_OVERFLOW                                                            |
+|(Program)                      CL_RSTXT_DEFAULT_PERSISTENCE==CP                                   |
+|(Include)                      CL_RSTXT_DEFAULT_PERSISTENCE==CM00F                                |
+|(Row)                          113                                                                |
+|(Short Text)                   Overflow converting from '256'                                     |
+|(Long Text)                    The attempt to convert '256' returned a value which lies outwith   |
+|                               the valid value range. This resulted in an overflow.               |
+|IS_RESUMABLE                                                                                      |
+|KERNEL_ERRID                   CONVT_OVERFLOW                                                     |
+|VALUE                          256                                                                |
+----------------------------------------------------------------------------------------------------
+
+----------------------------------------------------------------------------------------------------
+|Information on where terminated                                                                   |
+|    The termination occurred in ABAP program or include                                           |
+|     "CL_RSTXT_DEFAULT_PERSISTENCE==CP", in "MODIFY_MULTIPLE". The                                |
+|    main program was "SAPMSSY4".                                                                  |
+|                                                                                                  |
+|    In the source code, the termination point is in line 113 of include                           |
+|     "CL_RSTXT_DEFAULT_PERSISTENCE==CM00F".                                                       |
+|    include "CL_RSTXT_DEFAULT_PERSISTENCE==CM00F".                                                |
+----------------------------------------------------------------------------------------------------
+
+----------------------------------------------------------------------------------------------------
+|Source Code Extract                                                                               |
+----------------------------------------------------------------------------------------------------
+|Line |Code                                                                                        |
+----------------------------------------------------------------------------------------------------
+|   83|                                                                                            |
+|   84|          CLEAR l_stxb.                                                                     |
+|   85|          l_stxb-relid = 'TX'.                                                              |
+|   86|          l_stxb-tdobject = <l_text_change>-header-tdobject.                                |
+|   87|          l_stxb-tdname   = <l_text_change>-header-tdname.                                  |
+|   88|          l_stxb-tdid     = <l_text_change>-header-tdid.                                    |
+|   89|          l_stxb-tdspras  = <l_text_change>-header-tdspras.                                 |
+|   90|          LOOP AT l_cluster_table ASSIGNING FIELD-SYMBOL(<l_cluster>).                      |
+|   91|            l_stxb-strf2 = sy-tabix - 1.                                                    |
+|   92|            l_stxb-clustr = <l_cluster>-clustr.                                             |
+|   93|            l_stxb-clustd = <l_cluster>-clustd.                                             |
+|   94|            IF <l_text_change>-function = c_function_insert.                                |
+|   95|              APPEND l_stxb TO l_stxb_insert_table.                                         |
+|   96|            ELSE.                                                                           |
+|   97|              APPEND l_stxb TO l_stxb_update_table.                                         |
+|   98|            ENDIF.                                                                          |
+|   99|          ENDLOOP.                                                                          |
+|  100|        ELSE.                                                                               |
+|  101|          CLEAR l_cluster_table.                                                            |
+|  102|          EXPORT tline FROM <l_text_change>-lines                                           |
+|  103|                 TO INTERNAL TABLE l_cluster_table                                          |
+|  104|                 COMPRESSION ON.                                                            |
+|  105|                                                                                            |
+|  106|          CLEAR l_stxl.                                                                     |
+|  107|          l_stxl-relid = 'TX'.                                                              |
+|  108|          l_stxl-tdobject = <l_text_change>-header-tdobject.                                |
+|  109|          l_stxl-tdname   = <l_text_change>-header-tdname.                                  |
+|  110|          l_stxl-tdid     = <l_text_change>-header-tdid.                                    |
+|  111|          l_stxl-tdspras  = <l_text_change>-header-tdspras.                                 |
+|  112|          LOOP AT l_cluster_table ASSIGNING <l_cluster>.                                    |
+|>>>>>|            l_stxl-srtf2 = sy-tabix - 1.                                                    |
+|  114|            l_stxl-clustr = <l_cluster>-clustr.                                             |
+|  115|            l_stxl-clustd = <l_cluster>-clustd.                                             |
+|  116|            IF <l_text_change>-function = c_function_insert.                                |
+|  117|              APPEND l_stxl TO l_stxl_insert_table.                                         |
+|  118|            ELSE.                                                                           |
+|  119|              APPEND l_stxl TO l_stxl_update_table.                                         |
+|  120|            ENDIF.                                                                          |
+|  121|          ENDLOOP.                                                                          |
+|  122|        ENDIF.                                                                              |
+|  123|      ELSE.                                                                                 |
+|  124|        IF <l_text_change>-header-tdtexttype IS NOT INITIAL.                                |
+|  125|          l_lines = <l_text_change>-lines.                                                  |
+|  126|          PERFORM convert_lines_bin_2_text IN PROGRAM saplstxd TABLES l_lines               |
+|  127|                                                               USING ' '                    |
+|  128|                                                                     <l_text_change>-header.|
+|  129|          cl_rstx_table_view=>modify_stxb( EXPORTING i_tdobject = l_stxl_id-tdobject        |
+|  130|                                                     i_tdname = l_stxl_id-tdname            |
+|  131|                                                     i_tdid = l_stxl_id-tdid                |
+|  132|                                                     i_tdspras = l_stxl_id-tdspras          |
+----------------------------------------------------------------------------------------------------
+
+----------------------------------------------------------------------------------------------------
+|Contents of system fields                                                                         |
+----------------------------------------------------------------------------------------------------
+|Name    |Val.                                                                                     |
+----------------------------------------------------------------------------------------------------
+|SY-SUBRC|0                                                                                        |
+|SY-INDEX|0                                                                                        |
+|SY-TABIX|257                                                                                      |
+|SY-DBCNT|1                                                                                        |
+|SY-FDPOS|0                                                                                        |
+|SY-LSIND|0                                                                                        |
+|SY-PAGNO|0                                                                                        |
+|SY-LINNO|1                                                                                        |
+|SY-COLNO|1                                                                                        |
+|SY-PFKEY|STLI                                                                                     |
+|SY-UCOMM|                                                                                         |
+|SY-TITLE|Update Control                                                                           |
+|SY-MSGTY|                                                                                         |
+|SY-MSGID|                                                                                         |
+|SY-MSGNO|000                                                                                      |
+|SY-MSGV1|                                                                                         |
+|SY-MSGV2|                                                                                         |
+|SY-MSGV3|                                                                                         |
+|SY-MSGV4|                                                                                         |
+|SY-MODNO|0                                                                                        |
+|SY-DATUM|20260318                                                                                 |
+|SY-UZEIT|095314                                                                                   |
+|SY-XPROG|RSDBRUNT                                                                                 |
+|SY-XFORM|%_INIT_PBO_FIRST                                                                         |
+----------------------------------------------------------------------------------------------------
+
+----------------------------------------------------------------------------------------------------
+|Active Calls/Events                                                                               |
+----------------------------------------------------------------------------------------------------
+|No.   Ty.          Program                             Include                             Line   |
+|      Name                                                                                        |
+----------------------------------------------------------------------------------------------------
+|    7 METHOD       CL_RSTXT_DEFAULT_PERSISTENCE==CP    CL_RSTXT_DEFAULT_PERSISTENCE==CM00F   113  |
+|      CL_RSTXT_DEFAULT_PERSISTENCE=>MODIFY_MULTIPLE                                               |
+|    6 METHOD       CL_RSTXT_PERSISTENCE_MANAGER==CP    CL_RSTXT_PERSISTENCE_MANAGER==CM00H   101  |
+|      CL_RSTXT_PERSISTENCE_MANAGER=>MODIFY_MULTIPLE                                               |
+|    5 FUNCTION     SAPLSTXI                            LSTXIU07                               11  |
+|      HANDLE_TEXT_ARRAY_AFTER_COMMIT                                                              |
+|    4 FORM         SAPLSTXI                            LSTXIU07                                1  |
+|      HANDLE_TEXT_ARRAY_AFTER_COMMIT                                                              |
+|    3 FORM         SAPMSSY4                            SAPMSSY4                              136  |
+|      %_UPDATES_NO_UTASK                                                                          |
+|    2 FORM         SAPMSSY4                            SAPMSSY4                               42  |
+|      LOCAL_UPDATE_TASK                                                                           |
+|    1 EVENT        SAPMSSY4                            SAPMSSY4                               20  |
+|      START-OF-SELECTION                                                                          |
+----------------------------------------------------------------------------------------------------
+
+----------------------------------------------------------------------------------------------------
+|Selected Variables                                                                                |
+----------------------------------------------------------------------------------------------------
+|Name                                                                                              |
+|    Val.                                                                                          |
+----------------------------------------------------------------------------------------------------
+|No.       7 Ty.          METHOD                                                                   |
+|Name  CL_RSTXT_DEFAULT_PERSISTENCE=>MODIFY_MULTIPLE                                               |
+----------------------------------------------------------------------------------------------------
+|TEXT_CHANGES                                                                                      |
+|    Table IT_73[1x760]                                                                            |
+|    \CLASS=CL_RSTXT_PERSISTENCE_MANAGER\METHOD=MODIFY_MULTIPLE\DATA=L_CLASS_TO_TEXTS_TABLE[1]-TEXT|
+|    Table reference: 45                                                                           |
+|    TABH+ 0(20) = A0F9715F837F0000000000000000000080FE715F                                        |
+|    TABH+20(20) = 837F000000000000000000000100000044010000                                        |
+|    TABH+40(20) = 000000002D0000004900000001000000F8020000                                        |
+|    TABH+60(20) = 2002000004BB0000209401000400010602000000                                        |
+|    store                   = 0xA0F9715F837F0000                                                  |
+|    statScndKeyAdmin        = 0x0000000000000000                                                  |
+|    ext1                    = 0x80FE715F837F0000                                                  |
+|    ----- Primary Key -----                                                                       |
+|    idxPtr                  = 0x0000000000000000                                                  |
+|      idxKind               = 0     (ItIndexNone)                                                 |
+|      accKind               = 1     (ItAccStandard)                                               |
+|      uniKind               = 2     (ItUniNo)                                                     |
+|      keyKind (from pbag)   = 1     (default)                                                     |
+|      cmpMode               = 2     (cmpSingleMcmpR)                                              |
+|    shmId                   = 0     (0x00000000)                                                  |
+|    id                      = 45    (0x2D000000)                                                  |
+|    label                   = 73    (0x49000000)                                                  |
+|    fill                    = 1     (0x01000000)                                                  |
+|    leng                    = 760   (0xF8020000)                                                  |
+|    loop                    = 544   (0x20020000)                                                  |
+|    xtyp                    = PROG#000187/TYPE#000018                                             |
+|    occu                    = 4     (0x04000000)                                                  |
+|    occu0                   = 1                                                                   |
+|    stMode                  = 0                                                                   |
+|    groupCntl               = 0                                                                   |
+|    rfc                     = 0                                                                   |
+|    unShareable             = 0                                                                   |
+|    mightBeShared           = 0                                                                   |
+|    sharedWithShmTab        = 0                                                                   |
+|    isShmLockId             = 0                                                                   |
+|    isUsed                  = 1                                                                   |
+|    isCtfyAble              = 1                                                                   |
+|    hasScndKeys             = 0                                                                   |
+|    hasRowId                = 0                                                                   |
+|    statScndKeysOutdated    = 0                                                                   |
+|    statScndUniKeysOutdated = 0                                                                   |
+|    primKeyIsEmpty          = ItPrimKeyIsEmptyNo                                                  |
+|    rtmSelectNoOrderBy      = 0                                                                   |
+|    tstForceExtSort         = 0                                                                   |
+|    ----- Shareable Table Header Data (Store) -----                                               |
+|    tabi                    = 0x20930BED7F7F0000                                                  |
+|    pgHook                  = 0x0000000000000000                                                  |
+|    uniqueNumber            = 53    (0x35000000)                                                  |
+|    shmTabhSet              = 0x0000000000000000                                                  |
+|    refCount                = 0     (0x00000000)                                                  |
+|    tstRefCount             = 0     (0x00000000)                                                  |
+|    lineAdmin               = 4     (0x04000000)                                                  |
+|    lineAlloc               = 4     (0x04000000)                                                  |
+|    shmVersId               = 0     (0x00000000)                                                  |
+|    shmRefCount             = 1     (0x01000000)                                                  |
+|    rowId                   = 18446744073709551615                                                |
+|    ----- 1st level extension part -----                                                          |
+|    regHook                 = 0x10FD715F837F0000                                                  |
+|    collHook                = 0x0000000000000000                                                  |
+|    ext2                    = 0x0000000000000000                                                  |
+|    {{EBANH;0017716332;B01;E;;SYSTEM;;00001;RFC_BTP_PROD;758;20260316;101857;RFC_ZIND;758;2026031\|
+|8;095215;072;97648;;;0;    SAPMHTTP;;;;;;;100;;};U;IT_74[697648x268]}                             |
+|    404040404020202020203030303030303030303020202020202020202020202020202020202020202020202020202\|
+|0202020202020202020202020202020202020202020202020202020202020202020403030204020202020202020202020\|
+|20202020202020202020202020202020202020202020202020202020202020202                                 |
+|    502010E08000000000000000107070106030302000000000000000000000000000000000000000000000000000000\|
+|0000000000000000000000000000000000000000000000000000000000000000000200010005000000000000000000000\|
+|00000000000000000000000000000000000000000000000000000000000000000                                 |
+|    4500420041004E0048002000200020002000200030003000310037003700310036003300330032002000200020002\|
+|0002000200020002000200020002000200020002000200020002000200020002000200020002000200020002000200020\|
+|0020002000200020002000200020002000200020002000200020002000200020002000200020002000200020002000200\|
+|0200020002000200020002000200020004200300031002000450020002000200020002000200020002000200020002000\|
+|2000200020002000200020002000200020002000200020002000200020002000200020002000200020002000200020002\|
+|00020002000200020002000200020                                                                     |
+|L_STXB_INSERT_TABLE                                                                               |
+|    Table[initial]                                                                                |
+|                                                                                                  |
+|L_STXB                                                                                            |
+|    {;;;;;;0;0;0000000000000000000000000000000000000000000000000000000000000000000000000000000000\|
+|0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000\|
+|00000000000000000000000000000000000000000000000000000000000000000                                 |
+|    202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202\|
+|0202020202020202020202020202020202020202020202020202020202020202020202020202020202020200000000000\|
+|00000000000000000000000000000000000000000000000000000000000000000                                 |
+|    000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000\|
+|0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000\|
+|00000000000000000000000000000000000000000000000000000000000000000                                 |
+|    200020002000200020002000200020002000200020002000200020002000200020002000200020002000200020002\|
+|0002000200020002000200020002000200020002000200020002000200020002000200020002000200020002000200020\|
+|0020002000200020002000200020002000200020002000200020002000200020002000200020002000200020002000200\|
+|0200020002000200020002000200020002000200020002000200020002000200020002000000000000000000000000000\|
+|0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000\|
+|00000000000000000000000000000                                                                     |
+|SYST-REPID                                                                                        |
+|    CL_RSTXT_DEFAULT_PERSISTENCE==CP                                                              |
+|    4455555554444545554554554444334522222222                                                      |
+|    3CF23484F45615C4F05239345E35DD3000000000                                                      |
+|    0000000000000000000000000000000000000000                                                      |
+|    0000000000000000000000000000000000000000                                                      |
+|    43004C005F00520053005400580054005F00440045004600410055004C0054005F005000450052005300490053005\|
+|40045004E00430045003D003D004300500020002000200020002000200020002000                               |
+|L_STXB_UPDATE_TABLE                                                                               |
+|    Table[initial]                                                                                |
+|                                                                                                  |
+|L_CLUSTER_TABLE                                                                                   |
+|    Table IT_76[310x7904]                                                                         |
+|    \CLASS=CL_RSTXT_DEFAULT_PERSISTENCE\METHOD=MODIFY_MULTIPLE\DATA=L_CLUSTER_TABLE               |
+|    Table reference: 48                                                                           |
+|    TABH+ 0(20) = 78FFFFEC7F7F00000000000000000000D8296CEE                                        |
+|    TABH+20(20) = 7F7F000000000000000000003601000044010000                                        |
+|    TABH+40(20) = 00000000300000004C00000036010000E01E0000                                        |
+|    TABH+60(20) = 3003000004BF0000205F01000200010602000000                                        |
+|    store                   = 0x78FFFFEC7F7F0000                                                  |
+|    statScndKeyAdmin        = 0x0000000000000000                                                  |
+|    ext1                    = 0xD8296CEE7F7F0000                                                  |
+|    ----- Primary Key -----                                                                       |
+|    idxPtr                  = 0x0000000000000000                                                  |
+|      idxKind               = 0     (ItIndexNone)                                                 |
+|      accKind               = 1     (ItAccStandard)                                               |
+|      uniKind               = 2     (ItUniNo)                                                     |
+|      keyKind (from pbag)   = 1     (default)                                                     |
+|      cmpMode               = 2     (cmpSingleMcmpR)                                              |
+|    shmId                   = 0     (0x00000000)                                                  |
+|    id                      = 48    (0x30000000)                                                  |
+|    label                   = 76    (0x4C000000)                                                  |
+|    fill                    = 310   (0x36010000)                                                  |
+|    leng                    = 7904  (0xE01E0000)                                                  |
+|    loop                    = 816   (0x30030000)                                                  |
+|    xtyp                    = PROG#000191/TYPE#000141                                             |
+|    occu                    = 2     (0x02000000)                                                  |
+|    occu0                   = 1                                                                   |
+|    stMode                  = 0                                                                   |
+|    groupCntl               = 0                                                                   |
+|    rfc                     = 0                                                                   |
+|    unShareable             = 0                                                                   |
+|    mightBeShared           = 0                                                                   |
+|    sharedWithShmTab        = 0                                                                   |
+|    isShmLockId             = 0                                                                   |
+|    isUsed                  = 1                                                                   |
+|    isCtfyAble              = 1                                                                   |
+|    hasScndKeys             = 0                                                                   |
+|    hasRowId                = 0                                                                   |
+|    statScndKeysOutdated    = 0                                                                   |
+|    statScndUniKeysOutdated = 0                                                                   |
+|    primKeyIsEmpty          = ItPrimKeyIsEmptyNo                                                  |
+|    rtmSelectNoOrderBy      = 0                                                                   |
+|    tstForceExtSort         = 0                                                                   |
+|    ----- Shareable Table Header Data (Store) -----                                               |
+|    tabi                    = 0x6820D183837F0000                                                  |
+|    pgHook                  = 0xD00D13ED7F7F0000                                                  |
+|    uniqueNumber            = 55    (0x37000000)                                                  |
+|    shmTabhSet              = 0x0000000000000000                                                  |
+|    refCount                = 0     (0x00000000)                                                  |
+|    tstRefCount             = 0     (0x00000000)                                                  |
+|    lineAdmin               = 578   (0x42020000)                                                  |
+|    lineAlloc               = 310   (0x36010000)                                                  |
+|    shmVersId               = 0     (0x00000000)                                                  |
+|    shmRefCount             = 1     (0x01000000)                                                  |
+|    rowId                   = 18446744073709551615                                                |
+|    ----- 1st level extension part -----                                                          |
+|    regHook                 = 0xD8FFFFEC7F7F0000                                                  |
+|    collHook                = 0x0000000000000000                                                  |
+|    ext2                    = 0x0000000000000000                                                  |
+|                                                                                                  |
+|    {7902;FF060201020280003431303300000000B1CD640B121F9D02CEBEDDEDCC965FD7795F46122008825CC3068F9\|
+|C3852BA9B7C5FDB4260E8CBB2045951C34588804E8C16DD9489E697489A86743F3909905C41926B4BAD9A9BFE2F3FAC2A\|
+|B24E5CD5CCCF0FBC59BD9B22D973BF738D51638EF55FFD0FDBB6FDA3FFFEFCCBF                                 |
+|    D1F000008033330000BC601190CBDEC95D75412085C08935B975D46ECB055C488481D98E94987330954964A99F23A\|
+|2B45DCC0B5B92D7B78568F5F0DBFAFFFCFD65FDBB7BFDFB6F7F3EDF757FBBFC3F6FAFCFFF9FDFE9FDF8F6FB7BF9FADD7B\|
+|7B7BFFFEB3FFD93FEEE1633FFCEEBB3FE0C7D4D197F7FDF4CBFFE6737FF3EFF41                                 |
+|    EEF6212200410300001D4B2FD2EEDDC6F79F62082C36FC82ABCFB208B24913580EC6D49678A64F990C12BBDABEFFC\|
+|A2EC5CFFC9DB293F3D13E5FDFB6D3FECB6FC7EF77FDD96FDF2BF7F9FCEBFECBFAFFF9DF72F1FDFFCFB7F9B0DEDB3FFDEA\|
+|D9D1DCCBFBF5FCFFC37FFFAFA3DF7F8FEFEC8EBFDFD4B66FFFE3DDBFFE056F9F3                                 |
+|    DE1EFF060201020280003431303300000000B1CD640B121F9D02CEBEDDEDCC965FD7795F46122008825CC3068F9C3\|
+|852BA9B7C5FDB4260E8CBB2045951C34588804E8C16DD9489E697489A86743F3909905C41926B4BAD9A9BFE2F3FAC2AB2\|
+|4E5CD5CCCF0FBC59BD9B22D973BF738D51638EF55FFD0FDBB6FDA3FFFEFCCBF6DF6C57FEDFB7B77FBDFDD9F6BF6DFF72F\|
+|B3FE7DFF97F5C7EFBBFBEFCCB3FFA6FFFAFF9CDFFF7F29FF1DFFDEF9FFCDFFB87FF69FBB07DBEFD9BF3AFDFDD7EBA7DB9\|
+|7DB1FDFCFCEBBF3BFFF5DF9C3FFFECE3E71F6F3F3AFFFAC3EDEFB7BF38FFEE0FCE7CD84EDB1F9D7FFD74FBD6F64FCFBFF\|
+|EF3ED6D7B3F7FFEF035E6FFF94F13                                                                     |
+|                                                                                                  |
+|    {7902;D78961E523AE13C3F1C9EA3AB1B32622311A684D79446B5C275C275C277696FABA4E0CB4A6D09A220D28D28\|
+|0626B8A34A048038A34A048030A8756684D91061469409106146940A13585D69435115DC5614D445771B837115DC5D3A6\|
+|AB789C88AEE2707B22BA8ABA8A033F52F891C28F147EA4F023851F29FC4879BE1                                 |
+|    D1D86E2A1CFCE3BB22316474652525279FB40BAD9202D86683A4083A40085649016490164A38D9315C64457B315CD\|
+|AA798AE772B8B8035F9C817AF2812F47B17BF9B8175F9C817AF2812F47B19FCDACC8B262D9CBADDB34B3D962D9C46FAB3\|
+|19AD9362130A2868FAFAFEC55EC8D155A0415649016490164ED0A2D8202D8202B                                 |
+|    EE79153E3319AA13621A8D94BC7C7C766AAEC460A2D8202BA4083A4083A768D16490164901556451D51D471871D53\|
+|6B8C8E20B2AAAA3F2812F4E4035F9C89EF9F817DF95812F4E4035F9C896F9E4B5D7FC6B2AB35D1E457A5ABB2AB3C4F4D9\|
+|CFCABBB2A53D9F8D666666E2FDD164A3415A0CD164901649010AD9202D8202D84                                 |
+|    DE1ED78961E523AE13C3F1C9EA3AB1B32622311A684D79446B5C275C275C277696FABA4E0CB4A6D09A220D28D2806\|
+|26B8A34A048038A34A048030A8756684D91061469409106146940A13585D69435115DC5614D445771B837115DC5D3A6AB\|
+|789C88AEE2707B22BA8ABA8A033F52F891C28F147EA4F023851F29FC4879BE1F79BFF891B78D1F7955F891C28F147EA4F\|
+|023851F29FC4879B61F99FEC4DBA5CDC78FBC266B22DA9BC3B5ADD1DEB43547BA35DA9B6B22DA9BC34C64FFA4BD391C9F\|
+|ACDA9B3B6B221A3503AD298F688DF6A6F6A6F6E6CE525FEDCD81D6145A53A401451A506C4D91061469409106146940E1D\|
+|00AAD29D280220D28D280220D28B4                                                                     |
+|                                                                                                  |
+|    {7902;3585D69435115DC5614D445771B837115DC5D3A6AB789C88AEE2707B22BA8ABA8A033F52F891C28F147EA4F\|
+|023851F29FC4879BE1F79BFF891B78D1F7955F891C28F147EA4F023851F29FC4879B61F99FEC4DBA5CDC78FBC266B22DA\|
+|9BC3B5ADD1DEB43547BA35DA9B6B22DA9BC34C64FFA4BD391C9FACDA9B3B6B221                                 |
+|    D138D9315C64457B315CDAA798AE772B8B8035F9C817AF2812F47B17BF9B8175F9C817AF2812F47B19FCDACC8B262\|
+|D9CBADDB34B3D962D9C46FAB319AD9362130A2868FAFAFEC55EC8D155A0415649016490164ED0A2D8202D8202BAD9B2AA\|
+|3A8E20F2AA7D7181D516445DB9035FDD7EDDB4D92D1D831D86E2A1CFCE3BB2231                                 |
+|    EE556451D51D471871D536B8C8E20B2AAAA3F2812F4E4035F9C89EF9F817DF95812F4E4035F9C896F9E4B5D7FC6B2\|
+|AB35D1E457A5ABB2AB3C4F4D9CFCABBB2A53D9F8D666666E2FDD164A3415A0CD164901649010AD9202D8202D8460A262B\|
+|8C98AE762B8A45F315CEF471BC3F2AD752A68E8A3DA795179153E3319AA13621A                                 |
+|    DE1E3585D69435115DC5614D445771B837115DC5D3A6AB789C88AEE2707B22BA8ABA8A033F52F891C28F147EA4F02\|
+|3851F29FC4879BE1F79BFF891B78D1F7955F891C28F147EA4F023851F29FC4879B61F99FEC4DBA5CDC78FBC266B22DA9B\|
+|C3B5ADD1DEB43547BA35DA9B6B22DA9BC34C64FFA4BD391C9FACDA9B3B6B221A3503AD298F688DF6A6F6A6F6E6CE525FE\|
+|DCD81D6145A53A401451A506C4D91061469409106146940E1D00AAD29D280220D28D280220D28B4A6D09AB226A2AB38AC\|
+|89E82A0EF726A2AB78DA74158F13D1551C6E4F4457D1BB9C033F52FADDD775E2DAD6B84ED89A23DD1AD7893511D78961E\|
+|523AE13C3F1C9EA3AB1B32622311A                                                                     |
+|                                                                                                  |
+|    {7902;EC2CF5759D18684DA135451A50A401C5D614694091061469409106140EADD09A220D28D280220D28D280426\|
+|B0AAD296B22BA8AC39A88AEE2706F22BA8AA74D57F138115DC5E1F64474157515077EA4F023851F29FC48E1470A3F52F8\|
+|91F27C3FF27EF1236F1B3FF2AAAC89684B0CD7B6465BC2D61CE9D6684BAC89684                                 |
+|    D1E2F79164A3415A0CD164901649010AD9202D8202D8460A262B8C98AE762B8A45F315CEF4717107AF2812F4E4035\|
+|F9F73F7F2613FAA8640DB45CD1ED64A864039F9BC77B64EA8B60BA3A3D1D1D1347B20556490164B3415A0415A0842BA40\|
+|83A4083AD946C98AEB2AA3D98AE6D534457B3154E40F4E75D865E36687652D452                                 |
+|    EECC55D88D155A0415649016490164ED0A2D8202D8202BAD9B2AA3A8E20F2AA7D7181D516445557E4035F9C817AF2\|
+|812CF2E13FBF2AC98BC766B26C968BC98BC31D3640C2ABCC980D46C25A2A2A2BBD556A38D16490155A0415A04153B4683\|
+|A4083A400A2BAA8E2062B8CB8E2935CE4718D1D5FECC897F79BB3A1BE4BC764C7                                 |
+|    DE1EEC2CF5759D18684DA135451A50A401C5D614694091061469409106140EADD09A220D28D280220D28D280426B0\|
+|AAD296B22BA8AC39A88AEE2706F22BA8AA74D57F138115DC5E1F64474157515077EA4F023851F29FC48E1470A3F52F891\|
+|F27C3FF27EF1236F1B3FF2AAAC89684B0CD7B6465BC2D61CE9D6684BAC89684B0C3391FD93B6C4707CB26A4BECAC89B86\|
+|00DB4A63CA235DA12DA12DA123B4B7DB525065A53684D9106146940B135451A50A401451A50A40185432BB4A648038A34\|
+|A048038A34A0D09A426BCA9A88AEE2B026A2AB38DC9B88AEE269D3553C4E445771B83D115D45EF4E0CFC48E9775FD7896\|
+|B5BE33A616B8E746B5C27D6445C27                                                                     |
+|                                                                                                  |
+|    {7902;128BBD7DB52506BBA6D835451A50A401C5D414694091061469409106140EADD835451A50A401451A50A401C\|
+|5AE29764DD98AE82A0E5B115DC5E19122BA8A974357F1AC88AEE2705F115D45EF4E0CFC48E9775FD7895B53E33A616ACE\|
+|746A5C27B622AE13C3CE475C2786F393D57562B11591180D764D7966D7B84EB84                                 |
+|    D118B7B20BAD3415A0CD164901649010AD3415A0415A0CA274D8E20515CE92B8945FA8AE75154E40F4E75D855E366\|
+|C7652B2A1CC4528F9D76B19107476DB4B4B42FF791E96D16490155A0415A04153B6D16490164901BAD362AA36471848E2\|
+|505CB2B8C74717107AF2812F4E4035F9F73F7F2103FAF2812F4E4035F9F633F88                                 |
+|    EE2BDD556B6855A0415449016490164ED855A0415A0415E96D9A8AEB1D5112AA7371C8E20F1D5FECC897F79B33A1A\|
+|E4AC762E33E7C76335521518D6D9678E8E8EC665D8CA2749016433415A0415A0842749016490164B6855B2B8C54577A8A\|
+|EED532AA3D545557E4035F9C817AF2812AF2953F7F2E035F9C817AF2812AF2D9F                                 |
+|    DE1E128BBD7DB52506BBA6D835451A50A401C5D414694091061469409106140EADD835451A50A401451A50A401C5A\|
+|E29764DD98AE82A0E5B115DC5E19122BA8A974357F1AC88AEE2705F115D45EF4E0CFC48E9775FD7895B53E33A616ACE74\|
+|6A5C27B622AE13C3CE475C2786F393D57562B11591180D764D7966D7B84EB84EB84E2CF6F6759D18EC9A62D7146940910\|
+|6145353A401451A50A401451A5038B462D71469409106146940910614BBA6D835652BA2AB386C45741587478AE82A5E0E\|
+|5DC5B322BA8AC37D4574157515077EA4F023851F29FC48E1470A3F52F891F27A3FF279F5231F073FF2AEF023851F29FC4\|
+|8E1470A3F52F891F26A3F32FD898F                                                                     |
+|%_DUMMY$$                                                                                         |
+|                                                                                                  |
+|    2222                                                                                          |
+|    0000                                                                                          |
+|    0000                                                                                          |
+|    0000                                                                                          |
+|    2000200020002000                                                                              |
+|<L_TEXT_CHANGE>-LINES                                                                             |
+|    Table IT_74[697648x268]                                                                       |
+|    \CLASS=CL_RSTXT_PERSISTENCE_MANAGER\METHOD=MODIFY_MULTIPLE\DATA=L_CLASS_TO_TEXTS_TABLE[1]-TEXT|
+|    Table reference: 46                                                                           |
+|    TABH+ 0(20) = F89E11ED7F7F0000000000000000000000000000                                        |
+|    TABH+20(20) = 00000000000000000000000030A50A0044010000                                        |
+|    TABH+40(20) = 000000002E0000004A00000030A50A000C010000                                        |
+|    TABH+60(20) = FFFFFFFF04B80000901100001000410602000000                                        |
+|    store                   = 0xF89E11ED7F7F0000                                                  |
+|    statScndKeyAdmin        = 0x0000000000000000                                                  |
+|    ext1                    = 0x0000000000000000                                                  |
+|    ----- Primary Key -----                                                                       |
+|    idxPtr                  = 0x0000000000000000                                                  |
+|      idxKind               = 0     (ItIndexNone)                                                 |
+|      accKind               = 1     (ItAccStandard)                                               |
+|      uniKind               = 2     (ItUniNo)                                                     |
+|      keyKind (from pbag)   = 1     (default)                                                     |
+|      cmpMode               = 2     (cmpSingleMcmpR)                                              |
+|    shmId                   = 0     (0x00000000)                                                  |
+|    id                      = 46    (0x2E000000)                                                  |
+|    label                   = 74    (0x4A000000)                                                  |
+|    fill                    = 697648 (0x30A50A00)                                                 |
+|    leng                    = 268   (0x0C010000)                                                  |
+|    loop                    = -1    (0xFFFFFFFF)                                                  |
+|    xtyp                    = PROG#000184/TYPE#000036                                             |
+|    occu                    = 16    (0x10000000)                                                  |
+|    occu0                   = 1                                                                   |
+|    stMode                  = 0                                                                   |
+|    groupCntl               = 0                                                                   |
+|    rfc                     = 0                                                                   |
+|    unShareable             = 0                                                                   |
+|    mightBeShared           = 1                                                                   |
+|    sharedWithShmTab        = 0                                                                   |
+|    isShmLockId             = 0                                                                   |
+|    isUsed                  = 1                                                                   |
+|    isCtfyAble              = 1                                                                   |
+|    hasScndKeys             = 0                                                                   |
+|    hasRowId                = 0                                                                   |
+|    statScndKeysOutdated    = 0                                                                   |
+|    statScndUniKeysOutdated = 0                                                                   |
+|    primKeyIsEmpty          = ItPrimKeyIsEmptyNo                                                  |
+|    rtmSelectNoOrderBy      = 0                                                                   |
+|    tstForceExtSort         = 0                                                                   |
+|    ----- Shareable Table Header Data (Store) -----                                               |
+|    tabi                    = 0x08AD11ED7F7F0000                                                  |
+|    pgHook                  = 0xA0E908ED7F7F0000                                                  |
+|    uniqueNumber            = 43    (0x2B000000)                                                  |
+|    shmTabhSet              = 0x0000000000000000                                                  |
+|    refCount                = 3     (0x03000000)                                                  |
+|    tstRefCount             = 0     (0x00000000)                                                  |
+|    lineAdmin               = 697648 (0x30A50A00)                                                 |
+|    lineAlloc               = 697648 (0x30A50A00)                                                 |
+|    shmVersId               = 0     (0x00000000)                                                  |
+|    shmRefCount             = 4     (0x04000000)                                                  |
+|    rowId                   = 18446744073709551615                                                |
+|                                                                                                  |
+|    {*;PR created based on myMall SC 14719564}                                                    |
+|    202050502060706060706060206060706060206060206070406060602050402030303030303030302020202020202\|
+|0202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020\|
+|20202020202020202020202020202020202020202020202020202020202020202                                 |
+|    A0000020003020501040504000201030504000F0E000D090D010C0C00030300010407010905060400000000000000\|
+|0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000\|
+|00000000000000000000000000000000000000000000000000000000000000000                                 |
+|    2A002000500052002000630072006500610074006500640020006200610073006500640020006F006E0020006D007\|
+|9004D0061006C006C00200053004300200031003400370031003900350036003400200020002000200020002000200020\|
+|0020002000200020002000200020002000200020002000200020002000200020002000200020002000200020002000200\|
+|0200020002000200020002000200020002000200020002000200020002000200020002000200020002000200020002000\|
+|2000200020002000200020002000200020002000200020002000200020002000200020002000200020002000200020002\|
+|00020002000200020002000200020                                                                     |
+|                                                                                                  |
+|    {*;(RFC_BTP_PROD  RFC_BTP_PROD 2026-03-16T11:18:56 CET)}                                      |
+|    202020504040504050505050504040202050404050405050505050404020303030302030302030305030303030303\|
+|0303020404050202020202020202020202020202020202020202020202020202020202020202020202020202020202020\|
+|20202020202020202020202020202020202020202020202020202020202020202                                 |
+|    A00080206030F0204000F00020F0400000206030F0204000F00020F0400020002060D00030D01060401010A01080A\|
+|0506000305040900000000000000000000000000000000000000000000000000000000000000000000000000000000000\|
+|00000000000000000000000000000000000000000000000000000000000000000                                 |
+|    2A00200028005200460043005F004200540050005F00500052004F004400200020005200460043005F00420054005\|
+|0005F00500052004F004400200032003000320036002D00300033002D00310036005400310031003A00310038003A0035\|
+|0036002000430045005400290020002000200020002000200020002000200020002000200020002000200020002000200\|
+|0200020002000200020002000200020002000200020002000200020002000200020002000200020002000200020002000\|
+|2000200020002000200020002000200020002000200020002000200020002000200020002000200020002000200020002\|
+|00020002000200020002000200020                                                                     |
+|                                                                                                  |
+|    {*;__________}                                                                                |
+|    202050505050505050505050202020202020202020202020202020202020202020202020202020202020202020202\|
+|0202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020\|
+|20202020202020202020202020202020202020202020202020202020202020202                                 |
+|    A000F0F0F0F0F0F0F0F0F0F0000000000000000000000000000000000000000000000000000000000000000000000\|
+|0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000\|
+|00000000000000000000000000000000000000000000000000000000000000000                                 |
+|    2A0020005F005F005F005F005F005F005F005F005F005F00200020002000200020002000200020002000200020002\|
+|0002000200020002000200020002000200020002000200020002000200020002000200020002000200020002000200020\|
+|0020002000200020002000200020002000200020002000200020002000200020002000200020002000200020002000200\|
+|0200020002000200020002000200020002000200020002000200020002000200020002000200020002000200020002000\|
+|2000200020002000200020002000200020002000200020002000200020002000200020002000200020002000200020002\|
+|00020002000200020002000200020                                                                     |
+|                                                                                                  |
+|    {*;PR Workflow step Requester Approve}                                                        |
+|    202050502050607060606060702070706070205060707060707060702040707070607060202020202020202020202\|
+|0202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020\|
+|20202020202020202020202020202020202020202020202020202020202020202                                 |
+|    A00000200070F020B060C0F0700030405000002050105050304050200010000020F06050000000000000000000000\|
+|0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000\|
+|00000000000000000000000000000000000000000000000000000000000000000                                 |
+|    2A00200050005200200057006F0072006B0066006C006F00770020007300740065007000200052006500710075006\|
+|5007300740065007200200041007000700072006F00760065002000200020002000200020002000200020002000200020\|
+|0020002000200020002000200020002000200020002000200020002000200020002000200020002000200020002000200\|
+|0200020002000200020002000200020002000200020002000200020002000200020002000200020002000200020002000\|
+|2000200020002000200020002000200020002000200020002000200020002000200020002000200020002000200020002\|
+|00020002000200020002000200020                                                                     |
+|                                                                                                  |
+|    {*;Approval note: please send the PO to the following email:}                                 |
+|    202040707070607060602060607060302070606060706020706060602070606020504020706020706060206060606\|
+|0607060606020606060606030202020202020202020202020202020202020202020202020202020202020202020202020\|
+|20202020202020202020202020202020202020202020202020202020202020202                                 |
+|    A00010000020F06010C000E0F04050A00000C050103050003050E040004080500000F00040F0004080500060F0C0C\|
+|0F07090E0700050D01090C0A0000000000000000000000000000000000000000000000000000000000000000000000000\|
+|00000000000000000000000000000000000000000000000000000000000000000                                 |
+|    2A00200041007000700072006F00760061006C0020006E006F00740065003A00200070006C0065006100730065002\|
+|000730065006E0064002000740068006500200050004F00200074006F002000740068006500200066006F006C006C006F\|
+|00770069006E006700200065006D00610069006C003A00200020002000200020002000200020002000200020002000200\|
+|0200020002000200020002000200020002000200020002000200020002000200020002000200020002000200020002000\|
+|2000200020002000200020002000200020002000200020002000200020002000200020002000200020002000200020002\|
+|00020002000200020002000200020                                                                     |
+|L_STXL                                                                                            |
+|    {;TX;EBANH;0017716332;B01;E;0;7902;754F1A9FD709FCCDB6ABE7BF5F67F387EBCFF9FE33FCF36DBF08FCFE3A\|
+|B5FFB829CD5757F5DD7F6FF8EDEDD7C8B75F6679466777F7F6A3DB1F7795FDE62D5496B216CA5A24BD22E9155B5324BD2\|
+|2E91549AFF02385B21649AF487A45D22B94B550D6B226A26334AC89E8180DCF26                                 |
+|    202020505040404040402020202020303030303030303030302020202020202020202020202020202020202020202\|
+|02020202020202020202020202020202020202020202020202020202020202020202020202020403030204000D17419D0\|
+|FCBAEB56F8ECFF3FF6B0FF3BFB2C55FD76FEEDCB567467FFAD179FE259B1C52B2                                 |
+|    0000004080502010E0800000000000000010707010603030200000000000000000000000000000000000000000000\|
+|00000000000000000000000000000000000000000000000000000000000000000000000000000200010005000EE5FAF79\|
+|CD6B7FF737BF9E3C3DF8CEA5F89D775DFF8DD787F69677763BF75D6D4626AA4D2                                 |
+|    200020002000540058004500420041004E00480020002000200020002000300030003100370037003100360033003\|
+|3003200200020002000200020002000200020002000200020002000200020002000200020002000200020002000200020\|
+|0020002000200020002000200020002000200020002000200020002000200020002000200020002000200020002000200\|
+|02000200020002000200020002000200020002000200020002000420030003100200045000000DE1E754F1A9FD709FCCD\|
+|B6ABE7BF5F67F387EBCFF9FE33FCF36DBF08FCFE3AB5FFB829CD5757F5DD7F6FF8EDEDD7C8B75F6679466777F7F6A3DB1\|
+|F7795FDE62D5496B216CA5A24BD22                                                                     |
+|????+0(2)#BLE_VIEW=>LEGP4EWORK=>C_ERROR_INCONSISTENT##############################################|
+|    ???                                                                                           |
+|    ??????                                                                                        |
+|    ??????                                                                                        |
+|    ????????????                                                                                  |
+|<L_CLUSTER>                                                                                       |
+|    {7902;AFD89A22E91549AF487A851F2994B5487A45D22B925EA1AC85B29635111DA3614D44C7687836111DA3CBA66\|
+|3749C888ED1F078223A463A46033F52F891C28F147EA4F023851F29FC4879BD1FF9BCF9918F8D1F7957D644BC840FF7B6\|
+|C64BB8AD39D2ADF112BE26E2257C38EA8897F09D3511EF3503652D6794D54BB89                                 |
+|    D1AD92E14A478129B474D295AA8B9311A644C67311ACA67988DF723434035F9C817AF2812F47B1FBF988175D4B80F\|
+|BC4BA3DAF1B2E273E89F931E306269D4B972E39B5D2E14AD92E14A478129B474D295AA8B9311A644C67311ACA67988DF7\|
+|2343C0359F59E68CBA37E3EFEFEFBE35263AA2C2C2C39B5D2E14AD92E14A47812                                 |
+|    EEF8A2959F8A5F9458A52B2E1C52651D31D478861D3B634C8E1082A6A63F2812F4E4035F9C89DF9C91FDF9764C4F7\|
+|66B8D92D12E625C8A870D51F535D745B870F1B45062959F8A2959F8A5F9458A52B2E1C52651D31D478861D3B634C8E108\|
+|2A6AF3F2A4CEFDDB3D926E22C2C2C3E28B93CEFEFEFB45062959F8A2959F8A5F9                                 |
+|    DE1EAFD89A22E91549AF487A851F2994B5487A45D22B925EA1AC85B29635111DA3614D44C7687836111DA3CBA6637\|
+|49C888ED1F078223A463A46033F52F891C28F147EA4F023851F29FC4879BD1FF9BCF9918F8D1F7957D644BC840FF7B6C6\|
+|4BB8AD39D2ADF112BE26E2257C38EA8897F09D3511EF3503652D6794D54BB897702FE13B94B550D622E91549AFD89A22E\|
+|91549AF487A851F2994B5487A45D22B925EA1AC85B29635111DA3614D44C7687836111DA3CBA663749C888ED1F078223A\|
+|463ACF033F529AF45C9EEF6D8DCBB3AD3972E63EE2F2ECF2ECF2BCE33E52286B39A3AC2ECF2ECF2ECF3B94B550D622E91\|
+|549AFD89A22E91549AF487A851F29                                                                     |
+|????+0(2)#BLE_VIEW=>LEGP4EWORK=>C_ERROR_INCONSISTENT##############################################|
+|    ???                                                                                           |
+|    ??????                                                                                        |
+|    ??????                                                                                        |
+|    ????????????                                                                                  |
+|SY-TABIX                                                                                          |
+|    257                                                                                           |
+|    0000                                                                                          |
+|    1100                                                                                          |
+|    01010000                                                                                      |
+|L_STXL-SRTF2                                                                                      |
+|    0                                                                                             |
+|    0                                                                                             |
+|    0                                                                                             |
+|    00                                                                                            |
+|L_STXL-CLUSTD                                                                                     |
+|    uO##×#üÍ¶«ç¿_gó#ëÏùþ3üóm¿#üþ:µÿ¸)ÍWWõÝ#oøíí×È·_fyFgw÷ö£Û#w#ýæ-T#²#ÊZ$½"é#[S$½"é#I¯ð##²#I¯HzEÒ\|
+|+#µPÖ²&¢c4¬#è##Ï&¢ctÙt###Ñ1##ODÇè5#£#}ñi:ÏïK##Ëó½#qy¶5GÎÜG\#]#]#wÜG#e-g#ÕåÙåÙåy#²#ÊZ$½"é#[S$½"é#I\|
+|¯ð##²#I¯HzEÒ+#µPÖ²&¢c4¬#è##Ï&¢ctÙt###Ñ1##ODÇHÇhàG#?Rø#Â##~¤ð###)¯                                 |
+|    7419D0FCBAEB56F8ECFF3FF6B0FF3BFB2C55FD76FEEDCB567467FFAD179FE259B1C52B2E1552B2E14AF28B14A474D\|
+|29B5DB2A63A8E10C2A67D7881D31144CE31A17F63CE499CFBA77B34CD45959597D406269DEDEDE78B1C52B2E1552B2E14\|
+|AF28B14A474D29B5DB2A63A8E10C2A67D7881D31144C4C6E4035F9C817AF2812A                                 |
+|    5FAF79CD6B7FF737BF9E3C3DF8CEA5F89D775DFF8DD787F69677763BF75D6D4626AA4D295B34D2959F035269F8A52\|
+|B450626234C988DF623494CE311AEF4785D3FD19AFFB3EB3DD19657EC7CEDEDE7C7A5D745595959726AA4D295B34D2959\|
+|F035269F8A52B450626234C988DF623494CE311AEF4787807AF2812F4E4035F9F                                 |
+|    754F1A9FD709FCCDB6ABE7BF5F67F387EBCFF9FE33FCF36DBF08FCFE3AB5FFB829CD5757F5DD7F6FF8EDEDD7C8B75\|
+|F6679466777F7F6A3DB1F7795FDE62D5496B216CA5A24BD22E9155B5324BD22E91549AFF02385B21649AF487A45D22B94\|
+|B550D6B226A26334AC89E8180DCF26A26374D9748C8E13D1311A1E4F44C7E8351DA31F7DF1693ACFEF4B939ECBF3BDAD7\|
+|179B63547CEDC475C9E5D9E5D9E77DC470A652D6794D5E5D9E5D9E57987B216CA5A24BD22E9155B5324BD22E91549AFF0\|
+|2385B21649AF487A45D22B94B550D6B226A26334AC89E8180DCF26A26374D9748C8E13D1311A1E4F44C748C768E0470A3\|
+|F52F891C28F147EA4F023851F29AF                                                                     |
+|<L_CLUSTER>-CLUSTD                                                                                |
+|    ¯Ø#"é#I¯Hz##)#µHzEÒ+#^¡¬#²#5##£aMDÇhx6##£Ë¦ct###Ñðx":F:F#?Rø#Â##~¤ð###)üHy½#ù¼ù####yWÖD¼##÷¶Æ\|
+|K¸#9Ò#ñ#¾&â%|8ê##ð#5#ï5#e-g#ÕK¸#p/á;#µPÖ"é#I¯Ø#"é#I¯Hz##)#µHzEÒ+#^¡¬#²#5##£aMDÇhx6##£Ë¦ct###Ñðx":\|
+|F:Ï#?R#ô\#ïm#Ë³#9ræ>âòìòìò¼ã>R(k9£¬.Ï.Ï.Ï;#µPÖ"é#I¯Ø#"é#I¯Hz##)#µ                                 |
+|    AD92E14A478129B474D295AA8B9311A644C67311ACA67988DF723434035F9C817AF2812F47B1FBF988175D4B80FBC\|
+|4BA3DAF1B2E273E89F931E306269D4B972E39B5D2E14AD92E14A478129B474D295AA8B9311A644C67311ACA67988DF723\|
+|43C0359F59E68CBA37E3EFEFEFBE35263AA2C2C2C39B5D2E14AD92E14A478129B                                 |
+|    F8A2959F8A5F9458A52B2E1C52651D31D478861D3B634C8E1082A6A63F2812F4E4035F9C89DF9C91FDF9764C4F766\|
+|B8D92D12E625C8A870D51F535D745B870F1B45062959F8A2959F8A5F9458A52B2E1C52651D31D478861D3B634C8E1082A\|
+|6AF3F2A4CEFDDB3D926E22C2C2C3E28B93CEFEFEFB45062959F8A2959F8A5F945                                 |
+|    AFD89A22E91549AF487A851F2994B5487A45D22B925EA1AC85B29635111DA3614D44C7687836111DA3CBA663749C8\|
+|88ED1F078223A463A46033F52F891C28F147EA4F023851F29FC4879BD1FF9BCF9918F8D1F7957D644BC840FF7B6C64BB8\|
+|AD39D2ADF112BE26E2257C38EA8897F09D3511EF3503652D6794D54BB897702FE13B94B550D622E91549AFD89A22E9154\|
+|9AF487A851F2994B5487A45D22B925EA1AC85B29635111DA3614D44C7687836111DA3CBA663749C888ED1F078223A463A\|
+|CF033F529AF45C9EEF6D8DCBB3AD3972E63EE2F2ECF2ECF2BCE33E52286B39A3AC2ECF2ECF2ECF3B94B550D622E91549A\|
+|FD89A22E91549AF487A851F2994B5                                                                     |
+|<L_TEXT_CHANGE>-FUNCTION                                                                          |
+|    U                                                                                             |
+|    5                                                                                             |
+|    5                                                                                             |
+|    0                                                                                             |
+|    0                                                                                             |
+|    5500                                                                                          |
+|L_STXL_INSERT_TABLE                                                                               |
+|    Table[initial]                                                                                |
+|                                                                                                  |
+----------------------------------------------------------------------------------------------------
+|No.       6 Ty.          METHOD                                                                   |
+|Name  CL_RSTXT_PERSISTENCE_MANAGER=>MODIFY_MULTIPLE                                               |
+----------------------------------------------------------------------------------------------------
+|TEXT_CHANGES                                                                                      |
+|    Table IT_62[1x760]                                                                            |
+|    \FUNCTION=HANDLE_TEXT_ARRAY_AFTER_COMMIT\DATA=TEXTS_TAB                                       |
+|    Table reference: 6                                                                            |
+|    TABH+ 0(20) = B0FC71FE7F7F0000000000000000000078FA3181                                        |
+|    TABH+20(20) = 837F000000000000000000000100000044010000                                        |
+|    TABH+40(20) = 00000000060000003E00000001000000F8020000                                        |
+|    TABH+60(20) = FFFFFFFF04B70000A05100000100010602000000                                        |
+|    store                   = 0xB0FC71FE7F7F0000                                                  |
+|    statScndKeyAdmin        = 0x0000000000000000                                                  |
+|    ext1                    = 0x78FA3181837F0000                                                  |
+|    ----- Primary Key -----                                                                       |
+|    idxPtr                  = 0x0000000000000000                                                  |
+|      idxKind               = 0     (ItIndexNone)                                                 |
+|      accKind               = 1     (ItAccStandard)                                               |
+|      uniKind               = 2     (ItUniNo)                                                     |
+|      keyKind (from pbag)   = 1     (default)                                                     |
+|      cmpMode               = 2     (cmpSingleMcmpR)                                              |
+|    shmId                   = 0     (0x00000000)                                                  |
+|    id                      = 6     (0x06000000)                                                  |
+|    label                   = 62    (0x3E000000)                                                  |
+|    fill                    = 1     (0x01000000)                                                  |
+|    leng                    = 760   (0xF8020000)                                                  |
+|    loop                    = -1    (0xFFFFFFFF)                                                  |
+|    xtyp                    = PROG#000183/TYPE#000036                                             |
+|    occu                    = 1     (0x01000000)                                                  |
+|    occu0                   = 1                                                                   |
+|    stMode                  = 0                                                                   |
+|    groupCntl               = 0                                                                   |
+|    rfc                     = 0                                                                   |
+|    unShareable             = 0                                                                   |
+|    mightBeShared           = 0                                                                   |
+|    sharedWithShmTab        = 0                                                                   |
+|    isShmLockId             = 0                                                                   |
+|    isUsed                  = 1                                                                   |
+|    isCtfyAble              = 1                                                                   |
+|    hasScndKeys             = 0                                                                   |
+|    hasRowId                = 0                                                                   |
+|    statScndKeysOutdated    = 0                                                                   |
+|    statScndUniKeysOutdated = 0                                                                   |
+|    primKeyIsEmpty          = ItPrimKeyIsEmptyNo                                                  |
+|    rtmSelectNoOrderBy      = 0                                                                   |
+|    tstForceExtSort         = 0                                                                   |
+|    ----- Shareable Table Header Data (Store) -----                                               |
+|    tabi                    = 0xA0F971FE7F7F0000                                                  |
+|    pgHook                  = 0x0000000000000000                                                  |
+|    uniqueNumber            = 44    (0x2C000000)                                                  |
+|    shmTabhSet              = 0x0000000000000000                                                  |
+|    refCount                = 0     (0x00000000)                                                  |
+|    tstRefCount             = 0     (0x00000000)                                                  |
+|    lineAdmin               = 1     (0x01000000)                                                  |
+|    lineAlloc               = 1     (0x01000000)                                                  |
+|    shmVersId               = 0     (0x00000000)                                                  |
+|    shmRefCount             = 1     (0x01000000)                                                  |
+|    rowId                   = 18446744073709551615                                                |
+|    ----- 1st level extension part -----                                                          |
+|    regHook                 = 0x08FE71FE7F7F0000                                                  |
+|    collHook                = 0x0000000000000000                                                  |
+|    ext2                    = 0x0000000000000000                                                  |
+|    {{EBANH;0017716332;B01;E;;SYSTEM;;00001;RFC_BTP_PROD;758;20260316;101857;RFC_ZIND;758;2026031\|
+|8;095215;072;97648;;;0;    SAPMHTTP;;;;;;;100;;};U;IT_63[697648x268]}                             |
+|    404040404020202020203030303030303030303020202020202020202020202020202020202020202020202020202\|
+|0202020202020202020202020202020202020202020202020202020202020202020403030204020202020202020202020\|
+|20202020202020202020202020202020202020202020202020202020202020202                                 |
+|    502010E08000000000000000107070106030302000000000000000000000000000000000000000000000000000000\|
+|0000000000000000000000000000000000000000000000000000000000000000000200010005000000000000000000000\|
+|00000000000000000000000000000000000000000000000000000000000000000                                 |
+|    4500420041004E0048002000200020002000200030003000310037003700310036003300330032002000200020002\|
+|0002000200020002000200020002000200020002000200020002000200020002000200020002000200020002000200020\|
+|0020002000200020002000200020002000200020002000200020002000200020002000200020002000200020002000200\|
+|0200020002000200020002000200020004200300031002000450020002000200020002000200020002000200020002000\|
+|2000200020002000200020002000200020002000200020002000200020002000200020002000200020002000200020002\|
+|00020002000200020002000200020                                                                     |
+|ERROR_TABLE                                                                                       |
+|    Table[initial]                                                                                |
+|                                                                                                  |
+|CL_AUNIT_ASSERT=>RTOL_DEFAULT                                                                     |
+|    1e-14                                                                                         |
+|    92A89803                                                                                      |
+|    BB16B46D                                                                                      |
+|    9B2BA1869B84063D                                                                              |
+|<L_CLASS_ENTRY>-TEXT_CHANGES                                                                      |
+|    Table IT_73[1x760]                                                                            |
+|<L_TEXT>                                                                                          |
+|    {{EBANH;0017716332;B01;E;;SYSTEM;;00001;RFC_BTP_PROD;758;20260316;101857;RFC_ZIND;758;2026031\|
+|8;095215;072;97648;;;0;    SAPMHTTP;;;;;;;100;;};U;IT_63[697648x268]}                             |
+|    404040404020202020203030303030303030303020202020202020202020202020202020202020202020202020202\|
+|0202020202020202020202020202020202020202020202020202020202020202020403030204020202020202020202020\|
+|20202020202020202020202020202020202020202020202020202020202020202                                 |
+|    502010E08000000000000000107070106030302000000000000000000000000000000000000000000000000000000\|
+|0000000000000000000000000000000000000000000000000000000000000000000200010005000000000000000000000\|
+|00000000000000000000000000000000000000000000000000000000000000000                                 |
+|    4500420041004E0048002000200020002000200030003000310037003700310036003300330032002000200020002\|
+|0002000200020002000200020002000200020002000200020002000200020002000200020002000200020002000200020\|
+|0020002000200020002000200020002000200020002000200020002000200020002000200020002000200020002000200\|
+|0200020002000200020002000200020004200300031002000450020002000200020002000200020002000200020002000\|
+|2000200020002000200020002000200020002000200020002000200020002000200020002000200020002000200020002\|
+|00020002000200020002000200020                                                                     |
+|SY-XPROG                                                                                          |
+|    RSDBRUNT                                                                                      |
+|    5544554522222222222222222222222222222222                                                      |
+|    234225E400000000000000000000000000000000                                                      |
+|    0000000000000000000000000000000000000000                                                      |
+|    0000000000000000000000000000000000000000                                                      |
+|    5200530044004200520055004E0054002000200020002000200020002000200020002000200020002000200020002\|
+|0002000200020002000200020002000200020002000200020002000200020002000                               |
+|%_##TVREG_002                                                                                     |
+|    {{;;;;;;;00000;;;00000000;000000;;;00000000;000000;000;00000;;;0;;;;;;;;;;};;Table[initial]}  |
+|    202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202\|
+|0202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020\|
+|20202020202020202020202020202020202020202020202020202020202020202                                 |
+|    000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000\|
+|0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000\|
+|00000000000000000000000000000000000000000000000000000000000000000                                 |
+|    200020002000200020002000200020002000200020002000200020002000200020002000200020002000200020002\|
+|0002000200020002000200020002000200020002000200020002000200020002000200020002000200020002000200020\|
+|0020002000200020002000200020002000200020002000200020002000200020002000200020002000200020002000200\|
+|0200020002000200020002000200020002000200020002000200020002000200020002000200020002000200020002000\|
+|2000200020002000200020002000200020002000200020002000200020002000200020002000200020002000200020002\|
+|00020002000200020002000200020                                                                     |
+|%_##TVREG_002-HEADER                                                                              |
+|    {;;;;;;;00000;;;00000000;000000;;;00000000;000000;000;00000;;;0;;;;;;;;;;}                    |
+|    202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202\|
+|0202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020\|
+|20202020202020202020202020202020202020202020202020202020202020202                                 |
+|    000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000\|
+|0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000\|
+|00000000000000000000000000000000000000000000000000000000000000000                                 |
+|    200020002000200020002000200020002000200020002000200020002000200020002000200020002000200020002\|
+|0002000200020002000200020002000200020002000200020002000200020002000200020002000200020002000200020\|
+|0020002000200020002000200020002000200020002000200020002000200020002000200020002000200020002000200\|
+|0200020002000200020002000200020002000200020002000200020002000200020002000200020002000200020002000\|
+|2000200020002000200020002000200020002000200020002000200020002000200020002000200020002000200020002\|
+|00020002000200020002000200020                                                                     |
+|<L_TEXT>-HEADER                                                                                   |
+|    {EBANH;0017716332;B01;E;;SYSTEM;;00001;RFC_BTP_PROD;758;20260316;101857;RFC_ZIND;758;20260318\|
+|;095215;072;97648;;;0;    SAPMHTTP;;;;;;;100;;}                                                   |
+|    404040404020202020203030303030303030303020202020202020202020202020202020202020202020202020202\|
+|0202020202020202020202020202020202020202020202020202020202020202020403030204020202020202020202020\|
+|20202020202020202020202020202020202020202020202020202020202020202                                 |
+|    502010E08000000000000000107070106030302000000000000000000000000000000000000000000000000000000\|
+|0000000000000000000000000000000000000000000000000000000000000000000200010005000000000000000000000\|
+|00000000000000000000000000000000000000000000000000000000000000000                                 |
+|    4500420041004E0048002000200020002000200030003000310037003700310036003300330032002000200020002\|
+|0002000200020002000200020002000200020002000200020002000200020002000200020002000200020002000200020\|
+|0020002000200020002000200020002000200020002000200020002000200020002000200020002000200020002000200\|
+|0200020002000200020002000200020004200300031002000450020002000200020002000200020002000200020002000\|
+|2000200020002000200020002000200020002000200020002000200020002000200020002000200020002000200020002\|
+|00020002000200020002000200020                                                                     |
+|SY-REPID                                                                                          |
+|    CL_RSTXT_PERSISTENCE_MANAGER==CP                                                              |
+|    4455555555455455444454444445334522222222                                                      |
+|    3CF23484F05239345E35FD1E1752DD3000000000                                                      |
+|    0000000000000000000000000000000000000000                                                      |
+|    0000000000000000000000000000000000000000                                                      |
+|    43004C005F00520053005400580054005F00500045005200530049005300540045004E00430045005F004D0041004\|
+|E0041004700450052003D003D004300500020002000200020002000200020002000                               |
+|%_##TVREG_002-FUNCTION                                                                            |
+|                                                                                                  |
+|    2                                                                                             |
+|    0                                                                                             |
+|    0                                                                                             |
+|    0                                                                                             |
+|    2000                                                                                          |
+|CL_RSTXT_PERSISTENCE_FRAMEWORK=>C_ERROR_INCONSISTENT                                              |
+|    6                                                                                             |
+|    3                                                                                             |
+|    6                                                                                             |
+|    0                                                                                             |
+|    0                                                                                             |
+|    3600                                                                                          |
+|%_DUMMY$$                                                                                         |
+|                                                                                                  |
+|    2222                                                                                          |
+|    0000                                                                                          |
+|    0000                                                                                          |
+|    0000                                                                                          |
+|    2000200020002000                                                                              |
+|L_HANDLER                                                                                         |
+|    {O:59*\CLASS=CL_RSTXT_DEFAULT_PERSISTENCE}                                                    |
+|    C0003000                                                                                      |
+|    4000B000                                                                                      |
+|    C40000003B000000                                                                              |
+|SY-XFORM                                                                                          |
+|    %_INIT_PBO_FIRST                                                                              |
+|    254445554454455522222222222222                                                                |
+|    5F9E94F02FF6923400000000000000                                                                |
+|    000000000000000000000000000000                                                                |
+|    000000000000000000000000000000                                                                |
+|    25005F0049004E00490054005F00500042004F005F004600490052005300540020002000200020002000200020002\|
+|000200020002000200020002000                                                                       |
+----------------------------------------------------------------------------------------------------
+|No.       5 Ty.          FUNCTION                                                                 |
+|Name  HANDLE_TEXT_ARRAY_AFTER_COMMIT                                                              |
+----------------------------------------------------------------------------------------------------
+|TEXTS_TAB                                                                                         |
+|    Table IT_62[1x760]                                                                            |
+|FUNCTION_UPDATE                                                                                   |
+|    U                                                                                             |
+|    5                                                                                             |
+|    5                                                                                             |
+|    0                                                                                             |
+|    0                                                                                             |
+|    5500                                                                                          |
+|SY-REPID                                                                                          |
+|    SAPLSTXI                                                                                      |
+|    5454555422222222222222222222222222222222                                                      |
+|    310C348900000000000000000000000000000000                                                      |
+|    0000000000000000000000000000000000000000                                                      |
+|    0000000000000000000000000000000000000000                                                      |
+|    5300410050004C0053005400580049002000200020002000200020002000200020002000200020002000200020002\|
+|0002000200020002000200020002000200020002000200020002000200020002000                               |
+|%_DUMMY$$                                                                                         |
+|                                                                                                  |
+|    2222                                                                                          |
+|    0000                                                                                          |
+|    0000                                                                                          |
+|    0000                                                                                          |
+|    2000200020002000                                                                              |
+|OBJECT_FORM                                                                                       |
+|    FORM                                                                                          |
+|    4454222222                                                                                    |
+|    6F2D000000                                                                                    |
+|    0000000000                                                                                    |
+|    0000000000                                                                                    |
+|    46004F0052004D00200020002000200020002000                                                      |
+----------------------------------------------------------------------------------------------------
+|No.       4 Ty.          FORM                                                                     |
+|Name  HANDLE_TEXT_ARRAY_AFTER_COMMIT                                                              |
+----------------------------------------------------------------------------------------------------
+|%_STATE                                                                                           |
+|    N                                                                                             |
+|    4                                                                                             |
+|    E                                                                                             |
+|    0                                                                                             |
+|    0                                                                                             |
+|    4E00                                                                                          |
+|%_PRINT                                                                                           |
+|    {;000;;;;;;0;0;0;;;;;;;;;;;0;;;0}                                                             |
+|    202020203030302020202020202020202020202020202020202020202020202020202020202020202020202020202\|
+|0202020202020202020202020202020202020202020202020202020202020202020202020202020202020203000000000\|
+|00202020202020202020202020202020202020202020202020202020202020202                                 |
+|    000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000\|
+|0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000\|
+|00000000000000000000000000000000000000000000000000000000000000000                                 |
+|    200020002000200030003000300020002000200020002000200020002000200020002000200020002000200020002\|
+|0002000200020002000200020002000200020002000200020002000200020002000200020002000200020002000200020\|
+|0020002000200020002000200020002000200020002000200020002000200020002000200020002000200020002000200\|
+|0200020002000200020002000200020002000200020002000200020002000200020002000300000000000000000000000\|
+|2000200020002000200020002000200020002000200020002000200020002000200020002000200020002000200020002\|
+|00020002000200020002000200020                                                                     |
+|%_KEY                                                                                             |
+|    {;wxm4zTQn7{68rWZuTs5RfG        4}                                                            |
+|    20207070603070505060307030307050507050703050604020202020202020203020                          |
+|    00007080D040A04010E070B060802070A05040305020607000000000000000004000                          |
+|    20002000770078006D0034007A00540051006E0037007B0036003800720057005A007500540073003500520066004\|
+|7002000200020002000200020002000200034002000                                                       |
+|SY-SUBRC                                                                                          |
+|    0                                                                                             |
+|    0000                                                                                          |
+|    0000                                                                                          |
+|    00000000                                                                                      |
+|SYST-REPID                                                                                        |
+|    SAPLSTXI                                                                                      |
+|    5454555422222222222222222222222222222222                                                      |
+|    310C348900000000000000000000000000000000                                                      |
+|    0000000000000000000000000000000000000000                                                      |
+|    0000000000000000000000000000000000000000                                                      |
+|    5300410050004C0053005400580049002000200020002000200020002000200020002000200020002000200020002\|
+|0002000200020002000200020002000200020002000200020002000200020002000                               |
+|%_%_TEXTS_TAB                                                                                     |
+|    Table IT_60[1x760]                                                                            |
+|    \FUNCTION-POOL=STXI\FORM=HANDLE_TEXT_ARRAY_AFTER_COMMIT\DATA=%_%_TEXTS_TAB                    |
+|    Table reference: 8                                                                            |
+|    TABH+ 0(20) = C0A7F4EC7F7F0000000000000000000000000000                                        |
+|    TABH+20(20) = 0000000000000000000000000100000044010000                                        |
+|    TABH+40(20) = 00000000080000003C00000001000000F8020000                                        |
+|    TABH+60(20) = FFFFFFFF04B70000A05100000100010602000000                                        |
+|    store                   = 0xC0A7F4EC7F7F0000                                                  |
+|    statScndKeyAdmin        = 0x0000000000000000                                                  |
+|    ext1                    = 0x0000000000000000                                                  |
+|    ----- Primary Key -----                                                                       |
+|    idxPtr                  = 0x0000000000000000                                                  |
+|      idxKind               = 0     (ItIndexNone)                                                 |
+|      accKind               = 1     (ItAccStandard)                                               |
+|      uniKind               = 2     (ItUniNo)                                                     |
+|      keyKind (from pbag)   = 1     (default)                                                     |
+|      cmpMode               = 2     (cmpSingleMcmpR)                                              |
+|    shmId                   = 0     (0x00000000)                                                  |
+|    id                      = 8     (0x08000000)                                                  |
+|    label                   = 60    (0x3C000000)                                                  |
+|    fill                    = 1     (0x01000000)                                                  |
+|    leng                    = 760   (0xF8020000)                                                  |
+|    loop                    = -1    (0xFFFFFFFF)                                                  |
+|    xtyp                    = PROG#000183/TYPE#000036                                             |
+|    occu                    = 1     (0x01000000)                                                  |
+|    occu0                   = 1                                                                   |
+|    stMode                  = 0                                                                   |
+|    groupCntl               = 0                                                                   |
+|    rfc                     = 0                                                                   |
+|    unShareable             = 0                                                                   |
+|    mightBeShared           = 0                                                                   |
+|    sharedWithShmTab        = 0                                                                   |
+|    isShmLockId             = 0                                                                   |
+|    isUsed                  = 1                                                                   |
+|    isCtfyAble              = 1                                                                   |
+|    hasScndKeys             = 0                                                                   |
+|    hasRowId                = 0                                                                   |
+|    statScndKeysOutdated    = 0                                                                   |
+|    statScndUniKeysOutdated = 0                                                                   |
+|    primKeyIsEmpty          = ItPrimKeyIsEmptyNo                                                  |
+|    rtmSelectNoOrderBy      = 0                                                                   |
+|    tstForceExtSort         = 0                                                                   |
+|    ----- Shareable Table Header Data (Store) -----                                               |
+|    tabi                    = 0xC0A911ED7F7F0000                                                  |
+|    pgHook                  = 0x0000000000000000                                                  |
+|    uniqueNumber            = 42    (0x2A000000)                                                  |
+|    shmTabhSet              = 0x0000000000000000                                                  |
+|    refCount                = 0     (0x00000000)                                                  |
+|    tstRefCount             = 0     (0x00000000)                                                  |
+|    lineAdmin               = 1     (0x01000000)                                                  |
+|    lineAlloc               = 1     (0x01000000)                                                  |
+|    shmVersId               = 0     (0x00000000)                                                  |
+|    shmRefCount             = 1     (0x01000000)                                                  |
+|    rowId                   = 18446744073709551615                                                |
+|    {{EBANH;0017716332;B01;E;;SYSTEM;;00001;RFC_BTP_PROD;758;20260316;101857;RFC_ZIND;758;2026031\|
+|8;095215;072;97648;;;0;    SAPMHTTP;;;;;;;100;;};U;IT_61[697648x268]}                             |
+|    404040404020202020203030303030303030303020202020202020202020202020202020202020202020202020202\|
+|0202020202020202020202020202020202020202020202020202020202020202020403030204020202020202020202020\|
+|20202020202020202020202020202020202020202020202020202020202020202                                 |
+|    502010E08000000000000000107070106030302000000000000000000000000000000000000000000000000000000\|
+|0000000000000000000000000000000000000000000000000000000000000000000200010005000000000000000000000\|
+|00000000000000000000000000000000000000000000000000000000000000000                                 |
+|    4500420041004E0048002000200020002000200030003000310037003700310036003300330032002000200020002\|
+|0002000200020002000200020002000200020002000200020002000200020002000200020002000200020002000200020\|
+|0020002000200020002000200020002000200020002000200020002000200020002000200020002000200020002000200\|
+|0200020002000200020002000200020004200300031002000450020002000200020002000200020002000200020002000\|
+|2000200020002000200020002000200020002000200020002000200020002000200020002000200020002000200020002\|
+|00020002000200020002000200020                                                                     |
+|SY-XFORM                                                                                          |
+|    %_INIT_PBO_FIRST                                                                              |
+|    254445554454455522222222222222                                                                |
+|    5F9E94F02FF6923400000000000000                                                                |
+|    000000000000000000000000000000                                                                |
+|    000000000000000000000000000000                                                                |
+|    25005F0049004E00490054005F00500042004F005F004600490052005300540020002000200020002000200020002\|
+|000200020002000200020002000                                                                       |
+----------------------------------------------------------------------------------------------------
+|No.       3 Ty.          FORM                                                                     |
+|Name  %_UPDATES_NO_UTASK                                                                          |
+----------------------------------------------------------------------------------------------------
+|%_DUMMY$$                                                                                         |
+|                                                                                                  |
+|    2222                                                                                          |
+|    0000                                                                                          |
+|    0000                                                                                          |
+|    0000                                                                                          |
+|    2000200020002000                                                                              |
+|SY-REPID                                                                                          |
+|    SAPMSSY4                                                                                      |
+|    5454555322222222222222222222222222222222                                                      |
+|    310D339400000000000000000000000000000000                                                      |
+|    0000000000000000000000000000000000000000                                                      |
+|    0000000000000000000000000000000000000000                                                      |
+|    5300410050004D0053005300590034002000200020002000200020002000200020002000200020002000200020002\|
+|0002000200020002000200020002000200020002000200020002000200020002000                               |
+|%_##TVREG_001                                                                                     |
+|    {O:initial}                                                                                   |
+|    F0000000                                                                                      |
+|    F0000000                                                                                      |
+|    FF00000000000000                                                                              |
+|LV_DATA_TEMPERATURE                                                                               |
+|    00000000                                                                                      |
+|    33333333                                                                                      |
+|    00000000                                                                                      |
+|    00000000                                                                                      |
+|    00000000                                                                                      |
+|    30003000300030003000300030003000                                                              |
+|%_VB_CALLS[]                                                                                      |
+|    Table IT_13[11x144]                                                                           |
+|    \PROGRAM=SAPMSSY4\DATA=%_VB_CALLS[]                                                           |
+|    Table reference: 2                                                                            |
+|    TABH+ 0(20) = D82DF3EC7F7F0000000000000000000000000000                                        |
+|    TABH+20(20) = 0000000000000000000000000B00000044010000                                        |
+|    TABH+40(20) = 00000000020000000D0000000B00000090000000                                        |
+|    TABH+60(20) = 0000000004000000305001000B00000602000000                                        |
+|    store                   = 0xD82DF3EC7F7F0000                                                  |
+|    statScndKeyAdmin        = 0x0000000000000000                                                  |
+|    ext1                    = 0x0000000000000000                                                  |
+|    ----- Primary Key -----                                                                       |
+|    idxPtr                  = 0x0000000000000000                                                  |
+|      idxKind               = 0     (ItIndexNone)                                                 |
+|      accKind               = 1     (ItAccStandard)                                               |
+|      uniKind               = 2     (ItUniNo)                                                     |
+|      keyKind (from pbag)   = 1     (default)                                                     |
+|      cmpMode               = 2     (cmpSingleMcmpR)                                              |
+|    shmId                   = 0     (0x00000000)                                                  |
+|    id                      = 2     (0x02000000)                                                  |
+|    label                   = 13    (0x0D000000)                                                  |
+|    fill                    = 11    (0x0B000000)                                                  |
+|    leng                    = 144   (0x90000000)                                                  |
+|    loop                    = 0     (0x00000000)                                                  |
+|    xtyp                    = PROG#000000/TYPE#000029                                             |
+|    occu                    = 11    (0x0B000000)                                                  |
+|    occu0                   = 0                                                                   |
+|    stMode                  = 0                                                                   |
+|    groupCntl               = 0                                                                   |
+|    rfc                     = 0                                                                   |
+|    unShareable             = 0                                                                   |
+|    mightBeShared           = 0                                                                   |
+|    sharedWithShmTab        = 0                                                                   |
+|    isShmLockId             = 0                                                                   |
+|    isUsed                  = 1                                                                   |
+|    isCtfyAble              = 1                                                                   |
+|    hasScndKeys             = 0                                                                   |
+|    hasRowId                = 0                                                                   |
+|    statScndKeysOutdated    = 0                                                                   |
+|    statScndUniKeysOutdated = 0                                                                   |
+|    primKeyIsEmpty          = ItPrimKeyIsEmptyNo                                                  |
+|    rtmSelectNoOrderBy      = 0                                                                   |
+|    tstForceExtSort         = 0                                                                   |
+|    ----- Shareable Table Header Data (Store) -----                                               |
+|    tabi                    = 0x9027F3EC7F7F0000                                                  |
+|    pgHook                  = 0x0000000000000000                                                  |
+|    uniqueNumber            = 13    (0x0D000000)                                                  |
+|    shmTabhSet              = 0x0000000000000000                                                  |
+|    refCount                = 0     (0x00000000)                                                  |
+|    tstRefCount             = 0     (0x00000000)                                                  |
+|    lineAdmin               = 11    (0x0B000000)                                                  |
+|    lineAlloc               = 11    (0x0B000000)                                                  |
+|    shmVersId               = 0     (0x00000000)                                                  |
+|    shmRefCount             = 1     (0x01000000)                                                  |
+|    rowId                   = 18446744073709551615                                                |
+|                                                                                                  |
+|    {MMPUR_PRITM_PROCESS_NOTIF;00000000;{;wxm4zTQn7{68rWZuTs5RfG        0}}                       |
+|    404050505050505040504050505040404050505040405040402020202020303030303030303020207070603070505\|
+|060307030307050507050703050604020202020202020203020                                               |
+|    D0D0005020F000209040D0F00020F030503030F0E0F04090600000000000000000000000000000007080D040A0401\|
+|0E070B060802070A05040305020607000000000000000000000                                               |
+|    4D004D005000550052005F0050005200490054004D005F00500052004F0043004500530053005F004E004F0054004\|
+|9004600200020002000200020003000300030003000300030003000300020002000770078006D0034007A00540051006E\|
+|0037007B0036003800720057005A007500540073003500520066004700200020002000200020002000200020003000200\|
+|0                                                                                                 |
+|                                                                                                  |
+|    {ME_UPDATE_REQUISITION;00000000;{;wxm4zTQn7{68rWZuTs5RfG        1}}                           |
+|    404050505040405040505040505040504050404040202020202020202020303030303030303020207070603070505\|
+|060307030307050507050703050604020202020202020203020                                               |
+|    D050F0500040104050F0205010509030904090F0E0000000000000000000000000000000000000007080D040A0401\|
+|0E070B060802070A05040305020607000000000000000001000                                               |
+|    4D0045005F005500500044004100540045005F005200450051005500490053004900540049004F004E00200020002\|
+|0002000200020002000200020003000300030003000300030003000300020002000770078006D0034007A00540051006E\|
+|0037007B0036003800720057005A007500540073003500520066004700200020002000200020002000200020003100200\|
+|0                                                                                                 |
+|                                                                                                  |
+|    {ME_CREATE_MRPRECORD_REQ;00000000;{;wxm4zTQn7{68rWZuTs5RfG        2}}                         |
+|    404050405040405040504050505040404050405050405020202020202020303030303030303020207070603070505\|
+|060307030307050507050703050604020202020202020203020                                               |
+|    D050F0302050104050F0D02000205030F02040F020501000000000000000000000000000000000007080D040A0401\|
+|0E070B060802070A05040305020607000000000000000002000                                               |
+|    4D0045005F004300520045004100540045005F004D00520050005200450043004F00520044005F005200450051002\|
+|0002000200020002000200020003000300030003000300030003000300020002000770078006D0034007A00540051006E\|
+|0037007B0036003800720057005A007500540073003500520066004700200020002000200020002000200020003200200\|
+|0                                                                                                 |
+|                                                                                                  |
+|    {MEREL_REQ_POST_EVENTS;00000000;{;wxm4zTQn7{68rWZuTs5RfG        3}}                           |
+|    404050404050504050505040505050405040405050202020202020202020303030303030303020207070603070505\|
+|060307030307050507050703050604020202020202020203020                                               |
+|    D0502050C0F0205010F000F03040F0506050E04030000000000000000000000000000000000000007080D040A0401\|
+|0E070B060802070A05040305020607000000000000000003000                                               |
+|    4D004500520045004C005F005200450051005F0050004F00530054005F004500560045004E0054005300200020002\|
+|0002000200020002000200020003000300030003000300030003000300020002000770078006D0034007A00540051006E\|
+|0037007B0036003800720057005A007500540073003500520066004700200020002000200020002000200020003300200\|
+|0                                                                                                 |
+|                                                                                                  |
+|    {HANDLE_TEXT_ARRAY_AFTER_COMMIT;00000000;{;wxm4zTQn7{68rWZuTs5RfG        4}}                  |
+|    404040404040505040505050405050405050404050405050404040404050303030303030303020207070603070505\|
+|060307030307050507050703050604020202020202020203020                                               |
+|    8010E040C050F040508040F01020201090F01060405020F030F0D0D09040000000000000000000007080D040A0401\|
+|0E070B060802070A05040305020607000000000000000004000                                               |
+|    480041004E0044004C0045005F0054004500580054005F00410052005200410059005F00410046005400450052005\|
+|F0043004F004D004D00490054003000300030003000300030003000300020002000770078006D0034007A00540051006E\|
+|0037007B0036003800720057005A007500540073003500520066004700200020002000200020002000200020003400200\|
+|0                                                                                                 |
+|%_VB_CALLS                                                                                        |
+|    {HANDLE_TEXT_ARRAY_AFTER_COMMIT;00000000;{;wxm4zTQn7{68rWZuTs5RfG        4}}                  |
+|    404040404040505040505050405050405050404050405050404040404050303030303030303020207070603070505\|
+|060307030307050507050703050604020202020202020203020                                               |
+|    8010E040C050F040508040F01020201090F01060405020F030F0D0D09040000000000000000000007080D040A0401\|
+|0E070B060802070A05040305020607000000000000000004000                                               |
+|    480041004E0044004C0045005F0054004500580054005F00410052005200410059005F00410046005400450052005\|
+|F0043004F004D004D00490054003000300030003000300030003000300020002000770078006D0034007A00540051006E\|
+|0037007B0036003800720057005A007500540073003500520066004700200020002000200020002000200020003400200\|
+|0                                                                                                 |
+|TH_VB_FB_MODE                                                                                     |
+|                                                                                                  |
+|    2                                                                                             |
+|    0                                                                                             |
+|    0                                                                                             |
+|    0                                                                                             |
+|    2000                                                                                          |
+|%_VB_CALLS-FUNC_NAME                                                                              |
+|    HANDLE_TEXT_ARRAY_AFTER_COMMIT                                                                |
+|    444444554555455455445455444445                                                                |
+|    81E4C5F4584F12219F16452F3FDD94                                                                |
+|    000000000000000000000000000000                                                                |
+|    000000000000000000000000000000                                                                |
+|    480041004E0044004C0045005F0054004500580054005F00410052005200410059005F00410046005400450052005\|
+|F0043004F004D004D0049005400                                                                       |
+|TFDIR                                                                                             |
+|    {HANDLE_TEXT_ARRAY_AFTER_COMMIT;SAPLSTXI;07;00000000;S;;;;1;SAPLSTXI;;}                       |
+|    404040404040505040505050405050405050404050405050404040404050504050405050504020202020202020202\|
+|0202020202020202020202020202020202020202020202030303030303030303030502020202020202020202020203050\|
+|40504050505040202020202020202020202020202020202020202020202020202                                 |
+|    8010E040C050F040508040F01020201090F01060405020F030F0D0D09040301000C03040809000000000000000000\|
+|0000000000000000000000000000000000000000000000000700000000000000000300000000000000000000000001030\|
+|1000C030408090000000000000000000000000000000000000000000000000000                                 |
+|    480041004E0044004C0045005F0054004500580054005F00410052005200410059005F00410046005400450052005\|
+|F0043004F004D004D00490054005300410050004C00530054005800490020002000200020002000200020002000200020\|
+|0020002000200020002000200020002000200020002000200020002000200020002000200020002000200020003000370\|
+|0300030003000300030003000300030005300200020002000200020002000200020002000200020002000310053004100\|
+|50004C0053005400580049002000200020002000200020002000200020002000200020002000200020002000200020002\|
+|00020002000200020002000200020                                                                     |
+|OPCODE_DELETE_WALL_ENTRY                                                                          |
+|    :                                                                                             |
+|    3                                                                                             |
+|    A                                                                                             |
+|    3A                                                                                            |
+|SY-SUBRC                                                                                          |
+|    0                                                                                             |
+|    0000                                                                                          |
+|    0000                                                                                          |
+|    00000000                                                                                      |
+|SY-XFORM                                                                                          |
+|    %_INIT_PBO_FIRST                                                                              |
+|    254445554454455522222222222222                                                                |
+|    5F9E94F02FF6923400000000000000                                                                |
+|    000000000000000000000000000000                                                                |
+|    000000000000000000000000000000                                                                |
+|    25005F0049004E00490054005F00500042004F005F004600490052005300540020002000200020002000200020002\|
+|000200020002000200020002000                                                                       |
+|VB_V1_TEST                                                                                        |
+|    #                                                                                             |
+|    0                                                                                             |
+|    2                                                                                             |
+|    02                                                                                            |
+|TFDIR-PNAME                                                                                       |
+|    SAPLSTXI                                                                                      |
+|    5454555422222222222222222222222222222222                                                      |
+|    310C348900000000000000000000000000000000                                                      |
+|    0000000000000000000000000000000000000000                                                      |
+|    0000000000000000000000000000000000000000                                                      |
+|    5300410050004C0053005400580049002000200020002000200020002000200020002000200020002000200020002\|
+|0002000200020002000200020002000200020002000200020002000200020002000                               |
+|%_VB_CALLS-DATEN_ID                                                                               |
+|    {;wxm4zTQn7{68rWZuTs5RfG        4}                                                            |
+|    20207070603070505060307030307050507050703050604020202020202020203020                          |
+|    00007080D040A04010E070B060802070A05040305020607000000000000000004000                          |
+|    20002000770078006D0034007A00540051006E0037007B0036003800720057005A007500540073003500520066004\|
+|7002000200020002000200020002000200034002000                                                       |
+|%_ARCHIVE                                                                                         |
+|    {;;;;;;;;;;;;;;;;;;0}                                                                         |
+|    202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202\|
+|0202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020\|
+|20202020202020202020202020202020202020202020202020202020202020202                                 |
+|    000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000\|
+|0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000\|
+|00000000000000000000000000000000000000000000000000000000000000000                                 |
+|    200020002000200020002000200020002000200020002000200020002000200020002000200020002000200020002\|
+|0002000200020002000200020002000200020002000200020002000200020002000200020002000200020002000200020\|
+|0020002000200020002000200020002000200020002000200020002000200020002000200020002000200020002000200\|
+|0200020002000200020002000200020002000200020002000200020002000200020002000200020002000200020002000\|
+|2000200020002000200020002000200020002000200020002000200020002000200020002000200020002000200020002\|
+|00020002000200020002000200020                                                                     |
+|SY-MSGID                                                                                          |
+|                                                                                                  |
+|    22222222222222222222                                                                          |
+|    00000000000000000000                                                                          |
+|    00000000000000000000                                                                          |
+|    00000000000000000000                                                                          |
+|    20002000200020002000200020002000200020002000200020002000200020002000200020002000              |
+|SELECT_VB_SERVER                                                                                  |
+|    #                                                                                             |
+|    0                                                                                             |
+|    E                                                                                             |
+|    0E                                                                                            |
+|VB_GET_INFO                                                                                       |
+|    #                                                                                             |
+|    1                                                                                             |
+|    1                                                                                             |
+|    11                                                                                            |
+|SPACE                                                                                             |
+|                                                                                                  |
+|    2                                                                                             |
+|    0                                                                                             |
+|    0                                                                                             |
+|    0                                                                                             |
+|    2000                                                                                          |
+|SY-MSGNO                                                                                          |
+|    000                                                                                           |
+|    333                                                                                           |
+|    000                                                                                           |
+|    000                                                                                           |
+|    000                                                                                           |
+|    300030003000                                                                                  |
+|SET_VB_EXIT_FUNCTION                                                                              |
+|    #                                                                                             |
+|    0                                                                                             |
+|    D                                                                                             |
+|    0D                                                                                            |
+|SY-MSGV1                                                                                          |
+|                                                                                                  |
+|    22222222222222222222222222222222222222222222222222                                            |
+|    00000000000000000000000000000000000000000000000000                                            |
+|    00000000000000000000000000000000000000000000000000                                            |
+|    00000000000000000000000000000000000000000000000000                                            |
+|    200020002000200020002000200020002000200020002000200020002000200020002000200020002000200020002\|
+|0002000200020002000200020002000200020002000200020002000200020002000200020002000200020002000200020\|
+|0020002000                                                                                        |
+|SY-MSGV2                                                                                          |
+|                                                                                                  |
+|    22222222222222222222222222222222222222222222222222                                            |
+|    00000000000000000000000000000000000000000000000000                                            |
+|    00000000000000000000000000000000000000000000000000                                            |
+|    00000000000000000000000000000000000000000000000000                                            |
+|    200020002000200020002000200020002000200020002000200020002000200020002000200020002000200020002\|
+|0002000200020002000200020002000200020002000200020002000200020002000200020002000200020002000200020\|
+|0020002000                                                                                        |
+----------------------------------------------------------------------------------------------------
+|No.       2 Ty.          FORM                                                                     |
+|Name  LOCAL_UPDATE_TASK                                                                           |
+----------------------------------------------------------------------------------------------------
+|VBKEY_ID                                                                                          |
+|    {%%;99624A8A43EA04A0E0069BA2E8060E26}                                                         |
+|    20203030303030403040303040403030403040303030304040304030303030403030                          |
+|    50509090602040108010403050100040100050000060902010205080006000502060                          |
+|    250025003900390036003200340041003800410034003300450041003000340041003000450030003000360039004\|
+|2004100320045003800300036003000450032003600                                                       |
+|SYST-REPID                                                                                        |
+|    SAPMSSY4                                                                                      |
+|    5454555322222222222222222222222222222222                                                      |
+|    310D339400000000000000000000000000000000                                                      |
+|    0000000000000000000000000000000000000000                                                      |
+|    0000000000000000000000000000000000000000                                                      |
+|    5300410050004D0053005300590034002000200020002000200020002000200020002000200020002000200020002\|
+|0002000200020002000200020002000200020002000200020002000200020002000                               |
+|SCREEN                                                                                            |
+|    {;;;;;;;;;;00;;;;;;0}                                                                         |
+|    202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202\|
+|0202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020\|
+|20202020202020202020202020202020202020202020202020202020202020202                                 |
+|    000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000\|
+|0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000\|
+|00000000000000000000000000000000000000000000000000000000000000000                                 |
+|    200020002000200020002000200020002000200020002000200020002000200020002000200020002000200020002\|
+|0002000200020002000200020002000200020002000200020002000200020002000200020002000200020002000200020\|
+|0020002000200020002000200020002000200020002000200020002000200020002000200020002000200020002000200\|
+|0200020002000200020002000200020002000200020002000200020002000200020002000200020002000200020002000\|
+|2000200020002000200020002000200020002000200020002000200020002000200020002000200020002000200020002\|
+|00020002000200020002000200020                                                                     |
+|VB_V2_RESTART_CONTINUE                                                                            |
+|    #                                                                                             |
+|    0                                                                                             |
+|    F                                                                                             |
+|    0F                                                                                            |
+|SY-XPROG                                                                                          |
+|    RSDBRUNT                                                                                      |
+|    5544554522222222222222222222222222222222                                                      |
+|    234225E400000000000000000000000000000000                                                      |
+|    0000000000000000000000000000000000000000                                                      |
+|    0000000000000000000000000000000000000000                                                      |
+|    5200530044004200520055004E0054002000200020002000200020002000200020002000200020002000200020002\|
+|0002000200020002000200020002000200020002000200020002000200020002000                               |
+|OPCODE_GET_SECURITY_CONT_REF                                                                      |
+|    [                                                                                             |
+|    5                                                                                             |
+|    B                                                                                             |
+|    5B                                                                                            |
+|EXT_DATA                                                                                          |
+|                                                                                                  |
+|    2                                                                                             |
+|    0                                                                                             |
+|    0                                                                                             |
+|    0                                                                                             |
+|    2000                                                                                          |
+|VB_MAIL                                                                                           |
+|    #                                                                                             |
+|    0                                                                                             |
+|    4                                                                                             |
+|    04                                                                                            |
+|SYST                                                                                              |
+|    {0;0;257;310;0;0;0;0;0;0;1;0;1;0;1;0;0;0;0;7904;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;22;84;0;0\|
+|;0;0;;;0000;3;0;0;;;;E;0;;;X;1000;;;;;;0;__S;100;;;0;0;;;;;;;;;;00;;;;;;;;;;;;000;;;;;;;;;HDB;;;S\|
+|4P;Linux;STLI;758;;;;;0000000000;0000000000;;00000000;20260318;;0                                 |
+|    0000000000003000000000000000000000000000000000000000000000000000000000000000E1000000000000000\|
+|0000000000000000000000000000000000000000000000000000000000010005000000000000000000020200000000000\|
+|00002020204000000020205030303030202020202020202000000050505020202                                 |
+|    00000000110061000000000000000000000000001000000010000000100000000000000000000E000000000000000\|
+|0000000000000000000000000000000000000000000000000000000000060004000000000000000000000000030000C00\|
+|00C000000050000000000080100000000000000000000000000000F0F03000000                                 |
+|    000000000000000001010000360100000000000000000000000000000000000000000000000000000100000000000\|
+|00001000000000000000100000000000000000000000000000000000000E01E0000000000000000000000000000000000\|
+|0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000\|
+|0000000000000000016000000540000000000000000000000000000000000000020002000000003000000000C00000000\|
+|0C00200020002000450000000000000020002000580031003000300030002000200020002000200020002000200000000\|
+|00000005F005F0053002000200020                                                                     |
+|ABAP_TRUE                                                                                         |
+|    X                                                                                             |
+|    5                                                                                             |
+|    8                                                                                             |
+|    0                                                                                             |
+|    0                                                                                             |
+|    5800                                                                                          |
+|SHMPRF_OK                                                                                         |
+|    0                                                                                             |
+|    0000                                                                                          |
+|    0000                                                                                          |
+|    00000000                                                                                      |
+|SY-ONCOM                                                                                          |
+|                                                                                                  |
+|    2                                                                                             |
+|    0                                                                                             |
+|    0                                                                                             |
+|    0                                                                                             |
+|    2000                                                                                          |
+|TH_VB_V2START                                                                                     |
+|    #                                                                                             |
+|    0                                                                                             |
+|    0                                                                                             |
+|    00                                                                                            |
+----------------------------------------------------------------------------------------------------
+|No.       1 Ty.          EVENT                                                                    |
+|Name  START-OF-SELECTION                                                                          |
+----------------------------------------------------------------------------------------------------
+|SY-LDBPG                                                                                          |
+|    SAPDB__S                                                                                      |
+|    5454455522222222222222222222222222222222                                                      |
+|    31042FF300000000000000000000000000000000                                                      |
+|    0000000000000000000000000000000000000000                                                      |
+|    0000000000000000000000000000000000000000                                                      |
+|    530041005000440042005F005F0053002000200020002000200020002000200020002000200020002000200020002\|
+|0002000200020002000200020002000200020002000200020002000200020002000                               |
+|%_SPACE                                                                                           |
+|                                                                                                  |
+|    2                                                                                             |
+|    0                                                                                             |
+|    0                                                                                             |
+|    0                                                                                             |
+|    2000                                                                                          |
+----------------------------------------------------------------------------------------------------
+
+----------------------------------------------------------------------------------------------------
+|Information About Memory Usage                                                                    |
+----------------------------------------------------------------------------------------------------
+|Memory Consumption                                                                                |
+----------------------------------------------------------------------------------------------------
+|Memory Area                                                      Bytes                            |
+----------------------------------------------------------------------------------------------------
+|Extended Memory (EM)                                       642.368.119                            |
+|PRIV Memory (Heap)                                                   0                            |
+|SAP Paging                                                 483.540.992                            |
+----------------------------------------------------------------------------------------------------
+|MM Memory Management                                    Bytes / Number                            |
+----------------------------------------------------------------------------------------------------
+|Used Memory                                                194.289.040                            |
+|Free Memory                                                  1.874.872                            |
+|Largest Free Block                                           1.815.112                            |
+|Used Blocks                                                     22.743                            |
+|Free Blocks                                                         40                            |
+|Maximum Used Memory                                        194.289.040                            |
+----------------------------------------------------------------------------------------------------
+
+----------------------------------------------------------------------------------------------------
+|Application Calls                                                                                 |
+----------------------------------------------------------------------------------------------------
+|Index|Calls                                                                                       |
+----------------------------------------------------------------------------------------------------
+|    1|P=/sap/opu/odata4/sap/api_purchaserequisition_2/srvd_a2x/sap/purchaserequisition/0001/$batch|
+|    2|BASE URI:https://s4p.basic.siemens.com:44309/sap/opu/odata4/sap/api_purchaserequisition_2/sr|
+|    3|Application Component:                                                                      |
+|    4|V4-Service:sap/api_purchaserequisition_2/srvd_a2x/sap/purchaserequisition/0001              |
+----------------------------------------------------------------------------------------------------
+
+----------------------------------------------------------------------------------------------------
+|Application Information                                                                           |
+----------------------------------------------------------------------------------------------------
+|Index|Information                                                                                 |
+----------------------------------------------------------------------------------------------------
+|    1|POST /sap/opu/odata4/sap/api_purchaserequisition_2/srvd_a2x/sap/purchaserequisition/0001/$ba|
+|    2|tch                                                                                         |
+----------------------------------------------------------------------------------------------------
+
+----------------------------------------------------------------------------------------------------
+|Internal notes                                                                                    |
+|    The termination was triggered in function "ab_WrInt" of the SAP kernel, in                    |
+|    line 5460 of module "//bas/GIT/krn/abap/runt/abmove1.c#0".                                    |
+|    The internal operation just processed is "cali".                                              |
+|    Internal mode started at 20260318095314.                                                      |
+----------------------------------------------------------------------------------------------------
+
+----------------------------------------------------------------------------------------------------
+|Active Calls in SAP Kernel                                                                        |
+----------------------------------------------------------------------------------------------------
+|Lines of C stack in kernel (structure different on each platform)                                 |
+----------------------------------------------------------------------------------------------------
+|# buildID: 3c1767879da61211374cdb718240b417854bc702                                               |
+|dw.sapS4P_D02;0x9709ec;[S](LinStackBacktrace(void**, int, int)+0xa8)[0x559936b709ec]              |
+|dw.sapS4P_D02;0x974ff0;[S](LinStack(_IO_FILE*)+0x48)[0x559936b74ff0]                              |
+|dw.sapS4P_D02;0x97046c;[S](CTrcStack2+0x4b)[0x559936b7046c]                                       |
+|dw.sapS4P_D02;0xc5a8c9;[S](rabax_CStackSave()+0x9e)[0x559936e5a8c9]                               |
+|dw.sapS4P_D02;0xc55d54;[S](rabax(char16_t const*, char16_t const*, int, char16_t const*, void con\|
+|st*) [clone .cold]+0x102b)[0x559936e55d54]                                                        |
+|dw.sapS4P_D02;0xbc08ca;[S](ab_cnverr(int, char16_t const*, char16_t const*, char16_t const*, unsi\|
+|gned long, int, char16_t const*) [clone .cold]+0x5af)[0x559936dc08ca]                             |
+|dw.sapS4P_D02;0xc34f9c;[S](ab_WrInt(AB_TYPE_INFO const*, void*, int, int*, AbMoveStringHandler co\|
+|nst*) [clone .cold]+0xaf)[0x559936e34f9c]                                                         |
+|dw.sapS4P_D02;0x2d7488e;[S](AbCalc<CalI<TraitsI> >::loop()+0x37e)[0x559938f7488e]                 |
+|dw.sapS4P_D02;0x2d744cf;[S](AbCalc<CalI<TraitsI> >::run()+0x2f)[0x559938f744cf]                   |
+|dw.sapS4P_D02;0x2d6c553;[S](ab_extri()+0x1b3)[0x559938f6c553]                                     |
+|dw.sapS4P_D02;0x2d98161;[S](ab_xevent(char16_t const*)+0x31)[0x559938f98161]                      |
+|dw.sapS4P_D02;0x2d98709;[S](ab_trigg()+0x49)[0x559938f98709]                                      |
+|dw.sapS4P_D02;0x30fa08d;[S](ab_run+0x2d)[0x5599392fa08d]                                          |
+|dw.sapS4P_D02;0x2d3bdae;[S](dynpmcal(DINFDUMY*, STPDUMMY*)+0x77e)[0x559938f3bdae]                 |
+|dw.sapS4P_D02;0x2d3c2b7;[S](dynppai0(DINFDUMY*)+0x277)[0x559938f3c2b7]                            |
+|dw.sapS4P_D02;0x2d3acc9;[S](dynprctl(DINFDUMY*)+0x129)[0x559938f3acc9]                            |
+|dw.sapS4P_D02;0x2d39ffc;[S](dynpen00(int)+0x3bc)[0x559938f39ffc]                                  |
+|dw.sapS4P_D02;0x2e787d3;[S](ab_HttpRequestHandler(TH_PLUGIN_ROLE, TH_PLUGIN_ACTION, int, TH_PLUGI\|
+|N_PROTOCOL, unsigned char)+0x613)[0x5599390787d3]                                                 |
+|dw.sapS4P_D02;0x2d2fd97;[S](PluginHandler::handleRequest(REQUEST_BUF*, bool)+0x487)[0x559938f2fd9\|
+|7]                                                                                                |
+|dw.sapS4P_D02;0x3078a1a;[S](ThStart()+0x83a)[0x559939278a1a]                                      |
+|dw.sapS4P_D02;0x304119b;[S](DpMain+0x3cb)[0x55993924119b]                                         |
+|dw.sapS4P_D02;0x2cbc4de;[S](main+0x2e)[0x559938ebc4de]                                            |
+|# buildID: 2c8359b67579ed1cba5cce7875abfd60fa954ca7                                               |
+|libc.so.6;0x351fd;[S](__libc_start_main+0xef)[0x7f910f1ea1fd]                                     |
+|# buildID: 3c1767879da61211374cdb718240b417854bc702                                               |
+|dw.sapS4P_D02;0x3040d0a;[S](_start+0x2a)[0x559939240d0a]                                          |
+----------------------------------------------------------------------------------------------------
+
+----------------------------------------------------------------------------------------------------
+|List of ABAP programs affected                                                                    |
+----------------------------------------------------------------------------------------------------
+|Index |Ty.|Program                                 |Group |Date      |Time    |Size     |Lang.    |
+----------------------------------------------------------------------------------------------------
+|     0|Prg|SAPMSSY4                                |     0|31.03.2023|15:25:25|    97280|E        |
+|     1|Prg|SAPMSSY0                                |     1|31.03.2023|15:25:25|   120832|E        |
+|     2|Prg|SAPMSSYD                                |     1|13.05.2025|08:12:39|    34816|E        |
+|     3|Prg|SAPFSYSCALLS                            |     1|01.06.2015|12:30:31|     7168|E        |
+|     4|Prg|CL_DYNP_CUA_DEFAULT===========CP        |     4|22.01.2021|09:24:38|    10240|E        |
+|     5|Prg|RSDBRUNT                                |     0|13.05.2025|08:03:49|   323584|E        |
+|     6|Typ|RSSCR                                   |     0|31.05.2013|08:11:11|     6144|         |
+|     7|Prg|RSDBSPBL                                |     0|01.04.2022|13:52:52|    82944|E        |
+|     8|Prg|SAPDB__S                                |     0|15.03.2020|19:32:16|    21504|E        |
+|     9|Prg|RSDBSPMC                                |     0|01.04.2022|13:52:52|    94208|E        |
+|    10|Typ|DDSHDESCR                               |     0|03.09.1997|03:05:16|     4096|         |
+|    11|Typ|SPPARAMS                                |     0|07.05.1997|13:10:38|     3072|         |
+|    12|Prg|SAPLSABE                                |    12|07.04.2016|14:27:01|    15360|E        |
+|    13|Prg|SAPLSECU                                |    13|16.05.2025|13:00:26|   156672|E        |
+|    14|Typ|RSSUBINFO                               |     0|31.05.2013|08:11:14|     4096|         |
+|    15|Prg|SAPLSCNT                                |    15|28.05.2018|11:34:27|    32768|E        |
+|    16|Prg|SAPSHDTV                                |    15|31.03.2023|15:25:24|    91136|E        |
+|    17|Prg|SAPFS_SECLOG                            |     1|10.11.2022|19:49:52|    25600|E        |
+|    18|Typ|INDX                                    |     0|29.07.1998|18:38:15|     7168|         |
+|    19|Prg|SDYNPRAL                                |     1|02.05.2016|13:52:39|     8192|E        |
+|    20|Prg|SAPLSDYNPRAL                            |    20|10.11.2022|19:49:54|    16384|E        |
+|    21|Typ|DYNP_RAL_ID                             |     0|27.11.2013|14:25:51|     3072|         |
+|    22|Typ|DYNP_RAL_SCREEN                         |     0|31.05.2013|08:00:52|     3072|         |
+|    23|Prg|CL_DYNP_RAL_API===============CP        |    23|26.01.2023|17:37:52|   119808|E        |
+|    24|Prg|CL_SRAL_RECORDER_FACTORY_DYNP=CP        |    24|26.01.2023|17:38:14|    21504|E        |
+|    25|Prg|SRAL_DYNP_ADAPTER                       |    23|10.11.2022|19:49:55|    27648|E        |
+|    26|Prg|CL_SRAL_FACTORY_DYNP==========CP        |    26|26.01.2023|17:38:14|    45056|E        |
+|    27|Prg|CL_SRAL_SWITCH_CLIENT=========CP        |    27|10.11.2022|19:49:43|    10240|E        |
+|    28|Prg|CL_SRAL_DB_PARAMS=============CP        |    28|10.11.2022|19:49:43|    23552|E        |
+|    29|Prg|RADSHPBOPREFLIGHT                       |     1|10.11.2022|19:49:51|    18432|E        |
+|    30|Prg|RADSHPBOSTATUS                          |     1|10.11.2022|19:49:51|    20480|E        |
+|    31|Prg|RADSHPBOSWITCH                          |     1|10.11.2022|19:49:51|    21504|E        |
+|    32|Prg|RADSHUPGRADE                            |     1|10.11.2022|19:49:51|    21504|E        |
+|    33|Prg|WPBHELP_REGISTRATION                    |     1|06.04.2021|14:01:49|    11264|E        |
+|    34|Prg|SAPFGUICNTL                             |     1|17.12.2018|10:04:08|    28672|E        |
+|    35|Prg|SAPLOLEA                                |    35|10.11.2022|19:49:53|   120832|E        |
+|    36|Prg|SAPLSGUI                                |    36|31.03.2023|15:25:25|   103424|E        |
+|    37|Prg|SAPLSTTM                                |    37|10.11.2022|19:49:55|    80896|E        |
+|    38|Prg|SAPLSBDC                                |    38|18.03.2023|11:02:33|    71680|E        |
+|    39|Prg|SAPLSFES                                |    39|16.05.2023|13:23:16|   323584|E        |
+|    40|Prg|CL_SYSTEM_TRANSACTION_STATE===CP        |    40|31.03.2023|15:25:24|   107520|E        |
+|    41|Prg|SAPLTHFB                                |    41|15.06.2023|07:05:24|   518144|E        |
+|    42|Prg|SAPLSPLUGIN                             |    42|03.11.2021|19:19:46|     8192|E        |
+|    43|Typ|SWCBCONT                                |     0|08.09.2011|14:24:16|     4096|         |
+|    44|Typ|OLE_VERBS                               |     0|04.04.1995|16:02:20|     3072|         |
+|    45|Typ|OLE_PA                                  |     0|04.04.1995|16:02:19|     3072|         |
+|    46|Prg|SAPFS_DYNPRO_HOOKS                      |     1|26.01.2018|15:16:09|     7168|E        |
+|    47|Prg|SAPLSALV_IDA_IMPL_UI_SCREEN             |    47|18.03.2023|11:03:29|    16384|E        |
+|    48|Prg|CL_SALV_GUI_ROUNDTRIP_BROKER==CP        |    48|18.03.2023|11:03:29|    53248|E        |
+|    49|Prg|SAPLSPOF                                |    49|18.07.2023|12:08:17|   220160|E        |
+|    50|Prg|MENUSYST                                |     1|15.03.2020|19:32:15|    18432|E        |
+|    51|Typ|SMP_DYNTXT                              |     0|25.01.1999|13:03:11|     3072|         |
+|    52|Prg|IF_DATA_TEMPERATURE===========IP        |     0|01.06.2015|12:30:31|     5120|E        |
+|    53|Prg|CL_ABAP_SESSION_TEMPERATURE===CP        |    53|26.01.2023|17:38:04|    17408|E        |
+|    54|Typ|TFDIR                                   |     0|29.03.2018|15:55:42|     4096|         |
+|    55|Prg|SAPLMMPUR_INTEGRATION_REQ               |    55|13.11.2025|17:53:41|    65536|E        |
+|    56|Typ|MMPUR_PURCHASE_REQUISITION_RE2          |     0|16.05.2021|13:20:51|     6144|         |
+|    57|Typ|PRXCTRL                                 |     0|31.05.2013|08:08:35|     2048|         |
+|    58|Typ|MMPUR_PURCHASE_REQUISITION_RES          |     0|16.05.2021|13:20:51|     6144|         |
+|    59|Typ|MMPUR_RESVN_ITM_REQUIRED_QTY_1          |     0|16.05.2021|13:20:51|     3072|         |
+|    60|Prg|CL_MMPUR_PRITM_PROCESS_NOTIF==CP        |    60|09.06.2025|00:34:14|    49152|E        |
+|    61|Prg|SAPLEBNU                                |    61|05.03.2026|16:57:41|   811008|E        |
+|    62|Typ|UMEREQX                                 |     0|05.11.2021|08:29:49|    23552|         |
+|    63|Typ|UPREXT                                  |     0|06.04.2021|21:33:48|     6144|         |
+|    64|Typ|UEBAN                                   |     0|16.05.2025|11:31:49|    56320|         |
+|    65|Typ|UEBKN                                   |     0|08.05.2024|18:56:07|    17408|         |
+|    66|Typ|MMPUR_DRS_ITEMS_STY                     |     0|10.03.2010|10:11:54|     3072|         |
+|    67|Typ|EBAN                                    |     0|16.05.2025|11:32:54|    55296|         |
+|    68|Typ|EBKN                                    |     0|08.05.2024|18:55:05|    16384|         |
+|    69|Prg|CL_OPS_SWITCH_CHECK===========CP        |    69|05.03.2026|16:57:19|   152576|E        |
+|    70|Prg|CL_ESH_SWITCH_CHECK===========CP        |    70|15.01.2020|14:43:11|    10240|E        |
+|    71|Prg|IF_MMPUR_CONSTANTS_GENERAL====IP        |    61|13.05.2025|08:22:22|    10240|E        |
+|    72|Prg|SAPLMEQU                                |    72|11.12.2025|17:55:14|   228352|E        |
+|    73|Prg|CL_ATP_NETCHANGE_FLTR_CREATE==CP        |    73|05.03.2026|17:05:44|    10240|E        |
+|    74|Prg|IF_ATP_NCF_CONSTANTS==========IP        |    61|13.05.2025|08:21:45|    13312|E        |
+|    75|Prg|CL_ATP_NCF_CREATE_FACTORY=====CP        |    75|16.05.2023|21:53:09|    17408|E        |
+|    76|Prg|CL_ATP_NCF_HELPER=============CP        |    76|05.03.2026|17:05:44|    51200|E        |
+|    77|Prg|CL_ATP_PAC_DB_ONLINE==========CP        |    77|05.03.2026|17:05:44|   287744|E        |
+|    78|Prg|CL_ATP_PAC_DB_MASTERDATA======CP        |    78|05.03.2026|17:05:44|   393216|E        |
+|    79|Prg|CL_FEATURE_TOGGLE=============CP        |    79|13.07.2023|08:36:34|    91136|E        |
+|    80|Prg|CL_ATP_FEATURE_C==============CP        |    80|13.05.2025|08:19:06|     9216|E        |
+|    81|Prg|CL_FTGL_CUSTOMIZING===========CP        |    81|13.07.2023|08:36:34|    99328|E        |
+|    82|Prg|CL_FTGL_DEPRECATION===========CP        |    82|13.07.2023|08:36:33|    16384|E        |
+|    83|Prg|CX_SY_ITAB_LINE_NOT_FOUND=====CP        |    83|10.11.2022|19:49:48|    11264|E        |
+|    84|Prg|CX_SY_ITAB_ERROR==============CP        |    84|10.11.2022|19:49:48|    10240|E        |
+|    85|Prg|CX_DYNAMIC_CHECK==============CP        |    85|10.11.2022|19:49:48|    10240|E        |
+|    86|Prg|CX_ROOT=======================CP        |    86|10.11.2022|19:49:48|    14336|E        |
+|    87|Prg|CX_NO_CHECK===================CP        |    87|10.11.2022|19:49:48|    10240|E        |
+|    88|Prg|CL_FTG_RUNTIME_STATE==========CP        |    88|03.05.2022|08:42:39|     8192|E        |
+|    89|Prg|CL_ABAP_SWITCH================CP        |    89|28.04.2023|07:29:35|    62464|E        |
+|    90|Prg|CL_FTG========================CP        |    90|16.05.2023|13:23:47|    20480|E        |
+|    91|Prg|CL_ATP_PAC_DB_SELECT_ATPCAT===CP        |    91|31.03.2023|23:37:38|   650240|E        |
+|    92|Prg|CL_ATP_PAC_DB_SELECT==========CP        |    92|05.03.2026|17:05:44|   992256|E        |
+|    93|Prg|CL_ATP_PAC_SEGMENT_ADAPTER====CP        |    93|20.12.2021|16:33:28|    18432|E        |
+|    94|Prg|CL_ATP_ORDER_BUFFER===========CP        |    94|19.03.2023|20:54:41|    25600|E        |
+|    95|Prg|CL_ATP_SUPPLY_ASSIGNMENT_ADAPTCP        |    95|05.03.2026|17:05:45|   179200|E        |
+|    96|Prg|CL_ATP_PAC_TS_ATPCAT==========CP        |    96|15.02.2018|21:11:56|    20480|E        |
+|    97|Prg|CL_ATP_PAC_TS_GENERIC=========CP        |    97|05.03.2026|17:05:44|    29696|E        |
+|    98|Prg|CL_ATP_CUSTOMIZING_DB=========CP        |    98|05.03.2026|17:05:44|    83968|E        |
+|    99|Prg|CL_ATP_DATA_ACCESS============CP        |    99|05.03.2026|17:05:44|   296960|E        |
+|   100|Prg|CL_ATP_FIELDCATALOG_DB========CP        |   100|05.03.2026|17:05:44|   175104|E        |
+|   101|Prg|CL_ATP_FC_VALUE_HELP_PROVIDER=CP        |   101|17.10.2025|16:51:11|    43008|E        |
+|   102|Prg|CL_PAL_DB_ACCESS==============CP        |   102|05.03.2026|17:05:52|   614400|E        |
+|   103|Prg|CL_ATP_CHARC_DATA_PROVIDER====CP        |   103|05.03.2026|17:05:44|    67584|E        |
+|   104|Prg|CL_ATP_ORDER_INFO_DATA_PROVIDRCP        |   104|05.03.2026|17:05:44|    84992|E        |
+|   105|Prg|CL_ATP_DOCUMENT_DATA_PROVIDER=CP        |   105|05.03.2026|17:05:44|   382976|E        |
+|   106|Prg|CL_ATP_CUSTOMIZING_DATA_ACCESSCP        |   106|05.03.2026|17:05:44|    49152|E        |
+|   107|Prg|CL_ATP_MASTER_DATA_ACCESS=====CP        |   107|05.03.2026|17:05:44|    20480|E        |
+|   108|Prg|CL_ATP_SLS_DOC_DATA_ACCESS====CP        |   108|05.03.2026|17:05:45|    20480|E        |
+|   109|Prg|CL_ATP_PAC_CHECKING_HORIZON===CP        |   109|05.03.2026|17:05:44|    59392|E        |
+|   110|Prg|CL_ATP_PAC_TQA_CONTROLLER=====CP        |   110|05.03.2026|17:05:44|   137216|E        |
+|   111|Prg|CL_ATP_PAC_TQA_DB=============CP        |   111|05.03.2026|17:05:44|   197632|E        |
+|   112|Prg|CL_ATP_COMMIT_ADAPTER=========CP        |   112|13.05.2025|08:20:44|     9216|E        |
+|   113|Prg|CL_ATP_PAC_TQA_DB_DELETE======CP        |   113|05.03.2026|17:05:44|    93184|E        |
+|   114|Prg|CL_ATP_PAC_RR_TS_PRVDR_REGSTRYCP        |   114|30.04.2022|12:21:26|    20480|E        |
+|   115|Typ|BOOLE                                   |     0|04.04.1995|15:41:35|     2048|         |
+|   116|Prg|SAPLBUOC                                |   116|11.12.2025|17:55:08|   203776|E        |
+|   117|Prg|SAPLITSR                                |   117|16.05.2023|13:22:45|   186368|E        |
+|   118|Typ|FMRFC                                   |     0|08.09.2011|14:20:25|     3072|         |
+|   119|Typ|TBE01                                   |     0|20.01.2003|16:41:38|     3072|         |
+|   120|Typ|TBE31                                   |     0|08.09.2011|14:28:20|     3072|         |
+|   121|Typ|TBE11                                   |     0|03.09.1997|03:01:06|     3072|         |
+|   122|Prg|CONTEXT_X_SP_INFO                       |   117|25.02.2022|14:55:08|    44032|E        |
+|   123|Typ|TCONT                                   |     0|31.05.2013|08:14:44|     3072|         |
+|   124|Typ|CONTEXTB                                |     0|31.05.2013|07:59:43|     7168|         |
+|   125|Typ|TBE32                                   |     0|08.09.2011|14:28:21|     3072|         |
+|   126|Typ|TBE34                                   |     0|08.09.2011|14:28:21|     3072|         |
+|   127|Prg|CL_CRMS4_NDI_MANAGER==========CP        |   127|14.11.2019|02:34:20|    13312|E        |
+|   128|Prg|CL_CIF_SWITCH_CHECK===========CP        |   128|21.08.2023|10:26:58|    31744|E        |
+|   129|Prg|/IBP/SAPLECC_MAIN                       |   129|05.03.2026|17:05:36|  3043328|E        |
+|   130|Prg|SAPLBDLS                                |   130|12.06.2025|18:06:02|   513024|E        |
+|   131|Typ|T000                                    |     0|08.09.2011|14:23:54|     5120|         |
+|   132|Prg|SAPLMEAP                                |   132|11.12.2025|17:55:14|   964608|E        |
+|   133|Typ|CIFPUOROUT                              |     0|28.05.2018|11:30:16|    31744|         |
+|   134|Typ|CIFPUOROUX                              |     0|29.05.2015|09:52:56|    27648|         |
+|   135|Typ|CIFPUORCUS                              |     0|12.03.2002|14:42:25|     3072|         |
+|   136|Prg|SAPLCMOQ                                |   136|17.10.2024|19:58:01|   347136|E        |
+|   137|Prg|CL_COS_UTILITIES==============CP        |   137|31.03.2023|13:50:55|    32768|E        |
+|   138|Prg|CL_CIF_APO_ERP_CUSTOMIZATION==CP        |   138|16.03.2020|21:31:38|    17408|E        |
+|   139|Prg|/SAPAPO/SAPLPPS_ORD_CUST                |   139|08.04.2016|12:40:14|    13312|E        |
+|   140|Prg|/SAPAPO/IF_PPDS_CONSTANTS_C===IP        |   138|15.11.2022|10:03:31|    18432|E        |
+|   141|Typ|NDISYSTEMS                              |     0|29.06.2015|13:14:55|     3072|         |
+|   142|Prg|CL_CIF_CONSTANTS==============CP        |   142|16.05.2023|21:53:11|    55296|E        |
+|   143|Prg|SAPLCIFG                                |   143|05.03.2026|17:05:28|   398336|E        |
+|   144|Prg|CL_CIF_BUF_EBAN_IBP===========CP        |   144|30.04.2022|12:18:11|    11264|E        |
+|   145|Prg|SAPLBUOP                                |   145|05.03.2026|17:06:00|    96256|E        |
+|   146|Typ|TPS01                                   |     0|20.01.2003|16:41:39|     3072|         |
+|   147|Typ|TPS31                                   |     0|08.09.2011|14:28:29|     3072|         |
+|   148|Typ|TPS32                                   |     0|08.09.2011|14:28:25|     3072|         |
+|   149|Typ|TPS34                                   |     0|08.09.2011|14:24:10|     3072|         |
+|   150|Prg|SAPLBTAP                                |   150|05.03.2026|17:06:00|  1425408|E        |
+|   151|Prg|CIF_ENHANCE_BATCH_CHAR========CP        |   151|21.08.2023|09:23:50|    13312|E        |
+|   152|Prg|CL_BADI_BASE==================CP        |   152|16.12.2022|13:58:24|    32768|E        |
+|   153|Prg|CL_BADI_CACHE_HANDLER=========CP        |   153|26.01.2023|17:38:04|    15360|E        |
+|   154|Prg|CL_MFLE_MATNR_MODE============CP        |   154|10.11.2022|19:49:38|    14336|E        |
+|   155|Prg|CL_MFLE_DIMP_LAMA=============CP        |   155|10.11.2022|19:49:38|    17408|E        |
+|   156|Prg|CL_MCIF_INT_FACTORY===========CP        |   156|30.04.2022|12:19:38|     9216|E        |
+|   157|Prg|CL_MCIF_INT===================CP        |   157|17.10.2024|19:50:16|    66560|E        |
+|   158|Prg|SAPLCRMS4_SRV_LOGISTIC_EXT              |   158|05.03.2026|17:06:01|  1209344|E        |
+|   159|Prg|SAPLBBPK                                |   159|16.05.2025|11:35:21|   137216|E        |
+|   160|Prg|SAPLSGT_PPDS_OUT                        |   160|11.12.2025|17:55:15|   752640|E        |
+|   161|Prg|CL_SGT_PPDS_CIF_EBAN==========CP        |   161|11.12.2025|17:55:01|   100352|E        |
+|   162|Typ|PRE01_STY                               |     0|16.06.2015|08:31:03|     3072|         |
+|   163|Typ|V_MARC_MD                               |     0|17.10.2024|19:55:21|    56320|         |
+|   164|Prg|SAPLMG22                                |   164|17.10.2025|16:58:08|   788480|E        |
+|   165|Prg|CL_MATPLSTA_INT===============CP        |   165|17.10.2025|16:57:50|    27648|E        |
+|   166|Typ|/SAPAPO/MATPLSTA_APPLID_RNGSTR          |     0|15.01.2020|11:23:24|     3072|         |
+|   167|Prg|/SAPAPO/IF_MATPLSTA_C=========IP        |   165|13.06.2021|19:46:05|     7168|E        |
+|   168|Prg|/SAPAPO/CL_MATPLSTA_INSTANCES=CP        |   168|20.11.2020|09:22:16|    12288|E        |
+|   169|Typ|/SAPAPO/MATPLSTA_STATUS_RNGSTR          |     0|15.01.2020|11:23:24|     3072|         |
+|   170|Prg|/SAPAPO/CL_MATPLSTA_BUFFER====CP        |   170|20.11.2020|09:22:16|    45056|E        |
+|   171|Prg|/SAPAPO/CL_MATPLSTA_DB_READER=CP        |   171|05.03.2021|22:26:51|    63488|E        |
+|   172|Typ|WERKS                                   |     0|02.09.1995|01:49:41|     2048|         |
+|   173|Prg|CL_MM_PUR_REQ_PROXY_HELPER====CP        |   173|09.06.2025|00:34:15|    70656|E        |
+|   174|Typ|EDISP                                   |     0|16.06.2015|08:28:12|     3072|         |
+|   175|Prg|CL_MMPUR_CONSTANTS============CP        |   175|05.03.2026|16:57:17|    68608|E        |
+|   176|Prg|SAPLDISP                                |   176|11.12.2025|17:55:13|   862208|E        |
+|   177|Typ|MDCP                                    |     0|16.05.2021|13:20:45|    13312|         |
+|   178|Prg|CL_PPH_MRPRECORD==============CP        |   178|17.10.2025|16:57:54|   766976|E        |
+|   179|Prg|CL_PPH_MRPRECORD_BUFFER=======CP        |   179|17.10.2025|16:57:54|    58368|E        |
+|   180|Typ|MDLV                                    |     0|15.11.2022|06:07:54|     4096|         |
+|   181|Typ|PPH_MRPAREA                             |     0|28.03.2019|11:59:49|     3072|         |
+|   182|Prg|SAPLMEREL                               |   182|05.03.2026|16:57:42|   220160|E        |
+|   183|Prg|SAPLSTXI                                |   183|08.09.2011|15:10:59|    24576|E        |
+|   184|Typ|ITCLH                                   |     0|31.05.2013|08:04:56|     8192|         |
+|   185|Typ|THEAD                                   |     0|31.05.2013|08:15:00|     8192|         |
+|   186|Typ|TLINE                                   |     0|08.03.1992|00:19:59|     3072|         |
+|   187|Prg|CL_RSTXT_PERSISTENCE_MANAGER==CP        |   187|26.01.2023|17:38:06|   113664|E        |
+|   188|Prg|CL_RSTX_TEXT_CUSTOMIZING======CP        |   188|26.01.2023|17:38:06|    36864|E        |
+|   189|Typ|TTXOB                                   |     0|03.11.2021|18:10:37|     4096|         |
+|   190|Typ|TTXID                                   |     0|03.11.2021|18:10:37|     4096|         |
+|   191|Prg|CL_RSTXT_DEFAULT_PERSISTENCE==CP        |   191|26.01.2023|17:38:06|   112640|E        |
+|   192|Prg|CL_RSTXT_PERSISTENCE_FRAMEWORKCP        |   192|10.11.2022|19:49:40|    43008|E        |
+|   193|Prg|SAPLSTXD                                |   193|21.08.2023|10:30:29|   455680|E        |
+|   194|Typ|STXH                                    |     0|31.05.2013|08:13:23|     8192|         |
+|   195|Typ|STXL                                    |     0|31.05.2013|08:13:23|    11264|         |
+|   196|Prg|CX_SY_CONVERSION_OVERFLOW=====CP        |   196|10.11.2022|19:49:48|    10240|E        |
+|   197|Prg|CX_SY_CONVERSION_ERROR========CP        |   197|10.11.2022|19:49:48|    10240|E        |
+|   198|Prg|CX_SY_NO_HANDLER==============CP        |   198|10.11.2022|19:49:48|    10240|E        |
+|   199|Prg|IF_T100_MESSAGE===============IP        |   191|10.11.2022|19:49:51|     7168|E        |
+|   200|Prg|IF_CX_DEV_OBJECT_INFO=========IP        |   191|08.11.2019|10:24:35|     5120|E        |
+|   201|Prg|%_CSYDB0                                |     0|01.04.2022|13:52:51|    43008|E        |
+|   202|Typ|RSVAMEMKEY                              |     0|07.05.1997|13:07:49|     3072|         |
+|   203|Prg|%_CRSDS                                 |     0|01.06.2015|12:30:30|    11264|E        |
+|   204|Prg|%_CSLIS                                 |    13|16.12.2022|13:58:46|   102400|E        |
+|   205|Typ|DTC_S_LAYO                              |     0|28.05.2018|11:31:36|     7168|         |
+|   206|Typ|CAT_SVARS                               |     0|08.09.2011|14:17:48|     3072|         |
+|   207|Typ|MATCH_RESULT                            |     0|15.06.2005|11:38:22|     3072|         |
+|   208|Typ|BDI_LSPAR                               |     0|31.05.2013|07:58:13|     5120|         |
+|   209|Typ|STXB                                    |     0|31.05.2013|08:13:23|    11264|         |
+|   210|Prg|CL_RSTX_TABLE_VIEW============CP        |   210|26.01.2023|17:38:06|   946176|E        |
+|   211|Typ|SYST                                    |     0|10.10.2014|18:27:32|    32768|         |
+|   212|Prg|CL_AUNIT_ASSERT===============CP        |   212|26.01.2023|17:38:03|    20480|E        |
+|   213|Typ|PRI_PARAMS                              |     0|31.05.2013|08:08:32|     6144|         |
+|   214|Typ|ARC_PARAMS                              |     0|10.10.2014|18:26:25|     6144|         |
+|   215|Typ|SCREEN                                  |     0|18.05.2004|14:07:14|     5120|         |
+----------------------------------------------------------------------------------------------------
+
+----------------------------------------------------------------------------------------------------
+|Directory of Application Tables                                                                   |
+----------------------------------------------------------------------------------------------------
+|Name                                     Date       Time       Lngth                              |
+|    Val.                                                                                          |
+----------------------------------------------------------------------------------------------------
+|Program  20260318095314                                                                           |
+----------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------
+|Program  SAPMSSY4                                                                                 |
+----------------------------------------------------------------------------------------------------
+|SYST                                     10.10.2014 18:27:32   00004612                           |
+|    \0\0\0\0ā\0Ķ\0\0\0\0\0\0\0\0\0\0\0\0\0\x0001\0\0\0\x0001\0                                    |
+|SY                                         .  .       :  :     00004612                           |
+|    \0\0\0\0ā\0Ķ\0\0\0\0\0\0\0\0\0\0\0\0\0\x0001\0\0\0\x0001\0                                    |
+|TFDIR                                      .  .       :  :     00000290                           |
+|    HANDLE_TEXT_ARRAY_AFTER_COMMITSAPLSTXI                                                        |
+----------------------------------------------------------------------------------------------------
+|Program  SAPFS_SECLOG                                                                             |
+----------------------------------------------------------------------------------------------------
+|INDX                                       .  .       :  :     00003104                           |
+|    100%L%_SeclogExcludedCaller\0\0\0  00000000                                                   |
+----------------------------------------------------------------------------------------------------
+|Program  SAPLEBNU                                                                                 |
+----------------------------------------------------------------------------------------------------
+|MDCP                                       .  .       :  :     00000562                           |
+|                                                                                                  |
+----------------------------------------------------------------------------------------------------
+|Program  SAPLITSR                                                                                 |
+----------------------------------------------------------------------------------------------------
+|TBE01                                      .  .       :  :     00000080                           |
+|    01000710SAMPLE_INTERFACE_01000710       |                                                     |
+|TPS01                                      .  .       :  :     00000144                           |
+|    01000802SAMPLE_PROCESS_01000802                                                               |
+|TBE11                                      .  .       :  :     00000074                           |
+|          XNew Dimension PlugIn APO      |                                                        |
+----------------------------------------------------------------------------------------------------
+|Program  CONTEXT_X_SP_INFO                                                                        |
+----------------------------------------------------------------------------------------------------
+|CONTEXTB                                   .  .       :  :     00002992                           |
+|    100EBSP_INFO             000004000200000000000000\0\0\0\0                                     |
+|TCONT                                      .  .       :  :     00000068                           |
+|    SP_INFO             20200518093348|                                                           |
+----------------------------------------------------------------------------------------------------
+|Program  SAPLBDLS                                                                                 |
+----------------------------------------------------------------------------------------------------
+|T000                                       .  .       :  :     00000214                           |
+|    100FocuS/4 - Productive     Munchen                  EUR                                      |
+----------------------------------------------------------------------------------------------------
+
+----------------------------------------------------------------------------------------------------
+|ABAP Control Blocks (CONT)                                                                        |
+----------------------------------------------------------------------------------------------------
+|Index|Name|Fl|PAR0|PAR1|PAR2|PAR3|PAR4|PAR5|PAR6|Source Code                             |Line    |
+----------------------------------------------------------------------------------------------------
+| 2012|EXPO|C6|0001|C00E|0000|0000|0000|0000|0000|CL_RSTXT_DEFAULT_PERSISTENCE==CM00F     |     102|
+| 2016|PAR2|03|0000|0048|C01D|    |    |    |    |CL_RSTXT_DEFAULT_PERSISTENCE==CM00F     |     102|
+| 2018|CLEA|00|C00B|    |    |    |    |    |    |CL_RSTXT_DEFAULT_PERSISTENCE==CM00F     |     106|
+| 2019|mlqk|04|0080|0346|01B0|    |    |    |    |CL_RSTXT_DEFAULT_PERSISTENCE==CM00F     |     107|
+| 2021|mvqk|14|8380|034A|0000|    |    |    |    |CL_RSTXT_DEFAULT_PERSISTENCE==CM00F     |     108|
+| 2023|mvqk|8C|8380|035E|0014|    |    |    |    |CL_RSTXT_DEFAULT_PERSISTENCE==CM00F     |     109|
+| 2025|mvqk|08|8380|03EA|00A0|    |    |    |    |CL_RSTXT_DEFAULT_PERSISTENCE==CM00F     |     110|
+| 2027|mvqk|02|8380|03F2|00A8|    |    |    |    |CL_RSTXT_DEFAULT_PERSISTENCE==CM00F     |     111|
+| 2029|LOOP|07|0387|C00E|C01F|0000|0000|0000|0000|CL_RSTXT_DEFAULT_PERSISTENCE==CM00F     |     112|
+| 2033|TUTL|1A|0000|C00E|C01F|    |    |    |    |CL_RSTXT_DEFAULT_PERSISTENCE==CM00F     |     112|
+| 2035|LOOP|05|0000|C00E|C01F|0000|0000|0000|0000|CL_RSTXT_DEFAULT_PERSISTENCE==CM00F     |     112|
+| 2039|BRAN|05|0013|    |    |    |    |    |    |CL_RSTXT_DEFAULT_PERSISTENCE==CM00F     |     112|
+|>>>>>|cali|01|0053|    |    |    |    |    |    |CL_RSTXT_DEFAULT_PERSISTENCE==CM00F     |     113|
+| 2041|CALC|03|0001|    |    |    |    |    |    |CL_RSTXT_DEFAULT_PERSISTENCE==CM00F     |     113|
+| 2042|CALC|0C|0000|    |    |    |    |    |    |CL_RSTXT_DEFAULT_PERSISTENCE==CM00F     |     113|
+| 2043|CALC|06|C023|    |    |    |    |    |    |CL_RSTXT_DEFAULT_PERSISTENCE==CM00F     |     113|
+| 2044|mvqk|02|8480|03F6|0000|    |    |    |    |CL_RSTXT_DEFAULT_PERSISTENCE==CM00F     |     114|
+| 2046|move|FF|1EDE|C024|C022|    |    |    |    |CL_RSTXT_DEFAULT_PERSISTENCE==CM00F     |     115|
+| 2048|cmpr|03|0386|C017|0049|    |    |    |    |CL_RSTXT_DEFAULT_PERSISTENCE==CM00F     |     116|
+| 2050|BRAF|02|0005|    |    |    |    |    |    |CL_RSTXT_DEFAULT_PERSISTENCE==CM00F     |     116|
+----------------------------------------------------------------------------------------------------
+                                                                                                             

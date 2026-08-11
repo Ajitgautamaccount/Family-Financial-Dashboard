@@ -1,0 +1,454 @@
+{
+	"info": {
+		"_postman_id": "dccfaeea-23e6-475f-8ed1-778b62ffe2ad",
+		"name": "Decision table GF QAS",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "DecisionTable API PR",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "api-key",
+						"value": "52OKQ7a-QDpuCfvdxV5UpvBAFwIZNYTL",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"RuleServiceId\": \"c3648d90c8d13ffb5affcc8c41809bd2\",\r\n    \"Vocabulary\": [\r\n        {\r\n            \"PR_Step_Input\": {\r\n                \"PurchaseOrganisation\": \"BY00\",\r\n                \"CompanyCode\": \"7998\",\r\n                \"Plant\": \"BY00\",\r\n                \"AccountAssignmentCategory\": \"K\",\r\n                \"TotalValue\": 30000,\r\n                \"UnitValue\": 1000,\r\n                \"LocalCurrency\": \"EUR\",\r\n                \"MaterialGroup\": \"QUA\",\r\n                \"ProcessType\": \"Freetext\",\r\n                \"SpecialLogic\": \"\"\r\n            }\r\n        }\r\n    ]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseURL}}/public/rule/runtime/rest/v2/rule-services?environmentId=procurementprojects",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"public",
+						"rule",
+						"runtime",
+						"rest",
+						"v2",
+						"rule-services"
+					],
+					"query": [
+						{
+							"key": "environmentId",
+							"value": "procurementprojects"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "DecisionTable API PR PROD",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "api-key",
+						"value": "52OKQ7a-QDpuCfvdxV5UpvBAFwIZNYTL",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"RuleServiceId\": \"a9a2274ef89bc30f156499611afc7c71\",\r\n    \"Vocabulary\": [\r\n        {\r\n            \"PR_Step_Input\": {\r\n                \"PurchaseOrganisation\": \"BY00\",\r\n                \"CompanyCode\": \"7998\",\r\n                \"Plant\": \"BY00\",\r\n                \"AccountAssignmentCategory\": \"K\",\r\n                \"TotalValue\": 30000,\r\n                \"UnitValue\": 1000,\r\n                \"LocalCurrency\": \"EUR\",\r\n                \"MaterialGroup\": \"QUA\",\r\n                \"ProcessType\": \"Freetext\",\r\n                \"SpecialLogic\": \"\"\r\n            }\r\n        }\r\n    ]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseURL}}/public/rule/runtime/rest/v2/rule-services?environmentId=procurementprojects",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"public",
+						"rule",
+						"runtime",
+						"rest",
+						"v2",
+						"rule-services"
+					],
+					"query": [
+						{
+							"key": "environmentId",
+							"value": "procurementprojects"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "DecisionTable API PO",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "api-key",
+						"value": "52OKQ7a-QDpuCfvdxV5UpvBAFwIZNYTL",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{ \r\n    \"RuleServiceId\": \"d0c6bab0ebb50065726f9e297178c5c0\", \r\n    \"Vocabulary\":[{\r\n         \"PO_Step_Input\"  : {\r\n              \"PurchaseOrganisation\": \"C501\",\r\n              \"CompanyCode\": \"3014\",\r\n              \"Plant\":\"C502\",\r\n              \"MaterialGroup\": \"\",\r\n              \"ProcessType\": \"Freetext\",\r\n              \"LocalCurrency\":  \"RON\",\r\n              \"AccountAssignmentCategory\": \"K\",\r\n              \"TotalValue\": 5600,\r\n               \"TotalValueSAT\":5600 ,\r\n              \"UnitValue\": 2600,\r\n              \"SpecialLogic\": \"\"  \r\n          }\r\n    }\r\n ]\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseURL}}/public/rule/runtime/rest/v2/rule-services?environmentId=procurementprojects",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"public",
+						"rule",
+						"runtime",
+						"rest",
+						"v2",
+						"rule-services"
+					],
+					"query": [
+						{
+							"key": "environmentId",
+							"value": "procurementprojects"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "DecisionTable API PO PROD",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "api-key",
+						"value": "52OKQ7a-QDpuCfvdxV5UpvBAFwIZNYTL",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{ \r\n    \"RuleServiceId\": \"1eb9d5c004b12f82abde832d2d3ee180\", \r\n    \"Vocabulary\":[{\r\n         \"PO_Step_Input\"  : {\r\n              \"PurchaseOrganisation\": \"C501\",\r\n              \"CompanyCode\": \"3014\",\r\n              \"Plant\":\"C502\",\r\n              \"MaterialGroup\": \"\",\r\n              \"ProcessType\": \"Freetext\",\r\n              \"LocalCurrency\":  \"RON\",\r\n              \"AccountAssignmentCategory\": \"K\",\r\n              \"TotalValue\": 5600,\r\n               \"TotalValueSAT\":5600 ,\r\n              \"UnitValue\": 2600,\r\n              \"SpecialLogic\": \"\"  \r\n          }\r\n    }\r\n ]\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseURL}}/public/rule/runtime/rest/v2/rule-services?environmentId=procurementprojects",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"public",
+						"rule",
+						"runtime",
+						"rest",
+						"v2",
+						"rule-services"
+					],
+					"query": [
+						{
+							"key": "environmentId",
+							"value": "procurementprojects"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "DecisionTable API Approver Groups",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "api-key",
+						"value": "52OKQ7a-QDpuCfvdxV5UpvBAFwIZNYTL",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{ \r\n    \"RuleServiceId\": \"06064e99277811031d7313c0059f8476\", \r\n    \"Vocabulary\":[{\r\n         \"PO_Approver_Input\"  : {\r\n              \"Step\": \"Support\",\r\n              \"PurchasingGroup\": \"\",\r\n              \"ApproverGroup\": \"C501_Support\"\r\n    }\r\n    }]\r\n    \r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseURL}}/public/rule/runtime/rest/v2/rule-services?environmentId=procurementprojects",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"public",
+						"rule",
+						"runtime",
+						"rest",
+						"v2",
+						"rule-services"
+					],
+					"query": [
+						{
+							"key": "environmentId",
+							"value": "procurementprojects"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "DecisionTable API Approver Groups PROD",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "api-key",
+						"value": "52OKQ7a-QDpuCfvdxV5UpvBAFwIZNYTL",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"RuleServiceId\": \"06064e99277811031d7313c0059f8476\",\r\n    \"Vocabulary\": [\r\n        {\r\n            \"PO_Approver_Input\": {\r\n                \"Step\": \"Procurement Expert\",\r\n                \"PurchasingGroup\": \"\",\r\n                \"ApproverGroup\": \"BY00_ProcExp\"\r\n            }\r\n        }\r\n    ]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseURL}}/public/rule/runtime/rest/v2/rule-services?environmentId=procurementprojects",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"public",
+						"rule",
+						"runtime",
+						"rest",
+						"v2",
+						"rule-services"
+					],
+					"query": [
+						{
+							"key": "environmentId",
+							"value": "procurementprojects"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "DecisionTable API Constants",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "api-key",
+						"value": "52OKQ7a-QDpuCfvdxV5UpvBAFwIZNYTL",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{ \r\n    \"RuleServiceId\": \"61322cfc8b83ad69b014b383d9d1383f\", \r\n    \"Vocabulary\":[{\r\n         \"Constants_Input\"  : {\r\n              \"PurchasingOrganization\": \"\",\r\n              \"Identifier\": \"ActivePurchasingOrgs\",\r\n              \"Active\": true\r\n    }\r\n    }]\r\n    \r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseURL}}/public/rule/runtime/rest/v2/rule-services?environmentId=procurementprojects",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"public",
+						"rule",
+						"runtime",
+						"rest",
+						"v2",
+						"rule-services"
+					],
+					"query": [
+						{
+							"key": "environmentId",
+							"value": "procurementprojects"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "DecisionTable API Constants PROD",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "api-key",
+						"value": "52OKQ7a-QDpuCfvdxV5UpvBAFwIZNYTL",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{ \r\n    \"RuleServiceId\": \"00d120f3a08436e95a193e6b3e48e2cd\", \r\n    \"Vocabulary\":[{\r\n         \"Constants_Input\"  : {\r\n              \"PurchasingOrganization\": \"\",\r\n              \"Identifier\": \"ActivePurchasingOrgs\",\r\n              \"Active\": true\r\n    }\r\n    }]\r\n    \r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseURL}}/public/rule/runtime/rest/v2/rule-services?environmentId=procurementprojects",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"public",
+						"rule",
+						"runtime",
+						"rest",
+						"v2",
+						"rule-services"
+					],
+					"query": [
+						{
+							"key": "environmentId",
+							"value": "procurementprojects"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"auth": {
+		"type": "oauth2",
+		"oauth2": [
+			{
+				"key": "tokenRequestParams",
+				"value": [
+					{
+						"key": "api-key",
+						"value": "52OKQ7a-QDpuCfvdxV5UpvBAFwIZNYTL",
+						"enabled": true,
+						"send_as": "request_header"
+					}
+				],
+				"type": "any"
+			},
+			{
+				"key": "scope",
+				"value": "",
+				"type": "string"
+			},
+			{
+				"key": "clientSecret",
+				"value": "9de5fb84-bdf3-4a9b-aa61-af89d6cc05e8$KBaoj8yKSFo_1pq5DColMT0PqVlPU9OV4PHhNbOaZr4=",
+				"type": "string"
+			},
+			{
+				"key": "clientId",
+				"value": "sb-adc4602d-1627-4688-bb22-e378866ca06d!b50158|xsuaa!b47942",
+				"type": "string"
+			},
+			{
+				"key": "accessTokenUrl",
+				"value": "https://siemens-10-gf-qas.authentication.eu20.hana.ondemand.com/oauth/token",
+				"type": "string"
+			},
+			{
+				"key": "refreshRequestParams",
+				"value": [],
+				"type": "any"
+			},
+			{
+				"key": "authRequestParams",
+				"value": [],
+				"type": "any"
+			},
+			{
+				"key": "tokenName",
+				"value": "po dectab",
+				"type": "string"
+			},
+			{
+				"key": "challengeAlgorithm",
+				"value": "S256",
+				"type": "string"
+			},
+			{
+				"key": "grant_type",
+				"value": "client_credentials",
+				"type": "string"
+			},
+			{
+				"key": "addTokenTo",
+				"value": "header",
+				"type": "string"
+			},
+			{
+				"key": "client_authentication",
+				"value": "header",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseURL",
+			"value": "https://spa-api-gateway-bpi-eu-prod.cfapps.eu20-001.hana.ondemand.com",
+			"type": "default"
+		}
+	]
+}

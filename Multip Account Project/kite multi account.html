@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>📊 Zerodha Multi-Account Portfolio Dashboard</title>
+<style>
+  :root{--bg:#0d1117;--panel:#161b22;--border:#30363d;--text:#e6edf3;
+        --muted:#8b949e;--green:#3fb950;--red:#f85149;--blue:#58a6ff;
+        --yellow:#d29922;--purple:#bc8cff;}
+  *{box-sizing:border-box;font-family:'Segoe UI',Roboto,sans-serif;}
+  body{margin:0;background:var(--bg);color:var(--text);padding:20px;}
+  h1{color:var(--purple);margin:0 0 4px;}
+  .sub{color:var(--muted);margin-bottom:18px;font-size:13px;}
+  .warn{background:#3b1d1d;border:1px solid var(--red);color:#ffb4b4;
+    padding:10px 12px;border-radius:6px;margin-bottom:16px;font-size:12px;}
+  .info{background:#1d2d3b;border:1px solid var(--blue);color:#aed3ff;
+    padding:10px 12px;border-radius:6px;margin-bottom:16px;font-size:12px;}
+
+  .proxy-status{display:inline-flex;align-items:center;gap:6px;
+    background:var(--panel);border:1px solid var(--border);
+    padding:6px 12px;border-radius:6px;font-size:12px;margin-bottom:12px;}
+  .dot{display:inline-block;width:8px;height:8px;border-radius:50%;}
+  .dot.ok{background:var(--green);} .dot.err{background:var(--red);}
+  .dot.warn{background:var(--yellow);}
+
+  .summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+    gap:14px;margin-bottom:22px;}
+  .card{background:var(--panel);border:1px solid var(--border);
+    border-radius:10px;padding:16px;}
+  .card .label{color:var(--muted);font-size:12px;text-transform:uppercase;
+    letter-spacing:.5px;}
+  .card .value{font-size:24px;font-weight:700;margin-top:6px;}
+  .pos{color:var(--green);} .neg{color:var(--red);} .blue{color:var(--blue);}
+
+  .toolbar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;}
+  button,input,select{background:var(--panel);color:var(--text);
+    border:1px solid var(--border);padding:8px 14px;border-radius:6px;
+    cursor:pointer;font-size:13px;}
+  button:hover{border-color:var(--blue);}
+  .btn-primary{background:var(--blue);color:#000;font-weight:bold;border:none;}
+  .btn-success{background:var(--green);color:#000;font-weight:bold;border:none;}
+  .btn-warning{background:var(--yellow);color:#000;font-weight:bold;border:none;}
+  .btn-danger {background:var(--red);color:#fff;border:none;}
+
+  .accounts{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));
+    gap:14px;margin-bottom:22px;}
+  .acc{background:var(--panel);border:1px solid var(--border);
+    border-radius:10px;padding:14px;}
+  .acc h3{margin:0 0 4px;color:var(--blue);font-size:16px;
+    display:flex;justify-content:space-between;align-items:center;}
+  .acc .uid{color:var(--muted);font-size:11px;margin-bottom:10px;}
+  .acc .row{display:flex;justify-content:space-between;padding:4px 0;
+    font-size:13px;border-bottom:1px dashed #21262d;}
+  .acc .row:last-child{border:none;}
+  .acc-actions{margin-top:10px;display:flex;gap:6px;flex-wrap:wrap;}
+  .acc-actions button{flex:1;font-size:12px;padding:6px 8px;}
+
+  h2{color:var(--blue);border-bottom:1px solid var(--border);
+    padding-bottom:6px;margin-top:30px;}
+  table{width:100%;border-collapse:collapse;background:var(--panel);
+    border:1px solid var(--border);border-radius:8px;overflow:hidden;font-size:13px;}
+  th,td{padding:9px 10px;text-align:left;border-bottom:1px solid var(--border);}
+  th{background:#21262d;color:var(--blue);font-weight:600;}
+  td.num{text-align:right;font-family:'Consolas',monospace;}
+  tr:hover{background:#1c2128;}
+  tfoot td{background:#21262d;font-weight:bold;}
+
+  dialog{background:var(--panel);color:var(--text);border:1px solid var(--border);
+    border-radius:10px;padding:20px;min-width:400px;}
+  dialog input{display:block;width:100%;margin:4px 0 10px;}
+  .help{font-size:11px;color:var(--muted);margin:-6px 0 8px;}
+  .err-box{background:#3b1d1d;color:#ffb4b4;border:1px solid var(--red);
+    padding:8px;border-radius:6px;margin:8px 0;font-size:12px;display:none;}
+
+  /* Toast notifications */
+  #toast{position:fixed;bottom:20px;right:20px;z-index:9999;}
+  .toast{background:var(--panel);border:1px solid var(--border);
+    border-left:4px solid var(--blue);padding:12px 16px;border-radius:6px;
+    margin-top:8px;min-width:260px;font-size:13px;animation:slide .3s;}
+  .toast.ok{border-left-color:var(--green);}
+  .toast.err{border-left-color:var(--red);}
+  @keyframes slide{from{transform:translateX(100%);opacity:0;}to{transform:none;opacity:1;}}
+</style>
+</head>
+<body>
+
+<h1>📊 Multi-Account Portfolio Dashboard</h1>
+<div class="sub">Aggregated view across Zerodha accounts • Login • Positions • Funds • Live P/L</div>
+
+<div class="proxy-status">
+  <span class="dot" id="proxyDot"></span>
+  Proxy: <b id="proxyStatus">Checking...</b>
+  <button onclick="checkProxy()" style="padding:2px 8px;font-size:11px;margin-left:8px;">Recheck</button>
+</div>
+
+<div class="warn" id="proxyWarn" style="display:none;">
+  ⚠️ <b>Backend proxy is not running.</b> You can add accounts (they'll be saved locally), but Login & live data require:
+  <code style="background:#000;padding:2px 6px;border-radius:3px;">node proxy.js</code> in the project folder.
+</div>
+
+<!-- ================== SUMMARY ================== -->
+<div class="summary">
+  <div class="card"><div class="label">Total Available Funds</div>
+       <div class="value blue" id="sumFunds">₹0</div></div>
+  <div class="card"><div class="label">Total Used Margin</div>
+       <div class="value" id="sumUsed">₹0</div></div>
+  <div class="card"><div class="label">Overall Day P/L</div>
+       <div class="value" id="sumDayPnl">₹0</div></div>
+  <div class="card"><div class="label">Overall Open P/L</div>
+       <div class="value" id="sumOpenPnl">₹0</div></div>
+  <div class="card"><div class="label">Open Positions</div>
+       <div class="value blue" id="sumPosCount">0</div></div>
+  <div class="card"><div class="label">Accounts Logged In</div>
+       <div class="value blue" id="sumAccCount">0</div></div>
+</div>
+
+<div class="toolbar">
+  <button class="btn-success" onclick="openAddDialog()">➕ Add Account</button>
+  <button class="btn-warning" onclick="loginAll()">🔐 Login to All</button>
+  <button class="btn-primary" onclick="refreshAll()">🔄 Refresh Data</button>
+  <button onclick="exportCSV()">⬇ Export Positions CSV</button>
+  <span style="margin-left:auto;color:var(--muted);font-size:12px;align-self:center;">
+    Last refresh: <span id="lastRefresh">—</span>
+  </span>
+</div>
+
+<h2>👥 Accounts & Funds</h2>
+<div class="accounts" id="accGrid"></div>
+
+<h2>📈 Open Positions (All Accounts)</h2>
+<table>
+  <thead><tr>
+    <th>Account</th><th>Symbol</th><th>Exch</th><th>Product</th>
+    <th class="num">Qty</th><th class="num">Avg</th><th class="num">LTP</th>
+    <th class="num">Day P/L</th><th class="num">Open P/L</th>
+  </tr></thead>
+  <tbody id="posBody"></tbody>
+  <tfoot id="posFoot"></tfoot>
+</table>
+
+<h2>💼 Holdings</h2>
+<table>
+  <thead><tr>
+    <th>Account</th><th>Symbol</th><th class="num">Qty</th>
+    <th class="num">Avg</th><th class="num">LTP</th>
+    <th class="num">Invested</th><th class="num">Current</th>
+    <th class="num">P/L</th><th class="num">P/L %</th>
+  </tr></thead>
+  <tbody id="hldBody"></tbody>
+  <tfoot id="hldFoot"></tfoot>
+</table>
+
+<!-- ================== ADD DIALOG ================== -->
+<dialog id="addDlg">
+  <h3 style="color:var(--blue);margin-top:0;">Add Zerodha Account</h3>
+  <div class="err-box" id="addErr"></div>
+  <label>Nickname</label>
+  <input id="f_nick" placeholder="e.g. Personal Main" />
+  <label>API Key</label>
+  <input id="f_key" placeholder="from developers.kite.trade" />
+  <label>API Secret</label>
+  <input id="f_sec" type="password" placeholder="kept locally" />
+  <div class="help">Saved to localStorage (and to proxy if running). Never sent anywhere except api.kite.trade.</div>
+  <div style="text-align:right;">
+    <button type="button" onclick="document.getElementById('addDlg').close()">Cancel</button>
+    <button type="button" class="btn-success" onclick="saveAccount()">Save</button>
+  </div>
+</dialog>
+
+<div id="toast"></div>
+
+<script>
+const PROXY = 'http://localhost:8080';
+const STORE = 'zmd_accounts_v2';
+let proxyAlive = false;
+let accounts = JSON.parse(localStorage.getItem(STORE) || '[]'); // local fallback
+let data = {};
+
+/* ---------- Utilities ---------- */
+const fmt = n => '₹' + (n||0).toLocaleString('en-IN',
+  {minimumFractionDigits:2, maximumFractionDigits:2});
+const cls = n => n>=0?'pos':'neg';
+
+function toast(msg, type='ok'){
+  const t = document.createElement('div');
+  t.className = 'toast '+type;
+  t.innerHTML = msg;
+  document.getElementById('toast').appendChild(t);
+  setTimeout(()=>t.remove(), 4000);
+}
+
+function persistLocal(){ localStorage.setItem(STORE, JSON.stringify(accounts)); }
+
+/* ---------- Proxy health check ---------- */
+async function checkProxy(){
+  const dot = document.getElementById('proxyDot');
+  const txt = document.getElementById('proxyStatus');
+  const warn = document.getElementById('proxyWarn');
+  txt.textContent = 'Checking...'; dot.className = 'dot warn';
+  try{
+    const r = await fetch(`${PROXY}/accounts`, {method:'GET'});
+    if(r.ok){
+      proxyAlive = true;
+      dot.className = 'dot ok';
+      txt.textContent = 'Connected ✓';
+      warn.style.display = 'none';
+      // Pull server-side accounts and merge
+      const serverAccs = await r.json();
+      if(serverAccs.length) accounts = serverAccs;
+      persistLocal();
+      render();
+      return true;
+    }
+    throw new Error('HTTP '+r.status);
+  }catch(e){
+    proxyAlive = false;
+    dot.className = 'dot err';
+    txt.textContent = 'Not running (offline mode)';
+    warn.style.display = 'block';
+    return false;
+  }
+}
+
+/* ---------- Add / Delete ---------- */
+function openAddDialog(){
+  document.getElementById('addErr').style.display='none';
+  ['f_nick','f_key','f_sec'].forEach(i=>document.getElementById(i).value='');
+  document.getElementById('addDlg').showModal();
+}
+
+async function saveAccount(){
+  const errBox = document.getElementById('addErr');
+  errBox.style.display = 'none';
+
+  const nickname = document.getElementById('f_nick').value.trim() || 'Account';
+  const api_key  = document.getElementById('f_key').value.trim();
+  const api_secret = document.getElementById('f_sec').value.trim();
+
+  if(!api_key || !api_secret){
+    errBox.textContent = '❌ API Key and API Secret are required.';
+    errBox.style.display = 'block';
+    return;
+  }
+
+  const newAcc = {
+    id: Date.now().toString(),
+    nickname, api_key, api_secret,
+    access_token: null
+  };
+
+  // Try server first
+  if(proxyAlive){
+    try{
+      const r = await fetch(`${PROXY}/accounts`, {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({nickname, api_key, api_secret})
+      });
+      if(!r.ok) throw new Error('Server returned '+r.status);
+      const list = await (await fetch(`${PROXY}/accounts`)).json();
+      accounts = list;
+      persistLocal();
+      toast('✓ Account saved to proxy', 'ok');
+    }catch(e){
+      errBox.textContent = '❌ Proxy save failed: '+e.message+'. Saved locally only.';
+      errBox.style.display = 'block';
+      accounts.push(newAcc); persistLocal();
+    }
+  } else {
+    // Offline mode — save locally
+    accounts.push(newAcc);
+    persistLocal();
+    toast('✓ Saved locally. Start proxy for login.', 'ok');
+  }
+
+  document.getElementById('addDlg').close();
+  render();
+}
+
+async function deleteAcc(id){
+  if(!confirm('Delete this account?')) return;
+  if(proxyAlive){
+    try{ await fetch(`${PROXY}/accounts/${id}`, {method:'DELETE'}); }catch(e){}
+  }
+  accounts = accounts.filter(a => a.id !== id);
+  persistLocal();
+  render();
+  toast('Account removed', 'ok');
+}
+
+/* ---------- Login ---------- */
+function loginAcc(id){
+  if(!proxyAlive){
+    toast('❌ Start proxy first: <code>node proxy.js</code>', 'err');
+    return;
+  }
+  const w = window.open(`${PROXY}/login/${id}`, '_blank');
+  const poll = setInterval(async ()=>{
+    if(w && w.closed){
+      clearInterval(poll);
+      await checkProxy();
+      await refreshAll();
+      toast('✓ Login flow completed', 'ok');
+    }
+  }, 2000);
+  setTimeout(()=>clearInterval(poll), 180000);
+}
+function loginAll(){
+  if(!accounts.length){ toast('No accounts to log in', 'err'); return; }
+  accounts.forEach((a,i)=> setTimeout(()=>loginAcc(a.id), i*400));
+}
+
+/* ---------- Fetch data ---------- */
+async function kite(accId, path){
+  const r = await fetch(`${PROXY}/kite`, {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({account_id: accId, path})
+  });
+  const j = await r.json();
+  if(j.status !== 'success') throw new Error(j.message || 'API error');
+  return j.data;
+}
+async function fetchOne(acc){
+  const d = data[acc.id] = { error:null };
+  if(!proxyAlive){ d.error = 'Proxy offline'; return; }
+  if(!acc.access_token){ d.error = 'Not logged in'; return; }
+  try{
+    const [profile, margins, positions, holdings] = await Promise.all([
+      kite(acc.id,'/user/profile'),
+      kite(acc.id,'/user/margins'),
+      kite(acc.id,'/portfolio/positions'),
+      kite(acc.id,'/portfolio/holdings')
+    ]);
+    d.profile=profile; d.margins=margins;
+    d.positions = positions.net || [];
+    d.holdings  = holdings || [];
+  }catch(e){ d.error = e.message; }
+}
+async function refreshAll(){
+  if(!proxyAlive){ toast('❌ Proxy offline — cannot fetch data', 'err'); return; }
+  await Promise.all(accounts.map(fetchOne));
+  document.getElementById('lastRefresh').textContent = new Date().toLocaleTimeString();
+  render();
+}
+
+/* ---------- Render ---------- */
+function render(){
+  const grid = document.getElementById('accGrid');
+  grid.innerHTML = '';
+
+  if(!accounts.length){
+    grid.innerHTML = `<div class="info" style="grid-column:1/-1;">
+      No accounts yet. Click <b>➕ Add Account</b> to begin.</div>`;
+  }
+
+  let totFunds=0, totUsed=0, totDay=0, totOpen=0, posCount=0, loggedIn=0;
+
+  accounts.forEach(a=>{
+    const d = data[a.id] || {};
+    const eq = d.margins?.equity || {};
+    const avail = eq.available?.live_balance ?? eq.net ?? 0;
+    const used  = eq.utilised?.debits ?? 0;
+    let dayPnl=0, openPnl=0;
+    (d.positions||[]).forEach(p=>{
+      dayPnl += (p.m2m||p.day_m2m||0); openPnl += (p.pnl||0);
+      if(p.quantity!==0) posCount++;
+    });
+    (d.holdings||[]).forEach(h=>{ openPnl+=(h.pnl||0); dayPnl+=(h.day_change||0); });
+
+    const isLoggedIn = !!a.access_token;
+    if(isLoggedIn && !d.error) loggedIn++;
+    if(isLoggedIn && !d.error){ totFunds+=avail; totUsed+=used; totDay+=dayPnl; totOpen+=openPnl; }
+
+    const statusDot = !isLoggedIn ? 'warn' : (d.error ? 'err' : 'ok');
+    const statusTxt = !isLoggedIn ? 'Not logged in' : (d.error ? 'Error' : 'Connected');
+
+    grid.insertAdjacentHTML('beforeend',`
+      <div class="acc">
+        <h3>${a.nickname}
+          <span style="font-size:11px;font-weight:normal;">
+            <span class="dot ${statusDot}"></span>${statusTxt}
+          </span>
+        </h3>
+        <div class="uid">API: ${a.api_key.slice(0,6)}••• ${d.profile?('• '+d.profile.user_id):''}</div>
+        ${!isLoggedIn ? `
+          <div style="color:var(--yellow);font-size:12px;padding:8px 0;">
+            🔐 Click Login to authenticate with Zerodha
+          </div>` : d.error ? `
+          <div style="color:var(--red);font-size:12px;padding:8px 0;">${d.error}</div>` : `
+          <div class="row"><span>Available</span><b class="blue">${fmt(avail)}</b></div>
+          <div class="row"><span>Used Margin</span><b>${fmt(used)}</b></div>
+          <div class="row"><span>Day P/L</span><b class="${cls(dayPnl)}">${fmt(dayPnl)}</b></div>
+          <div class="row"><span>Open P/L</span><b class="${cls(openPnl)}">${fmt(openPnl)}</b></div>
+          <div class="row"><span>Positions</span><b>${(d.positions||[]).filter(p=>p.quantity!==0).length}</b></div>
+          <div class="row"><span>Holdings</span><b>${(d.holdings||[]).length}</b></div>
+        `}
+        <div class="acc-actions">
+          <button class="btn-warning" onclick="loginAcc('${a.id}')">🔐 Login</button>
+          <button class="btn-primary" onclick="(async()=>{await fetchOne(accounts.find(x=>x.id==='${a.id}'));render();})()">🔄</button>
+          <button class="btn-danger" onclick="deleteAcc('${a.id}')">🗑</button>
+        </div>
+      </div>`);
+  });
+
+  document.getElementById('sumFunds').textContent = fmt(totFunds);
+  document.getElementById('sumUsed').textContent  = fmt(totUsed);
+  const dPnl = document.getElementById('sumDayPnl');
+  dPnl.textContent = fmt(totDay); dPnl.className = 'value '+cls(totDay);
+  const oPnl = document.getElementById('sumOpenPnl');
+  oPnl.textContent = fmt(totOpen); oPnl.className = 'value '+cls(totOpen);
+  document.getElementById('sumPosCount').textContent = posCount;
+  document.getElementById('sumAccCount').textContent = `${loggedIn} / ${accounts.length}`;
+
+  /* Positions */
+  const pb = document.getElementById('posBody'); pb.innerHTML='';
+  let pDay=0,pOpen=0;
+  accounts.forEach(a=>{
+    const d = data[a.id]||{};
+    (d.positions||[]).filter(p=>p.quantity!==0).forEach(p=>{
+      pDay+=(p.m2m||0); pOpen+=(p.pnl||0);
+      pb.insertAdjacentHTML('beforeend',`
+        <tr><td>${a.nickname}</td><td><b>${p.tradingsymbol}</b></td>
+            <td>${p.exchange}</td><td>${p.product}</td>
+            <td class="num">${p.quantity}</td>
+            <td class="num">${(p.average_price||0).toFixed(2)}</td>
+            <td class="num">${(p.last_price||0).toFixed(2)}</td>
+            <td class="num ${cls(p.m2m||0)}">${fmt(p.m2m||0)}</td>
+            <td class="num ${cls(p.pnl||0)}">${fmt(p.pnl||0)}</td></tr>`);
+    });
+  });
+  document.getElementById('posFoot').innerHTML =
+    `<tr><td colspan="7">TOTAL</td>
+         <td class="num ${cls(pDay)}">${fmt(pDay)}</td>
+         <td class="num ${cls(pOpen)}">${fmt(pOpen)}</td></tr>`;
+
+  /* Holdings */
+  const hb = document.getElementById('hldBody'); hb.innerHTML='';
+  let hInv=0,hCur=0,hPnl=0;
+  accounts.forEach(a=>{
+    const d = data[a.id]||{};
+    (d.holdings||[]).forEach(h=>{
+      const inv=h.average_price*h.quantity, cur=h.last_price*h.quantity;
+      hInv+=inv; hCur+=cur; hPnl+=(h.pnl||0);
+      const pct = inv?((cur-inv)/inv*100):0;
+      hb.insertAdjacentHTML('beforeend',`
+        <tr><td>${a.nickname}</td><td><b>${h.tradingsymbol}</b></td>
+            <td class="num">${h.quantity}</td>
+            <td class="num">${(h.average_price||0).toFixed(2)}</td>
+            <td class="num">${(h.last_price||0).toFixed(2)}</td>
+            <td class="num">${fmt(inv)}</td><td class="num">${fmt(cur)}</td>
+            <td class="num ${cls(h.pnl||0)}">${fmt(h.pnl||0)}</td>
+            <td class="num ${cls(pct)}">${pct.toFixed(2)}%</td></tr>`);
+    });
+  });
+  document.getElementById('hldFoot').innerHTML =
+    `<tr><td colspan="5">TOTAL</td>
+         <td class="num">${fmt(hInv)}</td><td class="num">${fmt(hCur)}</td>
+         <td class="num ${cls(hPnl)}">${fmt(hPnl)}</td>
+         <td class="num ${cls(hCur-hInv)}">${hInv?((hCur-hInv)/hInv*100).toFixed(2):0}%</td></tr>`;
+}
+
+/* Export */
+function exportCSV(){
+  const rows=[['Account','Symbol','Exchange','Product','Qty','Avg','LTP','DayPnL','OpenPnL']];
+  accounts.forEach(a=>{
+    const d=data[a.id]||{};
+    (d.positions||[]).filter(p=>p.quantity!==0).forEach(p=>{
+      rows.push([a.nickname,p.tradingsymbol,p.exchange,p.product,p.quantity,
+                 p.average_price,p.last_price,p.m2m||0,p.pnl||0]);
+    });
+  });
+  const csv=rows.map(r=>r.join(',')).join('\n');
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+  a.download=`positions_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+}
+
+/* ---------- Init ---------- */
+(async function init(){
+  render();              // show whatever is in localStorage first
+  await checkProxy();    // then probe proxy
+  // Auto-refresh every 30s if proxy + tokens exist
+  setInterval(()=>{
+    if(proxyAlive && accounts.some(a=>a.access_token)) refreshAll();
+  }, 30000);
+})();
+</script>
+</body>
+</html>
