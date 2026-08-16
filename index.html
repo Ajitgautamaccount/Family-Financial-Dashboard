@@ -60,7 +60,7 @@
             background: linear-gradient(135deg, var(--navy) 0%, var(--navy-light) 100%);
             padding: 36px 40px 32px;
             position: relative;
-            overflow: hidden;
+            overflow: clip; /* clip = visual clipping without creating a scroll container; keeps position:sticky working in WebKit */
         }
         .page-header::before {
             content: '';
