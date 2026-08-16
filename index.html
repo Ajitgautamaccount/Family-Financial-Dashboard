@@ -705,13 +705,13 @@
 <div id="pwdModal" style="display:none">
     <div class="pwd-box">
         <div style="margin-bottom:12px;color:var(--navy)"><svg class="icon icon-xl" aria-hidden="true"><use href="#icon-lock"/></svg></div>
-        <h3>Edit Access Required</h3>
-        <p>Enter the password to unlock editing of financial data.</p>
+        <h3 id="pwdModalTitle">Profile Locked</h3>
+        <p id="pwdModalDesc">Enter your personal password to view this profile's financial data.</p>
         <label class="sr-only" for="pwdInput">Password</label>
-        <input type="password" id="pwdInput" placeholder="Password" onkeydown="if(event.key==='Enter')verifyPassword()">
+        <input type="password" id="pwdInput" placeholder="Enter password" onkeydown="if(event.key==='Enter')verifyPassword()">
         <div class="pwd-error" id="pwdError" style="display:none">Incorrect password. Please try again.</div>
         <div class="pwd-actions">
-            <button class="btn btn-secondary" onclick="closePwdModal()">Cancel</button>
+            <button class="btn btn-secondary" id="pwdCancelBtn" onclick="closePwdModal()">Cancel</button>
             <button class="btn btn-primary" onclick="verifyPassword()"><svg class="icon" aria-hidden="true"><use href="#icon-unlock"/></svg> Unlock</button>
         </div>
     </div>
@@ -731,6 +731,7 @@
     </div>
 </div>
 
+<div id="mainContent" style="display:none">
     <div class="container">
 
     <div class="hero-panel fade-up">
@@ -1063,6 +1064,7 @@
     <div class="footer">Financial Performance Dashboard &copy; 2024–2025 · Developed by <strong class="blinking">Ajit Gautam</strong></div>
 
 </div><!-- /container -->
+</div><!-- /mainContent -->
 
 <script>
 // ── Global State ──
@@ -1376,6 +1378,11 @@ function rebuildRadios() {
 
 function switchUser(username) {
     saveUserData();
+    // Lock profile on every user switch — each profile requires its own password
+    profileUnlocked = false;
+    editUnlocked = false;
+    pendingEditCallback = null;
+
     const container = document.querySelector('.container');
     if (container) container.classList.add('switching');
     setTimeout(() => {
@@ -1383,19 +1390,22 @@ function switchUser(username) {
         currentFinancialData = allUserData[currentUser] || [];
         document.getElementById('tableTitle').textContent = `${username} — Monthly Data`;
         document.getElementById('chartsTitle').textContent = `${username} — Monthly Performance`;
-    // Highlight active pill
-    document.querySelectorAll('.user-pill').forEach(p => {
-        p.classList.remove('active-f1','active-f2');
-        if (p.getAttribute('data-user') === username) {
-            const f = getFamilyForUser(username);
-            p.classList.add(f === 1 ? 'active-f1' : 'active-f2');
-            p.querySelector('input[type="radio"]').checked = true;
-        }
-    });
+        // Highlight active pill
+        document.querySelectorAll('.user-pill').forEach(p => {
+            p.classList.remove('active-f1','active-f2');
+            if (p.getAttribute('data-user') === username) {
+                const f = getFamilyForUser(username);
+                p.classList.add(f === 1 ? 'active-f1' : 'active-f2');
+                p.querySelector('input[type="radio"]').checked = true;
+            }
+        });
         const last = currentFinancialData.length > 0 ? currentFinancialData[currentFinancialData.length-1].month : 'Dec-23';
         document.getElementById('newMonth').value = getNextMonth(last);
-        updateAll();
+        // Hide content and show profile lock — data revealed only after password
+        const content = document.getElementById('mainContent');
+        if (content) content.style.display = 'none';
         if (container) container.classList.remove('switching');
+        _showPwdModal('profile');
     }, 160);
 }
 
@@ -2181,25 +2191,64 @@ function dismissToast(toast) {
 }
 
 // ── Password Protection ──
-const EDIT_PASSWORD = 'Print@111';
-let editUnlocked = false;
-let pendingEditCallback = null;
+// Per-profile passwords — viewing requires profile password, editing requires same password
+const PROFILE_PASSWORDS = {
+    'Ajit Gautam':  'Print@999',
+    'Ganga':        'Print@111',
+    'Meenu Tyagi':  'Print@444',
+    'Prem Singh':   'Print@777',
+};
 
-function requirePassword(callback) {
-    if (editUnlocked) { callback(); return; }
-    pendingEditCallback = callback;
+let profileUnlocked = false;   // true after correct profile password entered for currentUser
+let editUnlocked = false;       // kept for API compatibility; mirrors profileUnlocked
+let pendingEditCallback = null;
+let _pwdMode = 'profile';       // 'profile' = unlock view, 'edit' = unlock edit action
+
+function _currentPassword() {
+    return PROFILE_PASSWORDS[currentUser] || 'Print@111';
+}
+
+function _showPwdModal(mode) {
+    _pwdMode = mode;
     const modal = document.getElementById('pwdModal');
+    const title = document.getElementById('pwdModalTitle');
+    const desc  = document.getElementById('pwdModalDesc');
+    const cancelBtn = document.getElementById('pwdCancelBtn');
+    if (mode === 'profile') {
+        title.textContent = currentUser + ' — Profile Locked';
+        desc.textContent  = 'Enter your personal password to view this profile\'s financial data.';
+        if (cancelBtn) cancelBtn.style.display = 'none';
+    } else {
+        title.textContent = 'Edit Access Required';
+        desc.textContent  = 'Enter your profile password to unlock editing of financial data.';
+        if (cancelBtn) cancelBtn.style.display = '';
+    }
     modal.style.display = 'flex';
     document.getElementById('pwdInput').value = '';
     document.getElementById('pwdError').style.display = 'none';
     setTimeout(() => document.getElementById('pwdInput').focus(), 80);
 }
 
+function requirePassword(callback) {
+    if (profileUnlocked) { callback(); return; }
+    pendingEditCallback = callback;
+    _showPwdModal('edit');
+}
+
 function verifyPassword() {
     const val = document.getElementById('pwdInput').value;
-    if (val === EDIT_PASSWORD) {
+    if (val === _currentPassword()) {
+        const wasProfileLock = (_pwdMode === 'profile');
+        profileUnlocked = true;
         editUnlocked = true;
         document.getElementById('pwdModal').style.display = 'none';
+        // Show main content and render charts after profile unlock
+        const content = document.getElementById('mainContent');
+        if (content) content.style.display = '';
+        if (wasProfileLock) {
+            updateAll();
+            showToast('Welcome, ' + currentUser + '!', 'success');
+        }
         if (pendingEditCallback) { pendingEditCallback(); pendingEditCallback = null; }
     } else {
         document.getElementById('pwdError').style.display = 'block';
@@ -2209,6 +2258,11 @@ function verifyPassword() {
 }
 
 function closePwdModal() {
+    // If in profile-lock mode and not yet unlocked, don't allow closing — user must enter password
+    if (_pwdMode === 'profile' && !profileUnlocked) {
+        showToast('Please enter your profile password to continue.', 'warning');
+        return;
+    }
     document.getElementById('pwdModal').style.display = 'none';
     pendingEditCallback = null;
 }
