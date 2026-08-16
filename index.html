@@ -8,6 +8,9 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <!-- Firebase compat SDKs (no bundler required) -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
     <style>
         :root {
             --navy: #1a2744;
@@ -1160,6 +1163,20 @@
 </div><!-- /mainContent -->
 
 <script>
+// ── Firebase Init ──
+const firebaseConfig = {
+    apiKey: "AIzaSyD-mETGOB2wAUSB1E_Anocy9UJvsj85ORQ",
+    authDomain: "family-financial-dashboa-71ddd.firebaseapp.com",
+    projectId: "family-financial-dashboa-71ddd",
+    storageBucket: "family-financial-dashboa-71ddd.firebasestorage.app",
+    messagingSenderId: "608757421536",
+    appId: "1:608757421536:web:7f197722e44dfdf3b1c785",
+    measurementId: "G-HH1QB8T256"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+const FS_COLLECTION = 'familyDashboard';
+
 // ── Global State ──
 let allUserData = {};
 let currentUser = '';
@@ -1387,17 +1404,36 @@ const baseChartConfig = {
     interaction: { mode: 'index', intersect: false }
 };
 
-// ── Storage ──
+// ── Storage (Firestore) ──
+// Save a single profile's data to Firestore
 function saveUserData() {
-    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(allUserData)); } catch(e) { console.error(e); }
+    if (!currentUser) return;
+    const entries = allUserData[currentUser] || [];
+    db.collection(FS_COLLECTION).doc(currentUser).set({ entries })
+        .catch(e => console.error('Firestore save error:', e));
 }
-function loadUserData() {
-    try {
-        const d = localStorage.getItem(STORAGE_KEY);
-        if (d) { const p = JSON.parse(d); if (p && Object.keys(p).length) return p; }
-    } catch(e) {}
-    return null;
+
+// Save ALL profiles at once (used after bulk operations)
+function saveAllUserData() {
+    const batch = db.batch();
+    Object.keys(allUserData).forEach(name => {
+        const ref = db.collection(FS_COLLECTION).doc(name);
+        batch.set(ref, { entries: allUserData[name] || [] });
+    });
+    batch.commit().catch(e => console.error('Firestore batch save error:', e));
 }
+
+// Load all profiles from Firestore; falls back to seed data if empty
+async function loadAllUserDataFromFirestore() {
+    const snapshot = await db.collection(FS_COLLECTION).get();
+    if (snapshot.empty) return null;
+    const result = {};
+    snapshot.forEach(doc => { result[doc.id] = doc.data().entries || []; });
+    return Object.keys(result).length ? result : null;
+}
+
+// Legacy localStorage helpers (kept for devName only)
+function loadUserData() { return null; }
 
 // ── Formatting ──
 function fc(v) {
@@ -1508,16 +1544,24 @@ function psVerify() {
 }
 
 // ── User Management ──
-function initializeUserManagement() {
-    const loaded = loadUserData();
+async function initializeUserManagement() {
+    // Show loading overlay while Firestore loads
+    _showDbLoading(true);
+    let loaded = null;
+    try { loaded = await loadAllUserDataFromFirestore(); } catch(e) { console.error('Firestore load error:', e); }
+    _showDbLoading(false);
+
     if (loaded) {
         allUserData = loaded;
     } else {
+        // First run — seed default data and push to Firestore
         allUserData['Ajit Gautam'] = [...initialAjitData];
         allUserData['Prem Singh'] = [...initialPremSinghData];
         allUserData['Meenu Tyagi'] = [...initialMeenuTyagiData];
         allUserData['Ganga'] = [...initialGangaData];
+        saveAllUserData();
     }
+    // Ensure all four profiles always exist (new devices never see missing keys)
     if (!allUserData['Ajit Gautam']) allUserData['Ajit Gautam'] = [...initialAjitData];
     if (!allUserData['Prem Singh']) allUserData['Prem Singh'] = [...initialPremSinghData];
     if (!allUserData['Meenu Tyagi']) allUserData['Meenu Tyagi'] = [...initialMeenuTyagiData];
@@ -1525,6 +1569,33 @@ function initializeUserManagement() {
 
     rebuildRadios();
     showProfileSelectScreen();
+}
+
+function _showDbLoading(show) {
+    let el = document.getElementById('dbLoadingOverlay');
+    if (!el) {
+        el = document.createElement('div');
+        el.id = 'dbLoadingOverlay';
+        el.innerHTML = `<div style="text-align:center">
+            <div style="width:48px;height:48px;border:4px solid rgba(255,255,255,0.2);border-top-color:#c9a84c;border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 16px"></div>
+            <div style="color:#fff;font-size:16px;font-weight:600;letter-spacing:0.5px">Loading dashboard…</div>
+            <div style="color:rgba(255,255,255,0.6);font-size:12px;margin-top:6px">Syncing data from cloud</div>
+        </div>`;
+        Object.assign(el.style, {
+            position:'fixed', inset:'0', background:'rgba(16,34,65,0.96)',
+            display:'flex', alignItems:'center', justifyContent:'center',
+            zIndex:'99999', fontFamily:'DM Sans,sans-serif'
+        });
+        document.body.appendChild(el);
+        // keyframe for spinner
+        if (!document.getElementById('dbLoadingStyle')) {
+            const s = document.createElement('style');
+            s.id = 'dbLoadingStyle';
+            s.textContent = '@keyframes spin{to{transform:rotate(360deg)}}';
+            document.head.appendChild(s);
+        }
+    }
+    el.style.display = show ? 'flex' : 'none';
 }
 
 function rebuildRadios() {
@@ -1641,6 +1712,7 @@ function addNewMonth() {
             capitalUsed: 0
         });
         sortData(currentFinancialData);
+        allUserData[currentUser] = currentFinancialData;
         persistFormValues();
         document.getElementById('newMonth').value = getNextMonth(month);
         saveUserData(); scheduleUpdateAll();
