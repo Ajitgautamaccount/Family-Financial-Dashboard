@@ -600,6 +600,53 @@
         .pwd-error { color: var(--crimson); font-size: 12.5px; margin-bottom: 14px; font-weight: 500; }
         .pwd-actions { display: flex; gap: 10px; justify-content: center; margin-top: 18px; }
 
+        /* ── PROFILE SELECT SCREEN ── */
+        #profileSelectScreen {
+            position: fixed; inset: 0; z-index: 9998;
+            background: linear-gradient(135deg, var(--navy) 0%, #1a3a6e 60%, #0d2240 100%);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            padding: 40px 20px;
+        }
+        .ps-title { font-family: 'Playfair Display', serif; font-size: 28px; color: #fff; margin-bottom: 6px; text-align: center; }
+        .ps-subtitle { font-size: 13px; color: rgba(255,255,255,0.55); margin-bottom: 40px; text-align: center; letter-spacing: .04em; }
+        .ps-cards { display: flex; flex-wrap: wrap; gap: 18px; justify-content: center; max-width: 700px; }
+        .ps-card {
+            background: rgba(255,255,255,0.07); border: 1.5px solid rgba(255,255,255,0.14);
+            border-radius: 16px; padding: 28px 32px; min-width: 140px; text-align: center;
+            cursor: pointer; transition: background .18s, border-color .18s, transform .18s;
+            color: #fff;
+        }
+        .ps-card:hover { background: rgba(255,255,255,0.15); border-color: var(--gold); transform: translateY(-3px); }
+        .ps-card:focus { outline: 2px solid var(--gold); outline-offset: 3px; }
+        .ps-avatar {
+            width: 54px; height: 54px; border-radius: 50%; margin: 0 auto 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 700;
+            background: rgba(201,164,82,0.25); color: var(--gold); border: 2px solid var(--gold);
+        }
+        .ps-name { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+        .ps-family { font-size: 11px; color: rgba(255,255,255,0.45); letter-spacing: .06em; text-transform: uppercase; }
+        /* password step inside profile select */
+        #psPasswordStep { display: none; flex-direction: column; align-items: center; margin-top: 32px; width: 100%; max-width: 320px; }
+        #psPasswordStep .ps-back { background: none; border: none; color: rgba(255,255,255,0.55); font-size: 12px; cursor: pointer; margin-bottom: 16px; text-decoration: underline; }
+        #psPasswordStep .ps-back:hover { color: #fff; }
+        #psSelectedName { font-family: 'Playfair Display', serif; font-size: 20px; color: #fff; margin-bottom: 6px; text-align: center; }
+        #psPasswordStep input[type="password"] {
+            width: 100%; padding: 12px 16px; border: 1.5px solid rgba(255,255,255,0.25);
+            border-radius: 9px; font-size: 15px; text-align: center; letter-spacing: 3px;
+            background: rgba(255,255,255,0.1); color: #fff; outline: none; margin-bottom: 10px;
+            font-family: 'DM Sans', sans-serif; transition: border-color .18s;
+        }
+        #psPasswordStep input[type="password"]::placeholder { color: rgba(255,255,255,0.4); letter-spacing: normal; }
+        #psPasswordStep input[type="password"]:focus { border-color: var(--gold); }
+        #psPwdError { color: #f5a0a0; font-size: 12.5px; margin-bottom: 10px; display: none; }
+        #psUnlockBtn {
+            width: 100%; padding: 13px; border: none; border-radius: 9px;
+            background: var(--gold); color: var(--navy); font-weight: 700; font-size: 15px;
+            cursor: pointer; transition: background .18s, opacity .18s;
+        }
+        #psUnlockBtn:hover { background: var(--gold-light); }
+
         /* ── USER-SWITCH FADE ── */
         .container { transition: opacity .18s ease; }
         .container.switching { opacity: 0; pointer-events: none; }
@@ -700,6 +747,24 @@
 
 <div id="scroll-progress" role="progressbar" aria-label="Page scroll progress"></div>
 <div id="toast-container" aria-live="polite" aria-label="Notifications"></div>
+
+<!-- ── PROFILE SELECT SCREEN ── -->
+<div id="profileSelectScreen">
+    <div style="margin-bottom:16px;color:var(--gold);opacity:.85"><svg class="icon icon-xl" aria-hidden="true"><use href="#icon-trend-up"/></svg></div>
+    <div class="ps-title">Financial Performance Dashboard</div>
+    <div class="ps-subtitle">Select your profile to continue</div>
+    <div class="ps-cards" id="psCards"></div>
+    <div id="psPasswordStep">
+        <button class="ps-back" onclick="psShowCards()">&#8592; Back to profiles</button>
+        <div id="psSelectedName"></div>
+        <p style="font-size:12px;color:rgba(255,255,255,0.45);margin-bottom:16px;text-align:center">Enter your password to access this profile</p>
+        <input type="password" id="psPwdInput" placeholder="Password" onkeydown="if(event.key==='Enter')psVerify()">
+        <div id="psPwdError">Incorrect password. Please try again.</div>
+        <button id="psUnlockBtn" onclick="psVerify()">
+            <svg class="icon" aria-hidden="true"><use href="#icon-unlock"/></svg> Unlock Profile
+        </button>
+    </div>
+</div>
 
 <!-- ── PASSWORD MODAL ── -->
 <div id="pwdModal" style="display:none">
@@ -1329,6 +1394,90 @@ function fp(v) {
     return `<span class="neutral">${str}</span>`;
 }
 
+// ── Profile Select Screen ──
+let _psSelectedUser = '';
+
+function showProfileSelectScreen() {
+    const screen = document.getElementById('profileSelectScreen');
+    const content = document.getElementById('mainContent');
+    if (screen) screen.style.display = 'flex';
+    if (content) content.style.display = 'none';
+    psShowCards();
+    _buildPsCards();
+}
+
+function _buildPsCards() {
+    const wrap = document.getElementById('psCards');
+    if (!wrap) return;
+    wrap.innerHTML = '';
+    const familyLabel = { 1: 'Family 1', 2: 'Family 2' };
+    Object.keys(PROFILE_PASSWORDS).forEach(name => {
+        const fam = getFamilyForUser(name);
+        const initials = name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+        const card = document.createElement('button');
+        card.className = 'ps-card';
+        card.setAttribute('tabindex', '0');
+        card.innerHTML = `
+            <div class="ps-avatar">${initials}</div>
+            <div class="ps-name">${name}</div>
+            <div class="ps-family">${familyLabel[fam] || ''}</div>
+        `;
+        card.addEventListener('click', () => psSelectProfile(name));
+        wrap.appendChild(card);
+    });
+}
+
+function psSelectProfile(name) {
+    _psSelectedUser = name;
+    document.getElementById('psCards').style.display = 'none';
+    const step = document.getElementById('psPasswordStep');
+    step.style.display = 'flex';
+    document.getElementById('psSelectedName').textContent = name;
+    document.getElementById('psPwdInput').value = '';
+    document.getElementById('psPwdError').style.display = 'none';
+    setTimeout(() => document.getElementById('psPwdInput').focus(), 80);
+}
+
+function psShowCards() {
+    document.getElementById('psCards').style.display = 'flex';
+    const step = document.getElementById('psPasswordStep');
+    step.style.display = 'none';
+    _psSelectedUser = '';
+}
+
+function psVerify() {
+    const val = document.getElementById('psPwdInput').value;
+    const expected = PROFILE_PASSWORDS[_psSelectedUser] || '';
+    if (val === expected) {
+        // Hide selector, unlock profile, load data
+        document.getElementById('profileSelectScreen').style.display = 'none';
+        currentUser = _psSelectedUser;
+        profileUnlocked = true;
+        editUnlocked = true;
+        currentFinancialData = allUserData[currentUser] || [];
+        document.getElementById('tableTitle').textContent = `${currentUser} — Monthly Data`;
+        document.getElementById('chartsTitle').textContent = `${currentUser} — Monthly Performance`;
+        // Mark active pill
+        document.querySelectorAll('.user-pill').forEach(p => {
+            p.classList.remove('active-f1','active-f2');
+            if (p.getAttribute('data-user') === currentUser) {
+                const f = getFamilyForUser(currentUser);
+                p.classList.add(f === 1 ? 'active-f1' : 'active-f2');
+                p.querySelector('input[type="radio"]').checked = true;
+            }
+        });
+        const last = currentFinancialData.length > 0 ? currentFinancialData[currentFinancialData.length-1].month : 'Dec-23';
+        document.getElementById('newMonth').value = getNextMonth(last);
+        document.getElementById('mainContent').style.display = '';
+        updateAll();
+        showToast('Welcome, ' + currentUser + '!', 'success');
+    } else {
+        document.getElementById('psPwdError').style.display = 'block';
+        document.getElementById('psPwdInput').value = '';
+        document.getElementById('psPwdInput').focus();
+    }
+}
+
 // ── User Management ──
 function initializeUserManagement() {
     const loaded = loadUserData();
@@ -1346,9 +1495,7 @@ function initializeUserManagement() {
     if (!allUserData['Ganga']) allUserData['Ganga'] = [...initialGangaData];
 
     rebuildRadios();
-    const keys = Object.keys(allUserData).sort();
-    currentUser = keys[0];
-    switchUser(currentUser);
+    showProfileSelectScreen();
 }
 
 function rebuildRadios() {
