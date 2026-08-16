@@ -2346,14 +2346,12 @@ const PROFILE_PASSWORDS = {
     'Prem Singh':   'Print@777',
 };
 
-let profileUnlocked = false;   // true after correct profile password entered for currentUser
-let editUnlocked = false;       // kept for API compatibility; mirrors profileUnlocked
-let pendingEditCallback = null;
-let _pwdMode = 'profile';       // 'profile' = unlock view, 'edit' = unlock edit action
+const MASTER_EDIT_PASSWORD = 'Print@111'; // unlocks editing across all profiles
 
-function _currentPassword() {
-    return PROFILE_PASSWORDS[currentUser] || 'Print@111';
-}
+let profileUnlocked = false;  // true after profile password entered (view access)
+let editUnlocked = false;      // true after master password entered (edit access)
+let pendingEditCallback = null;
+let _pwdMode = 'profile';      // 'profile' = view lock, 'edit' = edit lock
 
 function _showPwdModal(mode) {
     _pwdMode = mode;
@@ -2367,7 +2365,7 @@ function _showPwdModal(mode) {
         if (cancelBtn) cancelBtn.style.display = 'none';
     } else {
         title.textContent = 'Edit Access Required';
-        desc.textContent  = 'Enter your profile password to unlock editing of financial data.';
+        desc.textContent  = 'Enter the master password (Print@111) to unlock editing for any profile.';
         if (cancelBtn) cancelBtn.style.display = '';
     }
     modal.style.display = 'flex';
@@ -2377,35 +2375,42 @@ function _showPwdModal(mode) {
 }
 
 function requirePassword(callback) {
-    if (profileUnlocked) { callback(); return; }
+    if (editUnlocked) { callback(); return; }
     pendingEditCallback = callback;
     _showPwdModal('edit');
 }
 
 function verifyPassword() {
     const val = document.getElementById('pwdInput').value;
-    if (val === _currentPassword()) {
-        const wasProfileLock = (_pwdMode === 'profile');
-        profileUnlocked = true;
-        editUnlocked = true;
-        document.getElementById('pwdModal').style.display = 'none';
-        // Show main content and render charts after profile unlock
-        const content = document.getElementById('mainContent');
-        if (content) content.style.display = '';
-        if (wasProfileLock) {
+    if (_pwdMode === 'profile') {
+        // Profile view unlock — check per-profile password
+        if (val === (PROFILE_PASSWORDS[currentUser] || '')) {
+            profileUnlocked = true;
+            document.getElementById('pwdModal').style.display = 'none';
+            const content = document.getElementById('mainContent');
+            if (content) content.style.display = '';
             updateAll();
             showToast('Welcome, ' + currentUser + '!', 'success');
+        } else {
+            document.getElementById('pwdError').style.display = 'block';
+            document.getElementById('pwdInput').value = '';
+            document.getElementById('pwdInput').focus();
         }
-        if (pendingEditCallback) { pendingEditCallback(); pendingEditCallback = null; }
     } else {
-        document.getElementById('pwdError').style.display = 'block';
-        document.getElementById('pwdInput').value = '';
-        document.getElementById('pwdInput').focus();
+        // Edit unlock — check master password only
+        if (val === MASTER_EDIT_PASSWORD) {
+            editUnlocked = true;
+            document.getElementById('pwdModal').style.display = 'none';
+            if (pendingEditCallback) { pendingEditCallback(); pendingEditCallback = null; }
+        } else {
+            document.getElementById('pwdError').style.display = 'block';
+            document.getElementById('pwdInput').value = '';
+            document.getElementById('pwdInput').focus();
+        }
     }
 }
 
 function closePwdModal() {
-    // If in profile-lock mode and not yet unlocked, don't allow closing — user must enter password
     if (_pwdMode === 'profile' && !profileUnlocked) {
         showToast('Please enter your profile password to continue.', 'warning');
         return;
