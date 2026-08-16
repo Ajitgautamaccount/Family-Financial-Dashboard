@@ -2152,7 +2152,9 @@ function updateFamilySection(famNum, members, statsId, tableId, m1TotalId, m2Tot
         const d2 = m2Yearly[yr] || { total: 0, avgCapital: 0, annualPct: 0, count: 0 };
         const combined = d1.total + d2.total;
         const avgCap = (d1.avgCapital + d2.avgCapital);
-        const avgPct = avgCap > 0 ? (combined / avgCap) * 100 : 0;
+        // Annualise: use max months reported by either member so partial years are comparable
+        const monthsReported = Math.max(d1.count, d2.count, 1);
+        const avgPct = avgCap > 0 ? (combined / avgCap) * (12 / monthsReported) * 100 : 0;
         totM1 += d1.total; totM2 += d2.total; totCombined += combined;
         totalCap += avgCap; pctSum += avgPct; pctCount++;
         const tr = document.createElement('tr');
