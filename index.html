@@ -243,6 +243,29 @@
             background: linear-gradient(to right, var(--border), transparent);
         }
 
+        /* ── COLLAPSIBLE TABLE ── */
+        .sh-toggle {
+            margin-left: auto; flex-shrink: 0;
+            background: var(--navy-mid); color: #fff; border: none;
+            border-radius: 8px; width: 32px; height: 32px;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; transition: background .18s, transform .22s;
+        }
+        .sh-toggle:hover { background: var(--navy); }
+        .sh-toggle svg { transition: transform .28s cubic-bezier(.4,0,.2,1); }
+        .sh-toggle.collapsed svg { transform: rotate(-90deg); }
+        .table-collapsible {
+            overflow: hidden;
+            max-height: 2000px;
+            transition: max-height .35s cubic-bezier(.4,0,.2,1), opacity .25s ease;
+            opacity: 1;
+        }
+        .table-collapsible.collapsed {
+            max-height: 0 !important;
+            opacity: 0;
+            pointer-events: none;
+        }
+
         /* ── CONTROL PANELS ── */
         .panel {
             background: var(--bg-card);
@@ -859,34 +882,39 @@
         <div class="sh-icon"><svg class="icon icon-lg" aria-hidden="true"><use href="#icon-table"/></svg></div>
         <h2 id="tableTitle">Monthly Data</h2>
         <div class="sh-line"></div>
+        <button class="sh-toggle collapsed" id="tableToggleBtn" onclick="toggleTableSection()" title="Expand / Collapse" aria-expanded="false">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
     </div>
-    <div class="table-wrap">
-        <div class="table-scroll">
-            <table id="dataTable">
-                <thead>
-                    <tr>
-                        <th>Month</th>
-                        <th>Equity Return</th>
-                        <th>F&amp;O Return</th>
-                        <th>Commodity</th>
-                        <th>Bond Interest</th>
-                        <th>Deposit</th>
-                        <th>Capital Used</th>
-                        <th>Equity+F&amp;O</th>
-                        <th>Monthly Return</th>
-                        <th>% Return</th>
-                        <th style="text-align:center">Action</th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
+    <div class="table-collapsible collapsed" id="tableCollapsible">
+        <div class="table-wrap">
+            <div class="table-scroll">
+                <table id="dataTable">
+                    <thead>
+                        <tr>
+                            <th>Month</th>
+                            <th>Equity Return</th>
+                            <th>F&amp;O Return</th>
+                            <th>Commodity</th>
+                            <th>Bond Interest</th>
+                            <th>Deposit</th>
+                            <th>Capital Used</th>
+                            <th>Equity+F&amp;O</th>
+                            <th>Monthly Return</th>
+                            <th>% Return</th>
+                            <th style="text-align:center">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
         </div>
-    </div>
-    <div class="action-bar">
-        <button onclick="downloadExcel()" class="btn btn-gold"><svg class="icon" aria-hidden="true"><use href="#icon-download"/></svg> Download Excel</button>
-        <div class="file-btn-wrap">
-            <button class="btn btn-secondary"><svg class="icon" aria-hidden="true"><use href="#icon-upload"/></svg> Upload Excel</button>
-            <input type="file" id="excelFile" accept=".xlsx,.xls" onchange="uploadExcel(event)">
+        <div class="action-bar">
+            <button onclick="downloadExcel()" class="btn btn-gold"><svg class="icon" aria-hidden="true"><use href="#icon-download"/></svg> Download Excel</button>
+            <div class="file-btn-wrap">
+                <button class="btn btn-secondary"><svg class="icon" aria-hidden="true"><use href="#icon-upload"/></svg> Upload Excel</button>
+                <input type="file" id="excelFile" accept=".xlsx,.xls" onchange="uploadExcel(event)">
+            </div>
         </div>
     </div>
 
@@ -1468,6 +1496,7 @@ function psVerify() {
         });
         const last = currentFinancialData.length > 0 ? currentFinancialData[currentFinancialData.length-1].month : 'Dec-23';
         document.getElementById('newMonth').value = getNextMonth(last);
+        collapseTableSection();
         document.getElementById('mainContent').style.display = '';
         updateAll();
         showToast('Welcome, ' + currentUser + '!', 'success');
@@ -1548,7 +1577,8 @@ function switchUser(username) {
         });
         const last = currentFinancialData.length > 0 ? currentFinancialData[currentFinancialData.length-1].month : 'Dec-23';
         document.getElementById('newMonth').value = getNextMonth(last);
-        // Hide content and show profile lock — data revealed only after password
+        // Collapse table and hide content — data revealed only after password
+        collapseTableSection();
         const content = document.getElementById('mainContent');
         if (content) content.style.display = 'none';
         if (container) container.classList.remove('switching');
@@ -2461,6 +2491,26 @@ function runCountUpOnKPIs() {
             return v.toLocaleString('en-IN', { maximumFractionDigits: 0 });
         });
     });
+}
+
+// ── Collapsible Table ──
+function toggleTableSection() {
+    const collapsible = document.getElementById('tableCollapsible');
+    const btn = document.getElementById('tableToggleBtn');
+    if (!collapsible || !btn) return;
+    const isCollapsed = collapsible.classList.contains('collapsed');
+    collapsible.classList.toggle('collapsed', !isCollapsed);
+    btn.classList.toggle('collapsed', !isCollapsed);
+    btn.setAttribute('aria-expanded', isCollapsed ? 'true' : 'false');
+}
+
+function collapseTableSection() {
+    const collapsible = document.getElementById('tableCollapsible');
+    const btn = document.getElementById('tableToggleBtn');
+    if (!collapsible || !btn) return;
+    collapsible.classList.add('collapsed');
+    btn.classList.add('collapsed');
+    btn.setAttribute('aria-expanded', 'false');
 }
 
 // ── Scroll Progress Bar ──
