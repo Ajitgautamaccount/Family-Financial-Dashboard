@@ -2078,7 +2078,9 @@ function calcYearlyForUser(userData) {
         const d = y[yr];
         const avg = d.count ? d.capSum/d.count : 0;
         d.avgCapital = avg;
-        d.annualPct = avg > 0 ? (d.total/avg)*100 : 0;
+        // Annualise: multiply by 12/count so partial years are comparable to full years.
+        // For a complete 12-month year 12/12 = 1 (no change).
+        d.annualPct = avg > 0 ? (d.total / avg) * (12 / d.count) * 100 : 0;
     }
     return y;
 }
@@ -2399,15 +2401,19 @@ function updateGautamFamilySection() {
             return d;
         });
 
+        let maxCount = 0;
         memberVals.forEach((d, i) => {
             combined += d.total;
             capSum += d.avgCapital;
             depSum += (memberYearly[MEMBERS[i].key][yr] || { deposits:0 }).deposits;
             grandTotals[MEMBERS[i].key] += d.total;
             memberReturns[i].push(d.total);
+            if (d.count > maxCount) maxCount = d.count;
         });
 
-        const pct = capSum > 0 ? (combined / capSum) * 100 : 0;
+        // Annualise: scale by 12/months-reported so partial years compare fairly to full years
+        const monthsFactor = maxCount > 0 ? 12 / maxCount : 1;
+        const pct = capSum > 0 ? (combined / capSum) * monthsFactor * 100 : 0;
         grandCombined += combined;
         grandCapital += capSum;
         grandDeposits += depSum;
