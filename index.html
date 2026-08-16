@@ -1755,6 +1755,7 @@ function fp(v) {
 let _psSelectedUser = '';
 
 function showProfileSelectScreen() {
+    sessionStorage.removeItem('gp_session_user'); // force re-auth when switching profiles
     const screen = document.getElementById('profileSelectScreen');
     const content = document.getElementById('mainContent');
     if (screen) screen.style.display = 'flex';
@@ -1806,6 +1807,8 @@ function psVerify() {
     const val = document.getElementById('psPwdInput').value;
     const expected = PROFILE_PASSWORDS[_psSelectedUser] || '';
     if (val === expected) {
+        // Persist session so page refresh doesn't re-ask for password
+        sessionStorage.setItem('gp_session_user', _psSelectedUser);
         // Hide selector, unlock profile, load data
         document.getElementById('profileSelectScreen').style.display = 'none';
         currentUser = _psSelectedUser;
@@ -1861,7 +1864,33 @@ async function initializeUserManagement() {
     if (!allUserData['Ganga']) allUserData['Ganga'] = [...initialGangaData];
 
     rebuildRadios();
-    showProfileSelectScreen();
+
+    // Resume session from previous tab/refresh without re-entering password
+    const sessionUser = sessionStorage.getItem('gp_session_user');
+    if (sessionUser && allUserData[sessionUser]) {
+        currentUser = sessionUser;
+        profileUnlocked = true;
+        editUnlocked = false;
+        currentFinancialData = allUserData[currentUser] || [];
+        document.getElementById('tableTitle').textContent = `${currentUser} — Monthly Data`;
+        document.getElementById('chartsTitle').textContent = `${currentUser} — Monthly Performance`;
+        document.querySelectorAll('.user-pill').forEach(p => {
+            p.classList.remove('active-f1','active-f2');
+            if (p.getAttribute('data-user') === currentUser) {
+                const f = getFamilyForUser(currentUser);
+                p.classList.add(f === 1 ? 'active-f1' : 'active-f2');
+                p.querySelector('input[type="radio"]').checked = true;
+            }
+        });
+        const last = currentFinancialData.length > 0 ? currentFinancialData[currentFinancialData.length-1].month : 'Dec-23';
+        document.getElementById('newMonth').value = getNextMonth(last);
+        collapseTableSection();
+        document.getElementById('profileSelectScreen').style.display = 'none';
+        document.getElementById('mainContent').style.display = '';
+        updateAll();
+    } else {
+        showProfileSelectScreen();
+    }
 }
 
 function _showDbLoading(show) {
