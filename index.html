@@ -2295,15 +2295,27 @@ function updateMonthlyPercentageAllUsersChart() {
 
 // ── Excel ──
 function downloadExcel() {
-    const data = allUserData[currentUser] || [];
-    if (!data.length) { showToast('No data to download.', 'warning'); return; }
-    const rows = [['Month','Equity Return','F&O Return','Bond Interest','Deposit','Capital Used','Equity+F&O','Monthly Return','% Return']];
-    data.forEach(i => rows.push([i.month, i.equityReturn, i.foReturn, i.commodityReturn||0, i.bondInterest, i.deposit, i.capitalUsed, i.equityFo, i.monthlyReturn, (parseFloat(i.percentage||0)/100)]));
+    if (!currentFinancialData.length) { showToast('No data to download.', 'warning'); return; }
+    // Ensure derived fields (equityFo, monthlyReturn, percentage, capitalUsed) are up to date
+    calculateMetrics();
+    const rows = [['Month','Equity Return','F&O Return','Commodity Return','Bond Interest','Deposit','Capital Used','Equity+F&O','Monthly Return','% Return']];
+    currentFinancialData.forEach(i => rows.push([
+        i.month,
+        i.equityReturn || 0,
+        i.foReturn || 0,
+        i.commodityReturn || 0,
+        i.bondInterest || 0,
+        i.deposit || 0,
+        i.capitalUsed || 0,
+        i.equityFo || 0,
+        i.monthlyReturn || 0,
+        parseFloat(i.percentage || 0) / 100   // stored as "2.34", export as 0.0234 so Excel renders 2.34%
+    ]));
     const wb = XLSX.utils.book_new();
     const ws = XLSX.utils.aoa_to_sheet(rows);
     const range = XLSX.utils.decode_range(ws['!ref']);
-    for (let R = range.s.r+1; R <= range.e.r; R++) {
-        const ref = XLSX.utils.encode_cell({c:8,r:R});
+    for (let R = range.s.r + 1; R <= range.e.r; R++) {
+        const ref = XLSX.utils.encode_cell({ c: 9, r: R }); // % Return is column index 9 (10th column)
         if (ws[ref]) ws[ref].z = '0.00%';
     }
     XLSX.utils.book_append_sheet(wb, ws, `${currentUser}`);
