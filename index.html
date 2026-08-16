@@ -565,6 +565,8 @@
         .chart-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); }
         .chart-card-title { font-size: 13px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 14px; }
         .chart-canvas-wrap { position: relative; height: 300px; }
+        .chart-canvas-wrap.tall { height: 320px; }
+        .chart-canvas-wrap.medium { height: 280px; }
 
         /* ── ACTION BAR ── */
         .action-bar {
@@ -672,8 +674,11 @@
             .family-year-table tfoot td { padding: 6px 7px; }
 
             /* Charts */
-            .chart-card { padding: 14px 12px; }
-            .chart-canvas-wrap { height: 220px; }
+            .chart-card { padding: 12px 10px; }
+            .chart-card-title { font-size: 11px; margin-bottom: 10px; }
+            .chart-canvas-wrap { height: 200px; }
+            .chart-canvas-wrap.tall { height: 220px; }
+            .chart-canvas-wrap.medium { height: 200px; }
 
             /* Action bar */
             .action-bar { flex-direction: column; gap: 8px; padding: 14px 0; }
@@ -1086,19 +1091,19 @@
     <div class="chart-grid full">
         <div class="chart-card">
             <div class="chart-card-title">Monthly % Return</div>
-            <div class="chart-canvas-wrap" style="height:320px"><canvas id="percentageChart"></canvas></div>
+            <div class="chart-canvas-wrap tall"><canvas id="percentageChart"></canvas></div>
         </div>
     </div>
     <div class="chart-grid full">
         <div class="chart-card">
             <div class="chart-card-title">Monthly Return (₹)</div>
-            <div class="chart-canvas-wrap" style="height:320px"><canvas id="amountChart"></canvas></div>
+            <div class="chart-canvas-wrap tall"><canvas id="amountChart"></canvas></div>
         </div>
     </div>
     <div class="chart-grid full">
         <div class="chart-card">
             <div class="chart-card-title">Cumulative Return</div>
-            <div class="chart-canvas-wrap" style="height:320px"><canvas id="cumulativeUserChart"></canvas></div>
+            <div class="chart-canvas-wrap tall"><canvas id="cumulativeUserChart"></canvas></div>
         </div>
     </div>
 
@@ -1263,15 +1268,15 @@
             <!-- Gautam Family Charts -->
             <div style="margin-top:28px">
                 <div style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);margin-bottom:14px">Year-wise Combined Return</div>
-                <div class="chart-canvas-wrap" style="height:280px"><canvas id="gautamFamilyYearChart"></canvas></div>
+                <div class="chart-canvas-wrap medium"><canvas id="gautamFamilyYearChart"></canvas></div>
             </div>
             <div style="margin-top:24px">
                 <div style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);margin-bottom:14px">Cumulative Return — All 4 Members</div>
-                <div class="chart-canvas-wrap" style="height:300px"><canvas id="gautamFamilyCumChart"></canvas></div>
+                <div class="chart-canvas-wrap"><canvas id="gautamFamilyCumChart"></canvas></div>
             </div>
             <div style="margin-top:24px">
                 <div style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);margin-bottom:14px">Member Return Contribution by Year (%)</div>
-                <div class="chart-canvas-wrap" style="height:280px"><canvas id="gautamFamilyContribChart"></canvas></div>
+                <div class="chart-canvas-wrap medium"><canvas id="gautamFamilyContribChart"></canvas></div>
             </div>
         </div>
     </div>
@@ -1508,25 +1513,62 @@ const CHART_COLORS = ['#2563eb','#7c3aed','#059669','#dc2626','#d97706','#0891b2
 let colorIndex = 0;
 function getNextChartColor() { return CHART_COLORS[colorIndex++ % CHART_COLORS.length]; }
 
+// Returns true when the chart's canvas is narrower than 500px (mobile layout)
+function _isMobileChart(chart) { return chart.width < 500; }
+
+// Builds a responsive y-axis ticks config that keeps the base font scaling but adds a custom callback
+function _mkYTicks(callbackFn) {
+    return {
+        callback: callbackFn,
+        color: '#8896a8',
+        font: function(ctx) { return { size: _isMobileChart(ctx.chart) ? 9 : 11 }; },
+        maxTicksLimit: 6
+    };
+}
+
 const baseChartConfig = {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
         datalabels: {
             anchor: 'end', align: 'top',
+            // Hide data labels entirely on mobile — they overlap and clip at small widths
+            display: function(context) {
+                return !_isMobileChart(context.chart);
+            },
             formatter: function(value, context) {
                 if (value === null || value === undefined) return '';
                 const id = context.chart.canvas.id;
-                if (id.includes('percentage') || id.includes('Percentage')) return value.toFixed(2) + '%';
+                if (id.includes('percentage') || id.includes('Percentage')) return value.toFixed(1) + '%';
                 if (id.includes('cumulative') || id.includes('amount') || id.includes('Return')) {
                     return '₹' + (value/100000).toFixed(1) + 'L';
                 }
                 return value;
             },
             color: ctx => ctx.dataset.data[ctx.dataIndex] < 0 ? '#c0392b' : '#1a7a4a',
-            font: { weight: 'bold', size: 9 }
+            font: function(context) {
+                return { weight: 'bold', size: _isMobileChart(context.chart) ? 7 : 9 };
+            }
         },
-        legend: { labels: { font: { family: "'DM Sans', sans-serif", size: 12 }, color: '#4a5568' } },
+        legend: {
+            position: 'bottom',
+            labels: {
+                font: { family: "'DM Sans', sans-serif", size: 11 },
+                color: '#4a5568',
+                boxWidth: 12,
+                padding: 10,
+                // Shorten long labels on mobile to prevent wrapping
+                generateLabels: function(chart) {
+                    const orig = Chart.defaults.plugins.legend.labels.generateLabels(chart);
+                    if (_isMobileChart(chart)) {
+                        orig.forEach(l => {
+                            if (l.text && l.text.length > 14) l.text = l.text.substring(0, 13) + '…';
+                        });
+                    }
+                    return orig;
+                }
+            }
+        },
         tooltip: {
             backgroundColor: '#1a2744',
             titleFont: { family: "'DM Sans'", weight: '600' },
@@ -1550,11 +1592,27 @@ const baseChartConfig = {
         y: {
             beginAtZero: false,
             grid: { color: 'rgba(189,195,199,0.2)' },
-            ticks: { color: '#8896a8', font: { size: 11 }, callback: function(v) { return v.toLocaleString('en-IN'); } }
+            ticks: {
+                color: '#8896a8',
+                font: function(context) {
+                    return { size: _isMobileChart(context.chart) ? 9 : 11 };
+                },
+                maxTicksLimit: 6,
+                callback: function(v) { return v.toLocaleString('en-IN'); }
+            }
         },
         x: {
             grid: { display: false },
-            ticks: { color: '#8896a8', font: { size: 10 } }
+            ticks: {
+                color: '#8896a8',
+                font: function(context) {
+                    return { size: _isMobileChart(context.chart) ? 8 : 10 };
+                },
+                autoSkip: true,
+                maxTicksLimit: 7,
+                maxRotation: 45,
+                minRotation: 0
+            }
         }
     },
     interaction: { mode: 'index', intersect: false }
@@ -1981,7 +2039,7 @@ function updateCharts() {
     percentageChart = new Chart(document.getElementById('percentageChart'), {
         type: 'bar',
         data: { labels, datasets: [{ label: '% Return', data: currentFinancialData.map(d => parseFloat(d.percentage)), backgroundColor: mkColor(currentFinancialData.map(d => parseFloat(d.percentage))), borderRadius: 4, borderWidth: 0 }] },
-        options: { ...baseChartConfig, scales: { ...baseChartConfig.scales, y: { ...baseChartConfig.scales.y, ticks: { callback: v => v.toFixed(2)+'%', color:'#8896a8', font:{size:10} } } } }
+        options: { ...baseChartConfig, scales: { ...baseChartConfig.scales, y: { ...baseChartConfig.scales.y, ticks: _mkYTicks(v => v.toFixed(2)+'%') } } }
     });
     amountChart = new Chart(document.getElementById('amountChart'), {
         type: 'bar',
@@ -1996,8 +2054,8 @@ function updateCumulativeUserChart() {
     const cumData = currentFinancialData.map(d => { cum += d.monthlyReturn; return cum; });
     cumulativeUserChart = new Chart(document.getElementById('cumulativeUserChart'), {
         type: 'line',
-        data: { labels: currentFinancialData.map(d => d.month), datasets: [{ label: `Cumulative — ${currentUser}`, data: cumData, borderColor: '#2563eb', backgroundColor: 'rgba(37,99,235,0.08)', fill: true, tension: 0.35, pointRadius: 3, pointBackgroundColor: cumData.map(v => v < 0 ? '#c0392b' : '#2563eb') }] },
-        options: { ...baseChartConfig, scales: { ...baseChartConfig.scales, y: { ...baseChartConfig.scales.y, ticks: { callback: v => '₹'+(v/100000).toFixed(1)+'L', color:'#8896a8', font:{size:10} } } } }
+        data: { labels: currentFinancialData.map(d => d.month), datasets: [{ label: `Cumulative — ${currentUser}`, data: cumData, borderColor: '#2563eb', backgroundColor: 'rgba(37,99,235,0.08)', fill: true, tension: 0.35, pointRadius: function(ctx) { return _isMobileChart(ctx.chart) ? 1.5 : 3; }, pointBackgroundColor: cumData.map(v => v < 0 ? '#c0392b' : '#2563eb') }] },
+        options: { ...baseChartConfig, scales: { ...baseChartConfig.scales, y: { ...baseChartConfig.scales.y, ticks: _mkYTicks(v => '₹'+(v/100000).toFixed(1)+'L') } } }
     });
 }
 
@@ -2186,7 +2244,7 @@ function updateOverallCharts() {
     overallPercentageChart = new Chart(document.getElementById('overallPercentageChart'), {
         type: 'bar',
         data: { labels: years, datasets: [{ label: 'Avg % Return', data: years.map(y => oy[y].avgPct), backgroundColor: mkColor(years.map(y=>oy[y].avgPct)), borderRadius: 5, borderWidth: 0 }] },
-        options: { ...baseChartConfig, scales: { ...baseChartConfig.scales, y: { ...baseChartConfig.scales.y, ticks: { callback: v => v.toFixed(2)+'%', color:'#8896a8', font:{size:10} } } } }
+        options: { ...baseChartConfig, scales: { ...baseChartConfig.scales, y: { ...baseChartConfig.scales.y, ticks: _mkYTicks(v => v.toFixed(2)+'%') } } }
     });
 }
 
@@ -2205,11 +2263,11 @@ function updateCumulativeAllUsersChart() {
         let cum = 0;
         const map = new Map(ud.map(i => [i.month, i.monthlyReturn]));
         const color = getNextChartColor();
-        return { label: username, data: allMonths.map(m => { if(map.has(m)){cum+=map.get(m);return cum;} return null; }), borderColor: color, backgroundColor: 'transparent', fill: false, tension: 0.3, pointRadius: 3, spanGaps: true };
+        return { label: username, data: allMonths.map(m => { if(map.has(m)){cum+=map.get(m);return cum;} return null; }), borderColor: color, backgroundColor: 'transparent', fill: false, tension: 0.3, pointRadius: function(ctx) { return _isMobileChart(ctx.chart) ? 1.5 : 3; }, spanGaps: true };
     });
     cumulativeAllUsersChart = new Chart(document.getElementById('cumulativeAllUsersChart'), {
         type: 'line', data: { labels: allMonths, datasets },
-        options: { ...baseChartConfig, scales: { ...baseChartConfig.scales, y: { ...baseChartConfig.scales.y, ticks: { callback: v => '₹'+(v/100000).toFixed(1)+'L', color:'#8896a8', font:{size:10} } } } }
+        options: { ...baseChartConfig, scales: { ...baseChartConfig.scales, y: { ...baseChartConfig.scales.y, ticks: _mkYTicks(v => '₹'+(v/100000).toFixed(1)+'L') } } }
     });
 }
 
@@ -2227,11 +2285,11 @@ function updateMonthlyPercentageAllUsersChart() {
         const ud = allUserData[username];
         const map = new Map(ud.map(i => [i.month, parseFloat(i.percentage||0)]));
         const color = getNextChartColor();
-        return { label: username, data: allMonths.map(m => map.has(m) ? map.get(m) : null), borderColor: color, backgroundColor: 'transparent', fill: false, tension: 0.3, pointRadius: 3, spanGaps: true };
+        return { label: username, data: allMonths.map(m => map.has(m) ? map.get(m) : null), borderColor: color, backgroundColor: 'transparent', fill: false, tension: 0.3, pointRadius: function(ctx) { return _isMobileChart(ctx.chart) ? 1.5 : 3; }, spanGaps: true };
     });
     overallMonthlyPercentageChart = new Chart(document.getElementById('overallMonthlyPercentageChart'), {
         type: 'line', data: { labels: allMonths, datasets },
-        options: { ...baseChartConfig, scales: { ...baseChartConfig.scales, y: { ...baseChartConfig.scales.y, ticks: { callback: v => v.toFixed(2)+'%', color:'#8896a8', font:{size:10} } } } }
+        options: { ...baseChartConfig, scales: { ...baseChartConfig.scales, y: { ...baseChartConfig.scales.y, ticks: _mkYTicks(v => v.toFixed(2)+'%') } } }
     });
 }
 
@@ -2408,7 +2466,7 @@ function updateGautamFamilySection() {
                 type: 'line',
                 fill: false,
                 tension: 0.3,
-                pointRadius: 5,
+                pointRadius: function(ctx) { return _isMobileChart(ctx.chart) ? 2 : 5; },
                 yAxisID: 'y1'
             }]
         },
@@ -2453,7 +2511,7 @@ function updateGautamFamilySection() {
             backgroundColor: color+'18',
             fill: i === 0,
             tension: 0.35,
-            pointRadius: 3,
+            pointRadius: function(ctx) { return _isMobileChart(ctx.chart) ? 1.5 : 3; },
             spanGaps: true
         };
     });
@@ -2474,7 +2532,7 @@ function updateGautamFamilySection() {
         borderDash: [5,3],
         fill: false,
         tension: 0.35,
-        pointRadius: 4,
+        pointRadius: function(ctx) { return _isMobileChart(ctx.chart) ? 2 : 4; },
         pointBackgroundColor: '#0f2027'
     });
     gautamFamilyCumChart = new Chart(document.getElementById('gautamFamilyCumChart'), {
