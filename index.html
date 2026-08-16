@@ -1,11 +1,11 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Financial Performance Dashboard</title>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
@@ -20,7 +20,6 @@
             --emerald-light: #22a05e;
             --crimson: #c0392b;
             --crimson-light: #e74c3c;
-            --sky: #2980b9;
             --bg: #f4f6fa;
             --bg-card: #ffffff;
             --text: #1a2744;
@@ -158,15 +157,6 @@
             line-height: 1.1;
         }
         .header-subtitle { font-size: 13px; color: rgba(255,255,255,0.55); margin-top: 3px; }
-        .dev-badge {
-            background: rgba(255,255,255,0.08);
-            border: 1px solid rgba(201,168,76,0.3);
-            border-radius: 20px;
-            padding: 6px 16px;
-            font-size: 12px;
-            color: var(--gold-light);
-            display: flex; align-items: center; gap: 6px;
-        }
         .blinking {
             font-weight: 800;
             animation: blink 1.6s step-end infinite;
@@ -178,30 +168,6 @@
             50% { opacity: 0.65; }
         }
 
-        /* ── TRADINGVIEW LIVE TICKER ── */
-        .tv-ticker-wrap {
-            margin-top: 16px;
-            border-radius: 10px;
-            overflow: visible;          /* never clip the iframe */
-            border: 1px solid rgba(201,168,76,0.25);
-            background: transparent;   /* TV widget has its own background */
-            height: 78px;              /* TV ticker-tape iframe = 78px tall */
-            position: relative;
-        }
-        /* The outer container TV injects must fill its parent */
-        .tv-ticker-wrap .tradingview-widget-container,
-        .tv-ticker-wrap .tradingview-widget-container__widget {
-            width: 100% !important;
-            height: 78px !important;
-        }
-        /* The iframe TV injects */
-        .tv-ticker-wrap iframe {
-            width: 100% !important;
-            height: 78px !important;
-            border: none !important;
-            border-radius: 10px;
-            display: block !important;  /* removes inline gap */
-        }
 
         /* ── CONTAINER ── */
         .container { max-width: 1400px; margin: 0 auto; padding: 28px 28px 48px; }
@@ -581,16 +547,6 @@
             padding: 18px 0;
         }
 
-        /* ── TABS (for individual vs family summary) ── */
-        .tab-bar { display: flex; gap: 4px; background: var(--bg); border-radius: var(--radius-sm); padding: 4px; width: fit-content; margin-bottom: 20px; }
-        .tab-btn {
-            padding: 8px 18px; border-radius: 6px; border: none;
-            font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500;
-            cursor: pointer; background: transparent; color: var(--text-muted);
-            transition: all .18s;
-        }
-        .tab-btn.active { background: var(--bg-card); color: var(--navy); box-shadow: var(--shadow-sm); font-weight: 600; }
-
         /* ── FOOTER ── */
         .footer { text-align: center; padding: 24px 0 0; color: var(--text-muted); font-size: 12px; border-top: 1px solid var(--border); margin-top: 40px; }
 
@@ -615,18 +571,157 @@
         .fade-up-2 { animation: fadeUp .4s .1s ease both; }
         .fade-up-3 { animation: fadeUp .4s .2s ease both; }
 
-        /* Tab content visibility */
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
+        /* ── PASSWORD MODAL ── */
+        #pwdModal {
+            position: fixed; inset: 0; z-index: 9999;
+            background: rgba(10,20,40,0.65);
+            display: flex; align-items: center; justify-content: center;
+            backdrop-filter: blur(5px);
+        }
+        .pwd-box {
+            background: #fff;
+            border-radius: 20px;
+            padding: 40px 44px;
+            box-shadow: 0 28px 70px rgba(10,20,40,0.3);
+            width: 380px;
+            text-align: center;
+            animation: fadeUp .25s ease both;
+        }
+        .pwd-box h3 { font-family: 'Playfair Display', serif; font-size: 22px; color: var(--navy); margin-bottom: 8px; }
+        .pwd-box p { color: var(--text-muted); font-size: 13px; margin-bottom: 22px; line-height: 1.6; }
+        .pwd-box input[type="password"] {
+            width: 100%; padding: 12px 16px; border: 1.5px solid var(--border);
+            border-radius: 9px; font-size: 15px; text-align: center;
+            letter-spacing: 3px; margin-bottom: 10px; outline: none;
+            font-family: 'DM Sans', sans-serif; background: var(--bg);
+            transition: border-color .18s, box-shadow .18s;
+        }
+        .pwd-box input[type="password"]:focus { border-color: var(--navy); box-shadow: 0 0 0 3px rgba(26,39,68,0.12); background: #fff; }
+        .pwd-error { color: var(--crimson); font-size: 12.5px; margin-bottom: 14px; font-weight: 500; }
+        .pwd-actions { display: flex; gap: 10px; justify-content: center; margin-top: 18px; }
+
+        /* ── USER-SWITCH FADE ── */
+        .container { transition: opacity .18s ease; }
+        .container.switching { opacity: 0; pointer-events: none; }
+
+        /* ── STICKY HEADER + SCROLL PROGRESS ── */
+        #scroll-progress { position: fixed; top: 0; left: 0; width: 0%; height: 3px; background: linear-gradient(90deg, var(--gold), var(--gold-light)); z-index: 10001; transition: width .1s linear; pointer-events: none; }
+        .page-header { position: sticky; top: 0; z-index: 900; transition: padding .22s ease; }
+        .page-header.condensed { padding-top: 10px; padding-bottom: 10px; }
+        .page-header.condensed .header-subtitle { display: none; }
+
+        /* ── PRINT STYLESHEET ── */
+        @media print {
+            #toast-container, #pwdModal, .action-bar, .hero-actions, .btn, .file-btn-wrap,
+            #scroll-progress, .pwd-actions { display: none !important; }
+            .page-header { position: static !important; box-shadow: none; }
+            body { background: #fff; }
+            .container { padding: 0; }
+            .chart-card, .family-section, .panel { break-inside: avoid; page-break-inside: avoid; }
+            .section-heading { break-before: auto; }
+            * { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+        }
+
+        /* ── SVG ICONS ── */
+        .icon { width: 1.1em; height: 1.1em; vertical-align: middle; display: inline-block; flex-shrink: 0; }
+        .icon-lg { width: 28px; height: 28px; }
+        .icon-xl { width: 36px; height: 36px; }
+
+        /* ── SR-ONLY (accessible labels) ── */
+        .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+
+        /* ── TOAST NOTIFICATIONS ── */
+        #toast-container { position: fixed; bottom: 28px; right: 28px; z-index: 10000; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
+        .toast {
+            min-width: 280px; max-width: 380px;
+            padding: 14px 18px; border-radius: 12px;
+            font-family: 'DM Sans', sans-serif; font-size: 13.5px; font-weight: 500;
+            color: #fff; box-shadow: 0 8px 32px rgba(0,0,0,0.22);
+            display: flex; align-items: flex-start; gap: 10px;
+            pointer-events: all; cursor: default;
+            animation: toastIn .28s cubic-bezier(.21,1.02,.73,1) both;
+        }
+        .toast.dismissing { animation: toastOut .22s ease forwards; }
+        .toast-icon { flex-shrink: 0; font-size: 16px; margin-top: 1px; }
+        .toast-body { flex: 1; }
+        .toast-title { font-weight: 700; margin-bottom: 2px; font-size: 13px; }
+        .toast-msg { line-height: 1.4; }
+        .toast-close { flex-shrink: 0; background: none; border: none; color: rgba(255,255,255,0.7); font-size: 16px; cursor: pointer; padding: 0; line-height: 1; align-self: center; }
+        .toast-close:hover { color: #fff; }
+        .toast-actions { display: flex; gap: 8px; margin-top: 10px; }
+        .toast-actions button {
+            padding: 6px 14px; border-radius: 7px; border: 1.5px solid rgba(255,255,255,0.5);
+            background: rgba(255,255,255,0.15); color: #fff; font-size: 12.5px;
+            font-family: 'DM Sans', sans-serif; font-weight: 600; cursor: pointer; transition: background .15s;
+        }
+        .toast-actions button:hover { background: rgba(255,255,255,0.28); }
+        .toast-actions .toast-btn-confirm { background: rgba(255,255,255,0.25); }
+        .toast.success { background: linear-gradient(135deg,#1a7a4a,#22a05e); }
+        .toast.error   { background: linear-gradient(135deg,#a93226,#c0392b); }
+        .toast.warning { background: linear-gradient(135deg,#b7820a,#d4a017); }
+        .toast.info    { background: linear-gradient(135deg,#1a2744,#2e4070); }
+        @keyframes toastIn  { from { opacity:0; transform: translateY(16px) scale(.95); } to { opacity:1; transform: translateY(0) scale(1); } }
+        @keyframes toastOut { from { opacity:1; transform: translateY(0) scale(1); } to { opacity:0; transform: translateY(8px) scale(.95); } }
+
+        /* ── INLINE DELETE CONFIRM ── */
+        .delete-confirm-bar {
+            display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+            background: rgba(192,57,43,0.08); border: 1px solid rgba(192,57,43,0.25);
+            border-radius: 8px; padding: 6px 10px; font-size: 12.5px; color: var(--crimson); font-weight: 500;
+        }
+        .delete-confirm-bar button { padding: 4px 12px; border-radius: 6px; border: none; font-size: 12px; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; }
+        .delete-confirm-bar .dc-yes { background: var(--crimson); color: #fff; }
+        .delete-confirm-bar .dc-yes:hover { background: #a93226; }
+        .delete-confirm-bar .dc-no { background: var(--bg); color: var(--text-mid); }
+        .delete-confirm-bar .dc-no:hover { background: var(--border); }
     </style>
 </head>
 <body>
+
+<!-- ── SVG ICON SPRITE ── -->
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none" aria-hidden="true">
+  <symbol id="icon-trend-up" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></symbol>
+  <symbol id="icon-table" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="9" x2="9" y2="21"/></symbol>
+  <symbol id="icon-bar-chart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="2" y1="20" x2="22" y2="20"/></symbol>
+  <symbol id="icon-calendar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></symbol>
+  <symbol id="icon-users" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></symbol>
+  <symbol id="icon-globe" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></symbol>
+  <symbol id="icon-trophy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="8 21 12 17 16 21"/><line x1="12" y1="17" x2="12" y2="11"/><path d="M7 4H4a2 2 0 0 0-2 2v2a4 4 0 0 0 4 4h12a4 4 0 0 0 4-4V6a2 2 0 0 0-2-2h-3"/><rect x="7" y="2" width="10" height="10" rx="2"/></symbol>
+  <symbol id="icon-home" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></symbol>
+  <symbol id="icon-home2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-9.6L12 3 4 11.4V21"/><path d="M9 21V12h6v9"/><path d="M3 11l9-8 9 8"/></symbol>
+  <symbol id="icon-user" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></symbol>
+  <symbol id="icon-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></symbol>
+  <symbol id="icon-unlock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></symbol>
+  <symbol id="icon-download" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></symbol>
+  <symbol id="icon-upload" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></symbol>
+  <symbol id="icon-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></symbol>
+  <symbol id="icon-line-chart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></symbol>
+</svg>
+
+<div id="scroll-progress" role="progressbar" aria-label="Page scroll progress"></div>
+<div id="toast-container" aria-live="polite" aria-label="Notifications"></div>
+
+<!-- ── PASSWORD MODAL ── -->
+<div id="pwdModal" style="display:none">
+    <div class="pwd-box">
+        <div style="margin-bottom:12px;color:var(--navy)"><svg class="icon icon-xl" aria-hidden="true"><use href="#icon-lock"/></svg></div>
+        <h3>Edit Access Required</h3>
+        <p>Enter the password to unlock editing of financial data.</p>
+        <label class="sr-only" for="pwdInput">Password</label>
+        <input type="password" id="pwdInput" placeholder="Password" onkeydown="if(event.key==='Enter')verifyPassword()">
+        <div class="pwd-error" id="pwdError" style="display:none">Incorrect password. Please try again.</div>
+        <div class="pwd-actions">
+            <button class="btn btn-secondary" onclick="closePwdModal()">Cancel</button>
+            <button class="btn btn-primary" onclick="verifyPassword()"><svg class="icon" aria-hidden="true"><use href="#icon-unlock"/></svg> Unlock</button>
+        </div>
+    </div>
+</div>
 
 <div class="page-header dark-bg">
     <div class="header-inner">
         <div class="header-top">
             <div class="header-logo">
-                <div class="logo-icon">📈</div>
+                <div class="logo-icon"><svg class="icon icon-lg" aria-hidden="true"><use href="#icon-trend-up"/></svg></div>
                 <div>
                     <div class="header-title">Financial Performance Dashboard</div>
                     <div class="header-subtitle">Stock &amp; Investment Tracker · Family Portfolio Overview</div>
@@ -644,8 +739,8 @@
             <h1 class="hero-title">Monitor returns, asset allocation and user performance all in one place.</h1>
             <p class="hero-credit blinking">Developed by Ajit Gautam</p>
             <div class="hero-actions">
-                <button onclick="document.getElementById('newEquity').focus()" class="btn btn-primary">➕ Add new month</button>
-                <button onclick="downloadExcel()" class="btn btn-gold">⬇ Export Excel</button>
+                <button onclick="document.getElementById('newEquity').focus()" class="btn btn-primary"><svg class="icon" aria-hidden="true"><use href="#icon-plus"/></svg> Add new month</button>
+                <button onclick="downloadExcel()" class="btn btn-gold"><svg class="icon" aria-hidden="true"><use href="#icon-download"/></svg> Export Excel</button>
             </div>
         </div>
         <div>
@@ -655,15 +750,16 @@
 
     <!-- ── USER MANAGEMENT ── -->
     <div class="panel fade-up">
-        <div class="panel-title">👤 User Management</div>
+        <div class="panel-title"><svg class="icon" aria-hidden="true"><use href="#icon-users"/></svg> User Management</div>
         <div class="panel-row">
             <div>
                 <div style="font-size:11px;color:var(--text-muted);margin-bottom:6px;font-weight:500">SELECT USER</div>
                 <div id="userSelectionRadios" class="user-radio-group"></div>
             </div>
             <div style="display:flex;gap:8px;align-items:center;margin-left:auto;flex-wrap:wrap">
+                <label class="sr-only" for="newUsername">New username</label>
                 <input type="text" id="newUsername" placeholder="New username" style="width:160px">
-                <button onclick="addUser()" class="btn btn-primary">＋ Add User</button>
+                <button onclick="addUser()" class="btn btn-primary"><svg class="icon" aria-hidden="true"><use href="#icon-plus"/></svg> Add User</button>
                 <button onclick="deleteUser()" class="btn btn-danger">✕ Delete User</button>
             </div>
         </div>
@@ -671,13 +767,19 @@
 
     <!-- ── ADD MONTH ── -->
     <div class="panel fade-up-2">
-        <div class="panel-title">➕ Add Monthly Data</div>
+        <div class="panel-title"><svg class="icon" aria-hidden="true"><use href="#icon-plus"/></svg> Add Monthly Data</div>
         <div class="panel-row">
+            <label class="sr-only" for="newMonth">Month</label>
             <input type="text" id="newMonth" placeholder="Month" readonly>
+            <label class="sr-only" for="newEquity">Equity Return</label>
             <input type="number" id="newEquity" placeholder="Equity Return">
+            <label class="sr-only" for="newFO">F&amp;O Return</label>
             <input type="number" id="newFO" placeholder="F&amp;O Return">
+            <label class="sr-only" for="newBond">Bond Interest</label>
             <input type="number" id="newBond" placeholder="Bond Interest">
+            <label class="sr-only" for="newDeposit">Deposit</label>
             <input type="number" id="newDeposit" placeholder="Deposit">
+            <label class="sr-only" for="newCommodity">Commodity Return</label>
             <input type="number" id="newCommodity" placeholder="Commodity Return">
             <button onclick="addNewMonth()" class="btn btn-success">Add Month</button>
         </div>
@@ -688,7 +790,7 @@
 
     <!-- ── DATA TABLE ── -->
     <div class="section-heading">
-        <div class="sh-icon">📋</div>
+        <div class="sh-icon"><svg class="icon icon-lg" aria-hidden="true"><use href="#icon-table"/></svg></div>
         <h2 id="tableTitle">Monthly Data</h2>
         <div class="sh-line"></div>
     </div>
@@ -715,16 +817,16 @@
         </div>
     </div>
     <div class="action-bar">
-        <button onclick="downloadExcel()" class="btn btn-gold">⬇ Download Excel</button>
+        <button onclick="downloadExcel()" class="btn btn-gold"><svg class="icon" aria-hidden="true"><use href="#icon-download"/></svg> Download Excel</button>
         <div class="file-btn-wrap">
-            <button class="btn btn-secondary">⬆ Upload Excel</button>
+            <button class="btn btn-secondary"><svg class="icon" aria-hidden="true"><use href="#icon-upload"/></svg> Upload Excel</button>
             <input type="file" id="excelFile" accept=".xlsx,.xls" onchange="uploadExcel(event)">
         </div>
     </div>
 
     <!-- ── INDIVIDUAL CHARTS ── -->
     <div class="section-heading">
-        <div class="sh-icon">📊</div>
+        <div class="sh-icon"><svg class="icon icon-lg" aria-hidden="true"><use href="#icon-bar-chart"/></svg></div>
         <h2 id="chartsTitle">Individual Monthly Performance</h2>
         <div class="sh-line"></div>
     </div>
@@ -749,7 +851,7 @@
 
     <!-- ── INDIVIDUAL YEARLY SUMMARY ── -->
     <div class="section-heading">
-        <div class="sh-icon">🗂</div>
+        <div class="sh-icon"><svg class="icon icon-lg" aria-hidden="true"><use href="#icon-calendar"/></svg></div>
         <h2>Individual Yearly Performance</h2>
         <div class="sh-line"></div>
     </div>
@@ -776,7 +878,7 @@
 
     <!-- ── FAMILY SUMMARIES ── -->
     <div class="section-heading">
-        <div class="sh-icon">👨‍👩‍👧‍👦</div>
+        <div class="sh-icon"><svg class="icon icon-lg" aria-hidden="true"><use href="#icon-users"/></svg></div>
         <h2>Family Portfolio Summary</h2>
         <div class="sh-line"></div>
     </div>
@@ -784,7 +886,7 @@
     <!-- Family 1 -->
     <div class="family-section" id="fam1Section">
         <div class="family-header fam1-header dark-bg">
-            <div class="family-icon">🏠</div>
+            <div class="family-icon"><svg class="icon icon-lg" aria-hidden="true"><use href="#icon-home"/></svg></div>
             <div class="family-header-text">
                 <h3>Family 1</h3>
                 <p>Combined portfolio performance</p>
@@ -792,8 +894,8 @@
         </div>
         <div class="family-body">
             <div class="family-members-row">
-                <div class="member-chip fam1-chip">👤 Ajit Gautam</div>
-                <div class="member-chip fam1-chip">👤 Meenu Tyagi</div>
+                <div class="member-chip fam1-chip"><svg class="icon" aria-hidden="true"><use href="#icon-user"/></svg> Ajit Gautam</div>
+                <div class="member-chip fam1-chip"><svg class="icon" aria-hidden="true"><use href="#icon-user"/></svg> Meenu Tyagi</div>
             </div>
             <div id="fam1Stats" class="family-stats"></div>
             <div style="overflow-x:auto;margin-top:8px">
@@ -816,7 +918,7 @@
     <!-- Family 2 -->
     <div class="family-section" id="fam2Section">
         <div class="family-header fam2-header dark-bg">
-            <div class="family-icon">🏡</div>
+            <div class="family-icon"><svg class="icon icon-lg" aria-hidden="true"><use href="#icon-home2"/></svg></div>
             <div class="family-header-text">
                 <h3>Family 2</h3>
                 <p>Combined portfolio performance</p>
@@ -824,8 +926,8 @@
         </div>
         <div class="family-body">
             <div class="family-members-row">
-                <div class="member-chip fam2-chip">👤 Prem Singh</div>
-                <div class="member-chip fam2-chip">👤 Ganga</div>
+                <div class="member-chip fam2-chip"><svg class="icon" aria-hidden="true"><use href="#icon-user"/></svg> Prem Singh</div>
+                <div class="member-chip fam2-chip"><svg class="icon" aria-hidden="true"><use href="#icon-user"/></svg> Ganga</div>
             </div>
             <div id="fam2Stats" class="family-stats"></div>
             <div style="overflow-x:auto;margin-top:8px">
@@ -847,14 +949,14 @@
 
     <!-- ── GAUTAM FAMILY (ALL 4) ── -->
     <div class="section-heading">
-        <div class="sh-icon">🏆</div>
+        <div class="sh-icon"><svg class="icon icon-lg" aria-hidden="true"><use href="#icon-trophy"/></svg></div>
         <h2>Gautam Family — All Members Combined</h2>
         <div class="sh-line"></div>
     </div>
 
     <div class="family-section" id="gautamFamilySection">
         <div class="family-header dark-bg" style="background:linear-gradient(135deg,#0f2027,#203a43,#2c5364)">
-            <div class="family-icon" style="font-size:26px">👨‍👩‍👧‍👦</div>
+            <div class="family-icon"><svg class="icon icon-lg" aria-hidden="true"><use href="#icon-users"/></svg></div>
             <div class="family-header-text">
                 <h3>Gautam Family Portfolio</h3>
                 <p>Ajit Gautam · Meenu Tyagi · Prem Singh · Ganga — Consolidated view</p>
@@ -863,10 +965,10 @@
         <div class="family-body">
             <!-- Member chips -->
             <div class="family-members-row">
-                <div class="member-chip fam1-chip">👤 Ajit Gautam <span style="font-size:10px;opacity:.6;margin-left:4px">F1</span></div>
-                <div class="member-chip fam1-chip">👤 Meenu Tyagi <span style="font-size:10px;opacity:.6;margin-left:4px">F1</span></div>
-                <div class="member-chip fam2-chip">👤 Prem Singh <span style="font-size:10px;opacity:.6;margin-left:4px">F2</span></div>
-                <div class="member-chip fam2-chip">👤 Ganga <span style="font-size:10px;opacity:.6;margin-left:4px">F2</span></div>
+                <div class="member-chip fam1-chip"><svg class="icon" aria-hidden="true"><use href="#icon-user"/></svg> Ajit Gautam <span style="font-size:10px;opacity:.6;margin-left:4px">F1</span></div>
+                <div class="member-chip fam1-chip"><svg class="icon" aria-hidden="true"><use href="#icon-user"/></svg> Meenu Tyagi <span style="font-size:10px;opacity:.6;margin-left:4px">F1</span></div>
+                <div class="member-chip fam2-chip"><svg class="icon" aria-hidden="true"><use href="#icon-user"/></svg> Prem Singh <span style="font-size:10px;opacity:.6;margin-left:4px">F2</span></div>
+                <div class="member-chip fam2-chip"><svg class="icon" aria-hidden="true"><use href="#icon-user"/></svg> Ganga <span style="font-size:10px;opacity:.6;margin-left:4px">F2</span></div>
             </div>
 
             <!-- KPI headline strip -->
@@ -923,7 +1025,7 @@
 
     <!-- ── OVERALL SUMMARY ── -->
     <div class="section-heading">
-        <div class="sh-icon">🌐</div>
+        <div class="sh-icon"><svg class="icon icon-lg" aria-hidden="true"><use href="#icon-globe"/></svg></div>
         <h2>Overall Yearly Performance (All Users)</h2>
         <div class="sh-line"></div>
     </div>
@@ -931,7 +1033,7 @@
 
     <!-- ── OVERALL CHARTS ── -->
     <div class="section-heading">
-        <div class="sh-icon">📉</div>
+        <div class="sh-icon"><svg class="icon icon-lg" aria-hidden="true"><use href="#icon-line-chart"/></svg></div>
         <h2>Overall Performance (All Users Combined)</h2>
         <div class="sh-line"></div>
     </div>
@@ -1011,6 +1113,7 @@ function updateHeroSummary() {
         <div class="hero-stat"><div class="label">Worst month</div><div class="worst-value">${worstMonth.month || '—'}</div><div class="stat-sub" style="margin-top:6px;color:var(--crimson);font-weight:700">${worstAmount}</div></div>
         <div class="hero-stat"><div class="label">Profile</div><div class="value">${profileName}</div></div>
     `;
+    runCountUpOnKPIs();
 }
 
 // ── Family Definitions ──
@@ -1115,6 +1218,24 @@ let percentageChart, amountChart, cumulativeUserChart, overallReturnChart, overa
 let gautamFamilyYearChart, gautamFamilyCumChart, gautamFamilyContribChart;
 Chart.register(ChartDataLabels);
 
+// Diagonal-stripe canvas pattern for negative bars (color-blind accessible)
+function makeStripePattern() {
+    const c = document.createElement('canvas');
+    c.width = 10; c.height = 10;
+    const ctx = c.getContext('2d');
+    ctx.fillStyle = 'rgba(192,57,43,0.18)';
+    ctx.fillRect(0, 0, 10, 10);
+    ctx.strokeStyle = 'rgba(192,57,43,0.82)';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(0, 10); ctx.lineTo(10, 0);
+    ctx.moveTo(-2, 2); ctx.lineTo(2, -2);
+    ctx.moveTo(8, 12); ctx.lineTo(12, 8);
+    ctx.stroke();
+    return ctx.createPattern(c, 'repeat');
+}
+const NEG_BAR_PATTERN = makeStripePattern();
+
 const CHART_COLORS = ['#2563eb','#7c3aed','#059669','#dc2626','#d97706','#0891b2','#be185d'];
 let colorIndex = 0;
 function getNextChartColor() { return CHART_COLORS[colorIndex++ % CHART_COLORS.length]; }
@@ -1138,7 +1259,24 @@ const baseChartConfig = {
             font: { weight: 'bold', size: 9 }
         },
         legend: { labels: { font: { family: "'DM Sans', sans-serif", size: 12 }, color: '#4a5568' } },
-        tooltip: { backgroundColor: '#1a2744', titleFont: { family: "'DM Sans'" }, bodyFont: { family: "'DM Sans'" } }
+        tooltip: {
+            backgroundColor: '#1a2744',
+            titleFont: { family: "'DM Sans'", weight: '600' },
+            bodyFont: { family: "'DM Sans'", size: 13 },
+            padding: 12,
+            callbacks: {
+                label: function(ctx) {
+                    const id = ctx.chart.canvas.id;
+                    const v = ctx.parsed.y;
+                    if (v === null || v === undefined) return '';
+                    if (id.includes('percentage') || id.includes('Percentage')) {
+                        return ` ${ctx.dataset.label || ''}: ${v.toFixed(2)}%`;
+                    }
+                    if (Math.abs(v) >= 10000000) return ` ${ctx.dataset.label || ''}: ₹${(v/10000000).toFixed(2)} Cr`;
+                    return ` ${ctx.dataset.label || ''}: ₹${(v/100000).toFixed(2)} L`;
+                }
+            }
+        }
     },
     scales: {
         y: {
@@ -1238,10 +1376,13 @@ function rebuildRadios() {
 
 function switchUser(username) {
     saveUserData();
-    currentUser = username;
-    currentFinancialData = allUserData[currentUser] || [];
-    document.getElementById('tableTitle').textContent = `${username} — Monthly Data`;
-    document.getElementById('chartsTitle').textContent = `${username} — Monthly Performance`;
+    const container = document.querySelector('.container');
+    if (container) container.classList.add('switching');
+    setTimeout(() => {
+        currentUser = username;
+        currentFinancialData = allUserData[currentUser] || [];
+        document.getElementById('tableTitle').textContent = `${username} — Monthly Data`;
+        document.getElementById('chartsTitle').textContent = `${username} — Monthly Performance`;
     // Highlight active pill
     document.querySelectorAll('.user-pill').forEach(p => {
         p.classList.remove('active-f1','active-f2');
@@ -1251,33 +1392,41 @@ function switchUser(username) {
             p.querySelector('input[type="radio"]').checked = true;
         }
     });
-    const last = currentFinancialData.length > 0 ? currentFinancialData[currentFinancialData.length-1].month : 'Dec-23';
-    document.getElementById('newMonth').value = getNextMonth(last);
-    updateAll();
+        const last = currentFinancialData.length > 0 ? currentFinancialData[currentFinancialData.length-1].month : 'Dec-23';
+        document.getElementById('newMonth').value = getNextMonth(last);
+        updateAll();
+        if (container) container.classList.remove('switching');
+    }, 160);
 }
 
 function addUser() {
-    const input = document.getElementById('newUsername');
-    const name = input.value.trim();
-    if (!name) { alert('Please enter a username.'); return; }
-    if (allUserData[name]) { alert(`"${name}" already exists.`); return; }
-    allUserData[name] = [];
-    rebuildRadios();
-    switchUser(name);
-    input.value = '';
+    requirePassword(() => {
+        const input = document.getElementById('newUsername');
+        const name = input.value.trim();
+        if (!name) { showToast('Please enter a username.', 'warning'); return; }
+        if (allUserData[name]) { showToast(`"${name}" already exists.`, 'warning'); return; }
+        allUserData[name] = [];
+        rebuildRadios();
+        switchUser(name);
+        input.value = '';
+    });
 }
 
 function deleteUser() {
-    const checked = document.querySelector('input[name="userSelection"]:checked');
-    if (!checked) { alert('Select a user to delete.'); return; }
-    const del = checked.value;
-    if (Object.keys(allUserData).length <= 1) { alert('Cannot delete last user.'); return; }
-    if (!confirm(`Delete "${del}" and all their data?`)) return;
-    delete allUserData[del];
-    rebuildRadios();
-    const remaining = Object.keys(allUserData).sort();
-    switchUser(remaining[0]);
-    saveUserData();
+    requirePassword(() => {
+        const checked = document.querySelector('input[name="userSelection"]:checked');
+        if (!checked) { showToast('Select a user to delete.', 'warning'); return; }
+        const del = checked.value;
+        if (Object.keys(allUserData).length <= 1) { showToast('Cannot delete the last user.', 'error'); return; }
+        showConfirmToast(`Delete "${del}" and all their data? This cannot be undone.`, () => {
+            delete allUserData[del];
+            rebuildRadios();
+            const remaining = Object.keys(allUserData).sort();
+            switchUser(remaining[0]);
+            saveUserData();
+            showToast(`User "${del}" deleted.`, 'success');
+        }, 'Delete User');
+    });
 }
 
 function getNextMonth(str) {
@@ -1289,24 +1438,27 @@ function getNextMonth(str) {
 }
 
 function addNewMonth() {
-    const month = document.getElementById('newMonth').value.trim();
-    if (!month) { alert('Month cannot be empty.'); return; }
-    if (currentFinancialData.some(i => i.month === month)) {
-        alert(`Data for ${month} already exists.`); return;
-    }
-    currentFinancialData.push({
-        month,
-        equityReturn: parseFloat(document.getElementById('newEquity').value) || 0,
-        foReturn: parseFloat(document.getElementById('newFO').value) || 0,
-        commodityReturn: parseFloat(document.getElementById('newCommodity').value) || 0,
-        bondInterest: parseFloat(document.getElementById('newBond').value) || 0,
-        deposit: parseFloat(document.getElementById('newDeposit').value) || 0,
-        capitalUsed: 0
+    requirePassword(() => {
+        const month = document.getElementById('newMonth').value.trim();
+        if (!month) { showToast('Month cannot be empty.', 'warning'); return; }
+        if (currentFinancialData.some(i => i.month === month)) {
+            showToast(`Data for ${month} already exists.`, 'warning'); return;
+        }
+        currentFinancialData.push({
+            month,
+            equityReturn: parseFloat(document.getElementById('newEquity').value) || 0,
+            foReturn: parseFloat(document.getElementById('newFO').value) || 0,
+            commodityReturn: parseFloat(document.getElementById('newCommodity').value) || 0,
+            bondInterest: parseFloat(document.getElementById('newBond').value) || 0,
+            deposit: parseFloat(document.getElementById('newDeposit').value) || 0,
+            capitalUsed: 0
+        });
+        sortData(currentFinancialData);
+        persistFormValues();
+        document.getElementById('newMonth').value = getNextMonth(month);
+        saveUserData(); scheduleUpdateAll();
+        showToast(`${month} added successfully.`, 'success');
     });
-    sortData(currentFinancialData);
-    persistFormValues();
-    document.getElementById('newMonth').value = getNextMonth(month);
-    updateAll(); saveUserData();
 }
 
 function sortData(arr) {
@@ -1344,14 +1496,15 @@ function updateKPIStrip() {
     const bestMonth = currentFinancialData.reduce((best,i) => (i.monthlyReturn||0) > (best.monthlyReturn||0) ? i : best, currentFinancialData[0]);
 
     document.getElementById('kpiStrip').innerHTML = `
-        <div class="stat-card"><div class="stat-label">Total Return</div><div class="stat-value ${totalReturn>=0?'pos':'neg'}">${fcPlain(totalReturn)}</div><div class="stat-sub">${currentFinancialData.length} months</div></div>
-        <div class="stat-card"><div class="stat-label">Equity + F&O</div><div class="stat-value ${totalEquityFo>=0?'pos':'neg'}">${fcPlain(totalEquityFo)}</div><div class="stat-sub">Trading returns</div></div>
-        <div class="stat-card"><div class="stat-label">Commodity</div><div class="stat-value ${totalCommodity>=0?'pos':'neg'}">${fcPlain(totalCommodity)}</div><div class="stat-sub">Commodity returns</div></div>
-        <div class="stat-card"><div class="stat-label">Bond Income</div><div class="stat-value pos">${fcPlain(totalBond)}</div><div class="stat-sub">Interest earned</div></div>
-        <div class="stat-card"><div class="stat-label">Current Capital</div><div class="stat-value">${fcPlain(lastCapital)}</div><div class="stat-sub">Latest month</div></div>
-        <div class="stat-card"><div class="stat-label">Avg Monthly %</div><div class="stat-value ${avgPct>=0?'pos':'neg'}">${avgPct.toFixed(2)}%</div><div class="stat-sub">Return rate</div></div>
+        <div class="stat-card"><div class="stat-label">Total Return</div><div class="stat-value ${totalReturn>=0?'pos':'neg'}" data-countup="${totalReturn}" data-countup-fmt="lakh">${fcPlain(totalReturn)}</div><div class="stat-sub">${currentFinancialData.length} months</div></div>
+        <div class="stat-card"><div class="stat-label">Equity + F&O</div><div class="stat-value ${totalEquityFo>=0?'pos':'neg'}" data-countup="${totalEquityFo}" data-countup-fmt="lakh">${fcPlain(totalEquityFo)}</div><div class="stat-sub">Trading returns</div></div>
+        <div class="stat-card"><div class="stat-label">Commodity</div><div class="stat-value ${totalCommodity>=0?'pos':'neg'}" data-countup="${totalCommodity}" data-countup-fmt="lakh">${fcPlain(totalCommodity)}</div><div class="stat-sub">Commodity returns</div></div>
+        <div class="stat-card"><div class="stat-label">Bond Income</div><div class="stat-value pos" data-countup="${totalBond}" data-countup-fmt="lakh">${fcPlain(totalBond)}</div><div class="stat-sub">Interest earned</div></div>
+        <div class="stat-card"><div class="stat-label">Current Capital</div><div class="stat-value" data-countup="${lastCapital}" data-countup-fmt="cr">${fcPlain(lastCapital)}</div><div class="stat-sub">Latest month</div></div>
+        <div class="stat-card"><div class="stat-label">Avg Monthly %</div><div class="stat-value ${avgPct>=0?'pos':'neg'}" data-countup="${avgPct}" data-countup-fmt="pct">${avgPct.toFixed(2)}%</div><div class="stat-sub">Return rate</div></div>
         <div class="stat-card"><div class="stat-label">Best Month</div><div class="stat-value pos">${bestMonth.month}</div><div class="stat-sub">${fcPlain(bestMonth.monthlyReturn||0)}</div></div>
     `;
+    runCountUpOnKPIs();
 }
 
 // ── Table ──
@@ -1369,21 +1522,38 @@ function updateTable() {
             <td>${fc(item.equityFo||0)}</td>
             <td>${fc(item.monthlyReturn||0)}</td>
             <td>${fp(item.percentage)}</td>
-            <td style="text-align:center"><button onclick="deleteMonth('${item.month}')" class="btn btn-danger btn-sm">Delete</button></td>
+            <td style="text-align:center"><button onclick="showDeleteConfirm(this,'${item.month}')" class="btn btn-danger btn-sm">Delete</button></td>
         </tr>`;
     }).join('');
 }
 
 function updateEntry(month, el, field) {
     const v = parseFloat(el.value);
-    if (isNaN(v)) { alert('Enter a valid number.'); return; }
-    const item = allUserData[currentUser].find(i => i.month === month);
-    if (item) { item[field] = v; updateAll(); saveUserData(); }
+    if (isNaN(v)) { showToast('Enter a valid number.', 'error'); return; }
+    requirePassword(() => {
+        const item = allUserData[currentUser].find(i => i.month === month);
+        if (item) { item[field] = v; saveUserData(); scheduleUpdateAll(); }
+    });
+}
+
+function showDeleteConfirm(btn, month) {
+    const td = btn.parentElement;
+    td.innerHTML = `<div class="delete-confirm-bar">
+        Delete <strong>${month}</strong>?
+        <button class="dc-yes" onclick="deleteMonth('${month}')">Yes, Delete</button>
+        <button class="dc-no" onclick="updateTable()">Cancel</button>
+    </div>`;
 }
 
 function deleteMonth(m) {
-    const idx = allUserData[currentUser].findIndex(i => i.month === m);
-    if (idx !== -1) { allUserData[currentUser].splice(idx,1); updateAll(); saveUserData(); }
+    requirePassword(() => {
+        const idx = allUserData[currentUser].findIndex(i => i.month === m);
+        if (idx !== -1) {
+            allUserData[currentUser].splice(idx, 1);
+            saveUserData(); scheduleUpdateAll();
+            showToast(`${m} deleted.`, 'success');
+        }
+    });
 }
 
 // ── Individual Charts ──
@@ -1391,7 +1561,7 @@ function updateCharts() {
     if (percentageChart) percentageChart.destroy();
     if (amountChart) amountChart.destroy();
     const labels = currentFinancialData.map(d => d.month);
-    const mkColor = arr => arr.map(v => v >= 0 ? 'rgba(26,122,74,0.75)' : 'rgba(192,57,43,0.75)');
+    const mkColor = arr => arr.map(v => v >= 0 ? 'rgba(26,122,74,0.75)' : NEG_BAR_PATTERN);
 
     percentageChart = new Chart(document.getElementById('percentageChart'), {
         type: 'bar',
@@ -1591,7 +1761,7 @@ function updateOverallCharts() {
     if (overallPercentageChart) overallPercentageChart.destroy();
     const oy = calcOverallYearly();
     const years = Object.keys(oy).sort();
-    const mkColor = arr => arr.map(v => v>=0?'rgba(26,122,74,0.75)':'rgba(192,57,43,0.75)');
+    const mkColor = arr => arr.map(v => v>=0?'rgba(26,122,74,0.75)':NEG_BAR_PATTERN);
 
     overallReturnChart = new Chart(document.getElementById('overallReturnChart'), {
         type: 'bar',
@@ -1653,7 +1823,7 @@ function updateMonthlyPercentageAllUsersChart() {
 // ── Excel ──
 function downloadExcel() {
     const data = allUserData[currentUser] || [];
-    if (!data.length) { alert('No data to download.'); return; }
+    if (!data.length) { showToast('No data to download.', 'warning'); return; }
     const rows = [['Month','Equity Return','F&O Return','Bond Interest','Deposit','Capital Used','Equity+F&O','Monthly Return','% Return']];
     data.forEach(i => rows.push([i.month, i.equityReturn, i.foReturn, i.commodityReturn||0, i.bondInterest, i.deposit, i.capitalUsed, i.equityFo, i.monthlyReturn, (parseFloat(i.percentage||0)/100)]));
     const wb = XLSX.utils.book_new();
@@ -1670,12 +1840,13 @@ function downloadExcel() {
 function uploadExcel(event) {
     const file = event.target.files[0];
     if (!file) return;
+    requirePassword(() => {
     const reader = new FileReader();
     reader.onload = e => {
         const wb = XLSX.read(e.target.result, {type:'binary'});
         const ws = wb.Sheets[wb.SheetNames[0]];
         const rows = XLSX.utils.sheet_to_json(ws, {header:1});
-        if (rows.length < 2) { alert('File is empty.'); return; }
+        if (rows.length < 2) { showToast('File is empty or unreadable.', 'error'); return; }
         const headers = rows[0];
         const entries = [];
         for (let i = 1; i < rows.length; i++) {
@@ -1697,9 +1868,10 @@ function uploadExcel(event) {
         sortData(currentFinancialData);
         allUserData[currentUser] = currentFinancialData;
         updateAll(); saveUserData();
-        alert(`Uploaded ${entries.length} months successfully.`);
+        showToast(`Imported ${entries.length} month${entries.length !== 1 ? 's' : ''} successfully.`, 'success', 'Import Complete');
     };
     reader.readAsBinaryString(file);
+    }); // end requirePassword
 }
 
 // ── Gautam Family (All 4 Members) ──
@@ -1939,6 +2111,11 @@ function updateGautamFamilySection() {
 }
 
 // ── Master Update ──
+let _updateTimer = null;
+function scheduleUpdateAll() {
+    clearTimeout(_updateTimer);
+    _updateTimer = setTimeout(updateAll, 300);
+}
 function updateAll() {
     currentFinancialData = allUserData[currentUser] || [];
     calculateMetrics();
@@ -1956,6 +2133,86 @@ function updateAll() {
     updateMonthlyPercentageAllUsersChart();
 }
 
+// ── Toast Notifications ──
+const TOAST_ICONS = { success: '✓', error: '✕', warning: '⚠', info: 'ℹ' };
+const TOAST_TITLES = { success: 'Success', error: 'Error', warning: 'Notice', info: 'Info' };
+
+function showToast(message, type = 'info', title = null, duration = 3500) {
+    const container = document.getElementById('toast-container');
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    toast.innerHTML = `
+        <span class="toast-icon">${TOAST_ICONS[type] || 'ℹ'}</span>
+        <div class="toast-body">
+            <div class="toast-title">${title || TOAST_TITLES[type] || 'Notice'}</div>
+            <div class="toast-msg">${message}</div>
+        </div>
+        <button class="toast-close" aria-label="Dismiss">×</button>`;
+    toast.querySelector('.toast-close').onclick = () => dismissToast(toast);
+    container.appendChild(toast);
+    if (duration > 0) setTimeout(() => dismissToast(toast), duration);
+    return toast;
+}
+
+function showConfirmToast(message, onConfirm, title = 'Confirm Action') {
+    const container = document.getElementById('toast-container');
+    const toast = document.createElement('div');
+    toast.className = 'toast error';
+    toast.innerHTML = `
+        <span class="toast-icon">⚠</span>
+        <div class="toast-body">
+            <div class="toast-title">${title}</div>
+            <div class="toast-msg">${message}</div>
+            <div class="toast-actions">
+                <button class="toast-btn-confirm">Yes, Delete</button>
+                <button class="toast-btn-cancel">Cancel</button>
+            </div>
+        </div>`;
+    toast.querySelector('.toast-btn-confirm').onclick = () => { dismissToast(toast); onConfirm(); };
+    toast.querySelector('.toast-btn-cancel').onclick = () => dismissToast(toast);
+    container.appendChild(toast);
+    return toast;
+}
+
+function dismissToast(toast) {
+    if (!toast || !toast.parentNode) return;
+    toast.classList.add('dismissing');
+    setTimeout(() => toast.parentNode && toast.parentNode.removeChild(toast), 230);
+}
+
+// ── Password Protection ──
+const EDIT_PASSWORD = 'Print@111';
+let editUnlocked = false;
+let pendingEditCallback = null;
+
+function requirePassword(callback) {
+    if (editUnlocked) { callback(); return; }
+    pendingEditCallback = callback;
+    const modal = document.getElementById('pwdModal');
+    modal.style.display = 'flex';
+    document.getElementById('pwdInput').value = '';
+    document.getElementById('pwdError').style.display = 'none';
+    setTimeout(() => document.getElementById('pwdInput').focus(), 80);
+}
+
+function verifyPassword() {
+    const val = document.getElementById('pwdInput').value;
+    if (val === EDIT_PASSWORD) {
+        editUnlocked = true;
+        document.getElementById('pwdModal').style.display = 'none';
+        if (pendingEditCallback) { pendingEditCallback(); pendingEditCallback = null; }
+    } else {
+        document.getElementById('pwdError').style.display = 'block';
+        document.getElementById('pwdInput').value = '';
+        document.getElementById('pwdInput').focus();
+    }
+}
+
+function closePwdModal() {
+    document.getElementById('pwdModal').style.display = 'none';
+    pendingEditCallback = null;
+}
+
 // ── Dynamic Developer Name ──
 function editDevName() {
     const current = document.getElementById('devName').textContent.trim();
@@ -1970,12 +2227,90 @@ function loadDevName() {
     if (saved) document.getElementById('devName').textContent = saved;
 }
 
-// Market ticker powered by TradingView widget (see HTML header section)
+// ── Count-up Animation ──
+function animateCountUp(el, endValue, duration, formatter) {
+    const start = performance.now();
+    const startVal = 0;
+    function tick(now) {
+        const elapsed = now - start;
+        const progress = Math.min(elapsed / duration, 1);
+        const eased = 1 - Math.pow(1 - progress, 3);
+        const current = startVal + (endValue - startVal) * eased;
+        el.textContent = formatter(current);
+        if (progress < 1) requestAnimationFrame(tick);
+        else el.textContent = formatter(endValue);
+    }
+    requestAnimationFrame(tick);
+}
+
+function runCountUpOnKPIs() {
+    document.querySelectorAll('[data-countup]').forEach(el => {
+        const end = parseFloat(el.getAttribute('data-countup'));
+        const fmt = el.getAttribute('data-countup-fmt') || 'number';
+        if (isNaN(end)) return;
+        animateCountUp(el, end, 800, v => {
+            if (fmt === 'pct') return v.toFixed(2) + '%';
+            if (fmt === 'cr') return '₹' + (v / 10000000).toFixed(2) + ' Cr';
+            if (fmt === 'lakh') return '₹' + (v / 100000).toFixed(2) + 'L';
+            return v.toLocaleString('en-IN', { maximumFractionDigits: 0 });
+        });
+    });
+}
+
+// ── Scroll Progress Bar ──
+function initScrollProgress() {
+    const bar = document.getElementById('scroll-progress');
+    const header = document.querySelector('.page-header');
+    if (!bar) return;
+    window.addEventListener('scroll', () => {
+        const scrollTop = window.scrollY;
+        const docH = document.documentElement.scrollHeight - window.innerHeight;
+        bar.style.width = docH > 0 ? (scrollTop / docH * 100) + '%' : '0%';
+        if (header) {
+            const condensed = scrollTop > (header.offsetHeight * 0.6);
+            header.classList.toggle('condensed', condensed);
+        }
+    }, { passive: true });
+}
+
+// Block direct typing in form inputs until password is given
+function guardFormInputs() {
+    FORM_FIELDS.forEach(id => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.addEventListener('focus', function(e) {
+            if (!editUnlocked) {
+                e.target.blur();
+                requirePassword(() => { e.target.focus(); });
+            }
+        });
+    });
+    // Guard the username input too
+    const nu = document.getElementById('newUsername');
+    if (nu) {
+        nu.addEventListener('focus', function(e) {
+            if (!editUnlocked) {
+                e.target.blur();
+                requirePassword(() => { e.target.focus(); });
+            }
+        });
+    }
+}
+
+// Guard inline table inputs via event delegation
+document.addEventListener('focusin', function(e) {
+    if (!editUnlocked && e.target.tagName === 'INPUT' && e.target.closest('#dataTable')) {
+        e.target.blur();
+        requirePassword(() => { e.target.focus(); });
+    }
+});
 
 document.addEventListener('DOMContentLoaded', () => {
     initializeUserManagement();
     loadDevName();
     restoreFormValues();
+    guardFormInputs();
+    initScrollProgress();
     FORM_FIELDS.forEach(id => {
         const el = document.getElementById(id);
         if (el) {
@@ -1987,3 +2322,4 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 </body>
 </html>
+
