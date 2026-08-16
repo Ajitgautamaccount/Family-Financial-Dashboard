@@ -2440,8 +2440,9 @@ function updateGautamFamilySection() {
         if (el) el.innerHTML = `<span class="${grandTotals[m.key]>=0?'pos':'neg'}">${fcPlain(grandTotals[m.key])}</span>`;
     });
     const avgPct = grandPctCount ? grandPctSum / grandPctCount : 0;
+    const avgCapital = grandPctCount ? grandCapital / grandPctCount : 0;
     document.getElementById('gfCombinedTotal').innerHTML = `<span class="${grandCombined>=0?'pos':'neg'}" style="font-size:14px;font-weight:700">${fcPlain(grandCombined)}</span>`;
-    document.getElementById('gfCapitalTotal').innerHTML = fcPlain(grandCapital);
+    document.getElementById('gfCapitalTotal').innerHTML = fcPlain(avgCapital);
     document.getElementById('gfDepositTotal').innerHTML = fcPlain(grandDeposits);
     document.getElementById('gfOverallPct').innerHTML = `<span class="${avgPct>=0?'pos':'neg'}" style="font-weight:700">${avgPct.toFixed(2)}%</span>`;
 
@@ -2454,7 +2455,7 @@ function updateGautamFamilySection() {
         <div class="fam-stat"><div class="fs-label">Prem Singh</div><div class="fs-val" style="color:${grandTotals['Prem Singh']>=0?'var(--emerald)':'var(--crimson)'};font-size:17px">${fcPlain(grandTotals['Prem Singh'])}</div></div>
         <div class="fam-stat"><div class="fs-label">Ganga</div><div class="fs-val" style="color:${grandTotals['Ganga']>=0?'var(--emerald)':'var(--crimson)'};font-size:17px">${(allUserData['Ganga']||[]).length?fcPlain(grandTotals['Ganga']):'No data yet'}</div></div>
         <div class="fam-stat"><div class="fs-label">Avg Annual %</div><div class="fs-val" style="color:${avgPct>=0?'var(--emerald)':'var(--crimson)'}">${avgPct.toFixed(2)}%</div></div>
-        <div class="fam-stat"><div class="fs-label">Total Capital Deployed</div><div class="fs-val" style="font-size:16px">${fcPlain(grandCapital)}</div></div>
+        <div class="fam-stat"><div class="fs-label">Avg Capital Deployed</div><div class="fs-val" style="font-size:16px">${fcPlain(avgCapital)}</div></div>
         <div class="fam-stat"><div class="fs-label">Active Members</div><div class="fs-val">${activeMembers} / 4</div></div>
     `;
 
