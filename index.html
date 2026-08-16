@@ -1453,7 +1453,7 @@ function psVerify() {
         document.getElementById('profileSelectScreen').style.display = 'none';
         currentUser = _psSelectedUser;
         profileUnlocked = true;
-        editUnlocked = true;
+        editUnlocked = false;
         currentFinancialData = allUserData[currentUser] || [];
         document.getElementById('tableTitle').textContent = `${currentUser} — Monthly Data`;
         document.getElementById('chartsTitle').textContent = `${currentUser} — Monthly Performance`;
