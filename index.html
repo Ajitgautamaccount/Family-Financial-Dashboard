@@ -1664,6 +1664,51 @@ const bar3DPlugin = {
 };
 Chart.register(bar3DPlugin);
 
+// Global bar hover defaults – white outline on hovered bar
+Chart.defaults.datasets.bar.hoverBorderWidth = 2;
+Chart.defaults.datasets.bar.hoverBorderColor = 'rgba(255,255,255,0.95)';
+
+// Glow + enlarge plugin — draws a glowing expanded shadow BEHIND the hovered bar
+const barHoverGlowPlugin = {
+    id: 'barHoverGlow',
+    beforeDatasetsDraw(chart) {
+        const active = chart.getActiveElements();
+        if (!active.length) return;
+        const ctx = chart.ctx;
+        active.forEach(el => {
+            const meta = chart.getDatasetMeta(el.datasetIndex);
+            if (meta.type !== 'bar') return;
+            const bar = el.element;
+            const dataset = chart.data.datasets[el.datasetIndex];
+            const { x, y, width, base } = bar.getProps(['x','y','width','height','base'], true);
+            const val = dataset.data[el.index];
+            if (val === null || val === undefined) return;
+            const barTop    = val >= 0 ? y    : base;
+            const barBottom = val >= 0 ? base : y;
+            const barH      = Math.abs(barBottom - barTop);
+            const barLeft   = x - width / 2;
+            const rawColor  = (dataset._faceColors && dataset._faceColors[el.index])
+                || (Array.isArray(dataset.backgroundColor) ? dataset.backgroundColor[el.index] : dataset.backgroundColor);
+            const colorStr  = (rawColor && typeof rawColor === 'string') ? rawColor
+                : (val >= 0 ? 'rgba(52,199,120,0.88)' : 'rgba(239,68,68,0.88)');
+            const ex = 5, ey = 10;
+            ctx.save();
+            ctx.shadowColor   = colorStr;
+            ctx.shadowBlur    = 24;
+            ctx.shadowOffsetX = 0;
+            ctx.shadowOffsetY = 0;
+            ctx.fillStyle = colorStr;
+            if (val >= 0) {
+                ctx.fillRect(barLeft - ex, barTop - ey, width + ex * 2, barH + ey);
+            } else {
+                ctx.fillRect(barLeft - ex, barTop, width + ex * 2, barH + ey);
+            }
+            ctx.restore();
+        });
+    }
+};
+Chart.register(barHoverGlowPlugin);
+
 function mkGradColors(chart, dataArr) {
     const ctx = chart.ctx;
     const area = chart.chartArea;
@@ -1763,20 +1808,45 @@ const baseChartConfig = {
             }
         },
         tooltip: {
-            backgroundColor: '#1a2744',
-            titleFont: { family: "'DM Sans'", weight: '600' },
-            bodyFont: { family: "'DM Sans'", size: 13 },
-            padding: 12,
+            enabled: true,
+            backgroundColor: 'rgba(18,28,58,0.97)',
+            titleFont: { family: "'DM Sans'", weight: '700', size: 13 },
+            titleColor: '#c9a84c',
+            bodyFont: { family: "'DM Sans'", size: 14, weight: '600' },
+            bodyColor: '#ffffff',
+            footerFont: { family: "'DM Sans'", size: 11 },
+            footerColor: 'rgba(200,212,230,0.75)',
+            borderColor: '#c9a84c',
+            borderWidth: 1.5,
+            padding: { top: 10, right: 16, bottom: 10, left: 16 },
+            cornerRadius: 10,
+            caretSize: 7,
+            caretPadding: 6,
+            displayColors: true,
+            boxPadding: 4,
             callbacks: {
+                title: function(items) {
+                    return items[0] ? '📅  ' + items[0].label : '';
+                },
                 label: function(ctx) {
                     const id = ctx.chart.canvas.id;
                     const v = ctx.parsed.y;
                     if (v === null || v === undefined) return '';
+                    const sign = v >= 0 ? '▲' : '▼';
                     if (id.includes('percentage') || id.includes('Percentage')) {
-                        return ` ${ctx.dataset.label || ''}: ${v.toFixed(2)}%`;
+                        return `  ${sign}  ${ctx.dataset.label || ''}: ${v.toFixed(2)}%`;
                     }
-                    if (Math.abs(v) >= 10000000) return ` ${ctx.dataset.label || ''}: ₹${(v/10000000).toFixed(2)} Cr`;
-                    return ` ${ctx.dataset.label || ''}: ₹${(v/100000).toFixed(2)} L`;
+                    let formatted;
+                    const abs = Math.abs(v);
+                    if (abs >= 10000000) formatted = (v < 0 ? '-' : '') + '₹' + (abs/10000000).toFixed(2) + ' Cr';
+                    else if (abs >= 100000) formatted = (v < 0 ? '-' : '') + '₹' + (abs/100000).toFixed(2) + ' L';
+                    else formatted = (v < 0 ? '-' : '') + '₹' + abs.toLocaleString('en-IN');
+                    return `  ${sign}  ${ctx.dataset.label || ''}: ${formatted}`;
+                },
+                footer: function(items) {
+                    const v = items[0] ? items[0].parsed.y : null;
+                    if (v === null) return '';
+                    return v >= 0 ? '  Positive Return' : '  Negative Return';
                 }
             }
         }
@@ -1808,7 +1878,10 @@ const baseChartConfig = {
             }
         }
     },
-    interaction: { mode: 'index', intersect: false }
+    interaction: { mode: 'index', intersect: false },
+    onHover: function(event, elements, chart) {
+        chart.canvas.style.cursor = elements.length ? 'crosshair' : 'default';
+    }
 };
 
 // ── Storage (Firestore) ──
@@ -2311,13 +2384,72 @@ function updateCumulativeUserChart() {
     const cumData = currentFinancialData.map(d => { cum += d.monthlyReturn; return cum; });
     const canvas = document.getElementById('cumulativeUserChart');
     const ctx2 = canvas.getContext('2d');
-    const gradFill = ctx2.createLinearGradient(0, 0, 0, 300);
-    gradFill.addColorStop(0, 'rgba(37,99,235,0.22)');
-    gradFill.addColorStop(1, 'rgba(37,99,235,0.02)');
+    // Build a split gradient: green above zero, red below zero
+    function makeCumGradient(chart) {
+        const area = chart.chartArea;
+        if (!area) return 'rgba(37,99,235,0.15)';
+        const yScale = chart.scales.y;
+        const zeroY = yScale.getPixelForValue(0);
+        const topY = area.top;
+        const botY = area.bottom;
+        const hasPos = cumData.some(v => v > 0);
+        const hasNeg = cumData.some(v => v < 0);
+        if (!hasPos) {
+            // all negative
+            const g = ctx2.createLinearGradient(0, topY, 0, botY);
+            g.addColorStop(0, 'rgba(239,68,68,0.35)');
+            g.addColorStop(1, 'rgba(239,68,68,0.04)');
+            return g;
+        }
+        if (!hasNeg) {
+            // all positive
+            const g = ctx2.createLinearGradient(0, topY, 0, botY);
+            g.addColorStop(0, 'rgba(34,160,94,0.38)');
+            g.addColorStop(1, 'rgba(34,160,94,0.04)');
+            return g;
+        }
+        // mixed — split at zero pixel
+        const g = ctx2.createLinearGradient(0, topY, 0, botY);
+        const zeroFrac = Math.max(0, Math.min(1, (zeroY - topY) / (botY - topY)));
+        g.addColorStop(0, 'rgba(34,160,94,0.38)');
+        g.addColorStop(Math.max(0, zeroFrac - 0.001), 'rgba(34,160,94,0.08)');
+        g.addColorStop(Math.min(1, zeroFrac + 0.001), 'rgba(239,68,68,0.08)');
+        g.addColorStop(1, 'rgba(239,68,68,0.35)');
+        return g;
+    }
     cumulativeUserChart = new Chart(canvas, {
         type: 'line',
-        data: { labels: currentFinancialData.map(d => d.month), datasets: [{ label: `Cumulative — ${currentUser}`, data: cumData, borderColor: '#2563eb', borderWidth: 2.5, backgroundColor: gradFill, fill: true, tension: 0.38, pointRadius: function(ctx) { return _isMobileChart(ctx.chart) ? 1.5 : 4; }, pointHoverRadius: 7, pointBackgroundColor: cumData.map(v => v < 0 ? '#e74c3c' : '#2563eb'), pointBorderColor: '#fff', pointBorderWidth: 2 }] },
-        options: { ...baseChartConfig, scales: { ...baseChartConfig.scales, y: { ...baseChartConfig.scales.y, ticks: _mkYTicks(v => { const a=Math.abs(v); if(a>=10000000)return (v<0?'-':'')+'₹'+(a/10000000).toFixed(1)+'Cr'; if(a>=100000)return (v<0?'-':'')+'₹'+(a/100000).toFixed(1)+'L'; return v.toLocaleString('en-IN'); }), border:{display:false} } } }
+        data: { labels: currentFinancialData.map(d => d.month), datasets: [{
+            label: `Cumulative — ${currentUser}`,
+            data: cumData,
+            borderColor: function(ctx) {
+                const v = ctx.p1 ? ctx.p1.parsed.y : 0;
+                return v >= 0 ? '#22a05e' : '#e74c3c';
+            },
+            borderWidth: 2.5,
+            backgroundColor: 'rgba(34,160,94,0.08)',
+            fill: true,
+            tension: 0.38,
+            segment: {
+                borderColor: ctx => ctx.p1.parsed.y >= 0 ? '#22a05e' : '#e74c3c',
+            },
+            pointRadius: function(ctx) { return _isMobileChart(ctx.chart) ? 1.5 : 4; },
+            pointHoverRadius: 8,
+            pointBackgroundColor: cumData.map(v => v < 0 ? '#e74c3c' : '#22a05e'),
+            pointBorderColor: '#fff',
+            pointBorderWidth: 2
+        }] },
+        options: {
+            ...baseChartConfig,
+            animation: {
+                onComplete: function() {
+                    const ds = this.data.datasets[0];
+                    ds.backgroundColor = makeCumGradient(this);
+                    this.update('none');
+                }
+            },
+            scales: { ...baseChartConfig.scales, y: { ...baseChartConfig.scales.y, ticks: _mkYTicks(v => { const a=Math.abs(v); if(a>=10000000)return (v<0?'-':'')+'₹'+(a/10000000).toFixed(1)+'Cr'; if(a>=100000)return (v<0?'-':'')+'₹'+(a/100000).toFixed(1)+'L'; return v.toLocaleString('en-IN'); }), border:{display:false} } }
+        }
     });
 }
 
@@ -2546,7 +2678,7 @@ function updateCumulativeAllUsersChart() {
         const gradFill = ctx2.createLinearGradient(0, 0, 0, 300);
         gradFill.addColorStop(0, shadeColor(color, 0).replace(/rgba?\((\d+,\d+,\d+)[^)]*\)/, 'rgba($1,0.16)'));
         gradFill.addColorStop(1, shadeColor(color, 0).replace(/rgba?\((\d+,\d+,\d+)[^)]*\)/, 'rgba($1,0.01)'));
-        return { label: username, data: cumData, borderColor: color, borderWidth: 2.5, backgroundColor: gradFill, fill: true, tension: 0.38, pointRadius: function(ctx) { return _isMobileChart(ctx.chart) ? 1.5 : 4; }, pointHoverRadius: 7, pointBackgroundColor: cumData.map(v => v === null ? color : (v < 0 ? '#e74c3c' : color)), pointBorderColor: '#fff', pointBorderWidth: 2, spanGaps: true };
+        return { label: username, data: cumData, borderColor: color, segment: { borderColor: ctx => ctx.p1.parsed.y < 0 ? '#e74c3c' : color }, borderWidth: 2.5, backgroundColor: gradFill, fill: true, tension: 0.38, pointRadius: function(ctx) { return _isMobileChart(ctx.chart) ? 1.5 : 4; }, pointHoverRadius: 8, pointBackgroundColor: cumData.map(v => v === null ? color : (v < 0 ? '#e74c3c' : color)), pointBorderColor: '#fff', pointBorderWidth: 2, spanGaps: true };
     });
     cumulativeAllUsersChart = new Chart(canvas, {
         type: 'line', data: { labels: allMonths, datasets },
@@ -2810,14 +2942,18 @@ function updateGautamFamilySection() {
         const map = new Map(ud.map(d => [d.month, d.monthlyReturn]));
         let cum = 0;
         const color = memberColors[i];
+        const cumArr = allMonths.map(mo => { if(map.has(mo)){cum+=map.get(mo);return cum;} return null; });
         return {
             label: m.shortName,
-            data: allMonths.map(mo => { if(map.has(mo)){cum+=map.get(mo);return cum;} return null; }),
+            data: cumArr,
             borderColor: color,
+            segment: { borderColor: ctx => ctx.p1.parsed.y < 0 ? '#e74c3c' : color },
             backgroundColor: color+'18',
             fill: i === 0,
             tension: 0.35,
             pointRadius: function(ctx) { return _isMobileChart(ctx.chart) ? 1.5 : 3; },
+            pointHoverRadius: 8,
+            pointBackgroundColor: cumArr.map(v => v === null ? color : (v < 0 ? '#e74c3c' : color)),
             spanGaps: true
         };
     });
