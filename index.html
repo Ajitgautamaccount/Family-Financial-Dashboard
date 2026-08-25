@@ -1628,9 +1628,8 @@ const bar3DPlugin = {
                 const barTop = val >= 0 ? y : base;
                 const barBottom = val >= 0 ? base : y;
                 const barLeft = x - width / 2;
-                const rawColor = Array.isArray(dataset.backgroundColor)
-                    ? dataset.backgroundColor[idx]
-                    : dataset.backgroundColor;
+                const rawColor = (dataset._faceColors && dataset._faceColors[idx])
+                    || (Array.isArray(dataset.backgroundColor) ? dataset.backgroundColor[idx] : dataset.backgroundColor);
                 if (!rawColor || typeof rawColor !== 'string') return;
                 ctx.save();
                 // right face
@@ -2278,21 +2277,23 @@ function updateCharts() {
     const pctData = currentFinancialData.map(d => parseFloat(d.percentage));
     const retData = currentFinancialData.map(d => d.monthlyReturn);
 
+    const pctFaces = pctData.map(flatColor);
     percentageChart = new Chart(document.getElementById('percentageChart'), {
         type: 'bar',
-        data: { labels, datasets: [{ label: '% Return', data: pctData, backgroundColor: pctData.map(flatColor), borderRadius: 5, borderWidth: 0, borderSkipped: false }] },
+        data: { labels, datasets: [{ label: '% Return', data: pctData, backgroundColor: pctFaces, _faceColors: pctFaces, borderRadius: 0, borderWidth: 0, borderSkipped: false }] },
         options: {
             ...baseChartConfig,
-            animation: { onComplete: function() { const c=this; c.data.datasets[0].backgroundColor=mkGradColors(c,pctData); c.update('none'); } },
+            animation: { onComplete: function() { const c=this; const ds=c.data.datasets[0]; ds.backgroundColor=mkGradColors(c,pctData); c.update('none'); } },
             scales: { ...baseChartConfig.scales, y: { ...baseChartConfig.scales.y, ticks: _mkYTicks(v => v.toFixed(1)+'%'), border:{display:false} } }
         }
     });
+    const retFaces = retData.map(flatColor);
     amountChart = new Chart(document.getElementById('amountChart'), {
         type: 'bar',
-        data: { labels, datasets: [{ label: 'Monthly Return (₹)', data: retData, backgroundColor: retData.map(flatColor), borderRadius: 5, borderWidth: 0, borderSkipped: false }] },
+        data: { labels, datasets: [{ label: 'Monthly Return (₹)', data: retData, backgroundColor: retFaces, _faceColors: retFaces, borderRadius: 0, borderWidth: 0, borderSkipped: false }] },
         options: {
             ...baseChartConfig,
-            animation: { onComplete: function() { const c=this; c.data.datasets[0].backgroundColor=mkGradColors(c,retData); c.update('none'); } }
+            animation: { onComplete: function() { const c=this; const ds=c.data.datasets[0]; ds.backgroundColor=mkGradColors(c,retData); c.update('none'); } }
         }
     });
 }
@@ -2496,20 +2497,22 @@ function updateOverallCharts() {
     const retData = years.map(y => oy[y].total);
     const pctData = years.map(y => oy[y].avgPct);
 
+    const retFacesOv = retData.map(flatColor);
     overallReturnChart = new Chart(document.getElementById('overallReturnChart'), {
         type: 'bar',
-        data: { labels: years, datasets: [{ label: 'Total Return (₹)', data: retData, backgroundColor: retData.map(flatColor), borderRadius: 6, borderWidth: 0, borderSkipped: false }] },
+        data: { labels: years, datasets: [{ label: 'Total Return (₹)', data: retData, backgroundColor: retFacesOv, _faceColors: retFacesOv, borderRadius: 0, borderWidth: 0, borderSkipped: false }] },
         options: {
             ...baseChartConfig,
-            animation: { onComplete: function() { const c=this; c.data.datasets[0].backgroundColor=mkGradColors(c,retData); c.update('none'); } }
+            animation: { onComplete: function() { const c=this; const ds=c.data.datasets[0]; ds.backgroundColor=mkGradColors(c,retData); c.update('none'); } }
         }
     });
+    const pctFacesOv = pctData.map(flatColor);
     overallPercentageChart = new Chart(document.getElementById('overallPercentageChart'), {
         type: 'bar',
-        data: { labels: years, datasets: [{ label: 'Avg % Return', data: pctData, backgroundColor: pctData.map(flatColor), borderRadius: 6, borderWidth: 0, borderSkipped: false }] },
+        data: { labels: years, datasets: [{ label: 'Avg % Return', data: pctData, backgroundColor: pctFacesOv, _faceColors: pctFacesOv, borderRadius: 0, borderWidth: 0, borderSkipped: false }] },
         options: {
             ...baseChartConfig,
-            animation: { onComplete: function() { const c=this; c.data.datasets[0].backgroundColor=mkGradColors(c,pctData); c.update('none'); } },
+            animation: { onComplete: function() { const c=this; const ds=c.data.datasets[0]; ds.backgroundColor=mkGradColors(c,pctData); c.update('none'); } },
             scales: { ...baseChartConfig.scales, y: { ...baseChartConfig.scales.y, ticks: _mkYTicks(v => v.toFixed(1)+'%'), border:{display:false} } }
         }
     });
