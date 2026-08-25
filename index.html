@@ -1,23 +1,13 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Gautam Dharohar LLP — Family Portfolio</title>
-    <meta name="theme-color" content="#1a2744">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Dharohar">
-    <link rel="manifest" href="manifest.json">
-    <link rel="apple-touch-icon" href="icon-192.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Financial Performance Dashboard</title>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <!-- Firebase compat SDKs (no bundler required) -->
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
     <style>
         :root {
             --navy: #1a2744;
@@ -30,6 +20,7 @@
             --emerald-light: #22a05e;
             --crimson: #c0392b;
             --crimson-light: #e74c3c;
+            --sky: #2980b9;
             --bg: #f4f6fa;
             --bg-card: #ffffff;
             --text: #1a2744;
@@ -41,7 +32,6 @@
             --shadow-lg: 0 16px 48px rgba(26,39,68,0.13);
             --radius: 14px;
             --radius-sm: 8px;
-            --off-white: #f8fafc;
             /* Family colours */
             --fam1: #2563eb;
             --fam1-bg: #eff6ff;
@@ -67,7 +57,7 @@
             background: linear-gradient(135deg, var(--navy) 0%, var(--navy-light) 100%);
             padding: 36px 40px 32px;
             position: relative;
-            overflow: clip; /* clip = visual clipping without creating a scroll container; keeps position:sticky working in WebKit */
+            overflow: hidden;
         }
         .page-header::before {
             content: '';
@@ -87,79 +77,7 @@
             background: rgba(255,255,255,0.03);
             pointer-events: none;
         }
-        .header-inner { max-width: 1400px; margin: 0 auto; position: relative; z-index: 1; }
-        .header-top { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
-        .gp-logo-wrap { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
-        .gp-logo-svg { width: 52px; height: 52px; flex-shrink: 0; filter: drop-shadow(0 2px 8px rgba(201,168,76,0.4)); }
-        .gp-logo-text { display: flex; flex-direction: column; align-items: flex-end; line-height: 1.15; }
-        .gp-name { font-family: 'Playfair Display', serif; font-size: 15px; font-weight: 700; color: var(--gold); letter-spacing: 0.04em; white-space: nowrap; }
-        .gp-tag { font-size: 9.5px; color: rgba(255,255,255,0.5); letter-spacing: 0.12em; text-transform: uppercase; white-space: nowrap; }
-        @media (max-width: 600px) {
-            .gp-logo-svg { width: 38px; height: 38px; }
-            .gp-name { font-size: 12px; }
-            .gp-tag { font-size: 8px; }
-        }
-        @media (max-width: 380px) { .gp-logo-text { display: none; } }
-        .hero-panel {
-            margin: 24px 0 18px;
-            padding: 24px 26px;
-            border-radius: 22px;
-            background: linear-gradient(125deg, rgba(255,255,255,0.96), rgba(244,246,250,0.95));
-            border: 1px solid rgba(26,39,68,0.08);
-            box-shadow: 0 16px 40px rgba(15,23,42,0.08);
-            display: grid;
-            grid-template-columns: 1.3fr 0.8fr;
-            gap: 18px;
-            align-items: center;
-        }
-        .hero-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            background: linear-gradient(90deg, rgba(37,99,235,0.12), rgba(124,58,237,0.12));
-            color: var(--navy);
-            padding: 7px 12px;
-            border-radius: 999px;
-            font-size: 12px;
-            font-weight: 700;
-            letter-spacing: 0.04em;
-            text-transform: uppercase;
-            width: fit-content;
-        }
-        .hero-title {
-            font-family: 'Playfair Display', serif;
-            font-size: 28px;
-            line-height: 1.2;
-            margin: 10px 0 8px;
-            color: var(--navy);
-        }
-        .hero-copy p { color: var(--text-mid); max-width: 680px; }
-        .hero-credit {
-            display: inline-block;
-            color: #102241;
-            background: rgba(255,255,255,0.95);
-            padding: 10px 14px;
-            border-radius: 14px;
-            font-weight: 800;
-            font-size: 15px;
-            margin-top: 12px;
-            box-shadow: 0 10px 24px rgba(16,34,65,0.08);
-            letter-spacing: 0.02em;
-        }
-        .hero-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
-        .hero-kpis { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
-        .hero-stat {
-            padding: 14px 16px;
-            border-radius: 14px;
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            min-height: 92px;
-            box-shadow: inset 0 1px 0 rgba(255,255,255,0.55);
-        }
-        .hero-stat .label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-muted); margin-bottom: 6px; }
-        .hero-stat .value { font-size: 17px; font-weight: 700; color: var(--navy); }
-        .hero-stat .best-value { color: var(--emerald); font-size: 20px; font-weight: 800; }
-        .hero-stat .worst-value { color: var(--crimson); font-size: 16px; font-weight: 700; }
+        .header-inner { max-width: 1600px; margin: 0 auto; position: relative; z-index: 1; }
         .header-top { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
         .header-logo { display: flex; align-items: center; gap: 14px; }
         .logo-icon {
@@ -179,20 +97,18 @@
             line-height: 1.1;
         }
         .header-subtitle { font-size: 13px; color: rgba(255,255,255,0.55); margin-top: 3px; }
-        .blinking {
-            font-weight: 800;
-            animation: blink 1.6s step-end infinite;
-            color: inherit;
-            text-shadow: 0 1px 0 rgba(255,255,255,0.6);
+        .dev-badge {
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(201,168,76,0.3);
+            border-radius: 20px;
+            padding: 6px 16px;
+            font-size: 12px;
+            color: var(--gold-light);
+            display: flex; align-items: center; gap: 6px;
         }
-        @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.65; }
-        }
-
 
         /* ── CONTAINER ── */
-        .container { max-width: 1400px; margin: 0 auto; padding: 28px 28px 48px; }
+        .container { max-width: 1600px; margin: 0 auto; padding: 20px 10px 48px; }
 
         /* ── SECTION HEADINGS ── */
         .section-heading {
@@ -201,8 +117,7 @@
         }
         .section-heading .sh-icon {
             width: 36px; height: 36px;
-            background: var(--navy-mid);
-            color: #fff;
+            background: var(--navy);
             border-radius: 10px;
             display: flex; align-items: center; justify-content: center;
             font-size: 17px;
@@ -211,81 +126,11 @@
         .section-heading h2 {
             font-family: 'Playfair Display', serif;
             font-size: 22px; font-weight: 600;
-            color: #102241;
+            color: var(--navy);
         }
-
-        /* Dark backgrounds should use off-white text for contrast */
-        .page-header,
-        .family-header,
-        .dark-bg {
-            color: var(--off-white) !important;
-        }
-        .page-header .header-title,
-        .page-header .header-subtitle,
-        .family-header .family-header-text h3,
-        .family-header .family-header-text p,
-        .dark-bg h2,
-        .dark-bg h3,
-        .dark-bg p,
-        .dark-bg .sh-icon,
-        .dark-bg .family-icon,
-        .dark-bg .family-header-text,
-        .dark-bg .family-header-text * {
-            color: var(--off-white) !important;
-        }
-        .dark-bg .family-header-text p { color: rgba(248,250,252,0.85) !important; }
-
-        /* Ensure important callouts remain readable when nested in .dark-bg */
-        .hero-credit.blinking {
-            color: #102241 !important;
-            background: rgba(255,255,255,0.96) !important;
-            opacity: 1 !important;
-            text-shadow: 0 1px 0 rgba(16,34,65,0.06) !important;
-            box-shadow: 0 10px 24px rgba(16,34,65,0.06) !important;
-        }
-        /* Make blink animate a subtle lift + shadow instead of text opacity (keeps text legible) */
-        .blinking { animation: blink 1.6s ease-in-out infinite !important; }
-        @keyframes blink {
-            0%, 100% { transform: translateY(0); box-shadow: 0 10px 24px rgba(16,34,65,0.06); }
-            50% { transform: translateY(-3px); box-shadow: 0 18px 36px rgba(16,34,65,0.10); }
-        }
-
-        /* Force user pills to remain high contrast even when parent sets color via !important */
-        .user-radio-group .user-pill {
-            color: #102241 !important;
-            background: rgba(255,255,255,0.98) !important;
-            border: 1px solid rgba(16,34,65,0.06) !important;
-            box-shadow: 0 6px 18px rgba(16,34,65,0.04) !important;
-            font-weight: 700;
-        }
-        .user-radio-group .user-pill .family-dot { border: none !important; }
-
         .section-heading .sh-line {
             flex: 1; height: 1px;
             background: linear-gradient(to right, var(--border), transparent);
-        }
-
-        /* ── COLLAPSIBLE TABLE ── */
-        .sh-toggle {
-            margin-left: auto; flex-shrink: 0;
-            background: var(--navy-mid); color: #fff; border: none;
-            border-radius: 8px; width: 32px; height: 32px;
-            display: flex; align-items: center; justify-content: center;
-            cursor: pointer; transition: background .18s, transform .22s;
-        }
-        .sh-toggle:hover { background: var(--navy); }
-        .sh-toggle svg { transition: transform .28s cubic-bezier(.4,0,.2,1); }
-        .sh-toggle.collapsed svg { transform: rotate(-90deg); }
-        .table-collapsible {
-            overflow: hidden;
-            max-height: 2000px;
-            transition: max-height .35s cubic-bezier(.4,0,.2,1), opacity .25s ease;
-            opacity: 1;
-        }
-        .table-collapsible.collapsed {
-            max-height: 0 !important;
-            opacity: 0;
-            pointer-events: none;
         }
 
         /* ── CONTROL PANELS ── */
@@ -311,24 +156,21 @@
         .user-radio-group { display: flex; flex-wrap: wrap; gap: 8px; }
         .user-pill {
             display: flex; align-items: center; gap: 7px;
-            padding: 8px 16px;
+            padding: 7px 14px;
             border-radius: 30px;
-            border: 1.5px solid rgba(26,39,68,0.06);
-            background: rgba(255,255,255,0.92);
-            color: var(--navy);
+            border: 1.5px solid var(--border);
+            background: var(--bg);
             cursor: pointer;
             transition: all .18s;
-            font-size: 13px; font-weight: 600;
-            box-shadow: 0 6px 16px rgba(16,34,65,0.04);
+            font-size: 13px; font-weight: 500;
         }
-        .user-pill:hover { border-color: rgba(26,39,68,0.12); background: #ffffff; }
-        .user-pill.active-f1 { background: var(--fam1-bg); border-color: var(--fam1); color: var(--fam1); box-shadow: none; }
-        .user-pill.active-f2 { background: var(--fam2-bg); border-color: var(--fam2); color: var(--fam2); box-shadow: none; }
+        .user-pill:hover { border-color: var(--navy); background: #f0f3fa; }
+        .user-pill.active-f1 { background: var(--fam1-bg); border-color: var(--fam1); color: var(--fam1); }
+        .user-pill.active-f2 { background: var(--fam2-bg); border-color: var(--fam2); color: var(--fam2); }
         .user-pill input[type="radio"] { display: none; }
         .user-pill .family-dot {
-            width: 8px; height: 8px; border-radius: 50%; opacity: 1; border: 2px solid rgba(255,255,255,0.7);
+            width: 8px; height: 8px; border-radius: 50%;
         }
-        .user-pill:not(.active-f1):not(.active-f2) { color: #102241; }
         .f1-dot { background: var(--fam1); }
         .f2-dot { background: var(--fam2); }
 
@@ -514,78 +356,34 @@
         .fam2-val { color: var(--fam2); }
         .family-year-table { width: 100%; border-collapse: collapse; margin-top: 16px; font-size: 13px; }
         .family-year-table thead tr { background: var(--bg); }
-        .family-year-table thead th { padding: 9px 12px; font-size: 11px; text-transform: uppercase; letter-spacing:.04em; color: var(--text-muted); font-weight: 600; text-align: right; border-bottom: 1.5px solid var(--border); background: var(--bg); }
+        .family-year-table thead th { padding: 9px 12px; font-size: 11px; text-transform: uppercase; letter-spacing:.04em; color: var(--text-muted); font-weight: 600; text-align: right; border-bottom: 1.5px solid var(--border); }
         .family-year-table thead th:first-child { text-align: left; }
         .family-year-table tbody td { padding: 9px 12px; text-align: right; border-bottom: 1px solid var(--border); color: var(--text-mid); }
         .family-year-table tbody td:first-child { text-align: left; font-weight: 500; color: var(--text); }
         .family-year-table tbody tr:last-child td { border-bottom: none; }
         .family-year-table tfoot td { padding: 10px 12px; text-align: right; font-weight: 700; color: var(--navy); border-top: 2px solid var(--border); background: #f8fafd; font-size: 13px; }
         .family-year-table tfoot td:first-child { text-align: left; }
-        /* Gautam family 9-col table special highlight headers */
-        #gautamFamilyTable thead th:nth-child(6) { background: #dbeafe; color: #1e40af; }
-        #gautamFamilyTable thead th:nth-child(9) { background: #dcfce7; color: #166534; }
-        .yearly-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 16px;
-            font-size: 13px;
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            overflow: hidden;
-        }
-        .yearly-table thead {
-            background: var(--navy);
-        }
-        .yearly-table thead th {
-            padding: 14px 16px;
-            text-align: left;
-            color: #fff;
-            font-weight: 600;
-            font-size: 12px;
-            text-transform: uppercase;
-            letter-spacing: .06em;
-        }
-        .yearly-table tbody tr {
-            border-bottom: 1px solid var(--border);
-            transition: background .12s;
-        }
-        .yearly-table tbody tr:nth-child(even) { background: #f8fafd; }
-        .yearly-table tbody tr:hover { background: #eef2fb; }
-        .yearly-table tbody tr.group-row { background: #e8f0ff; }
-        .yearly-table tbody tr.group-row td {
-            padding: 14px 16px;
-            font-weight: 700;
-            color: var(--navy);
-            letter-spacing: .02em;
-            text-transform: uppercase;
-        }
-        .yearly-table tbody tr.year-row td:first-child { padding-left: 20px; }
-        .yearly-table td {
-            padding: 12px 16px;
-            color: var(--text);
-            text-align: left;
-            vertical-align: middle;
-        }
-        .yearly-table td span { display: inline-block; min-width: 80px; }
-        .yearly-table tbody tr:last-child { border-bottom: none; }
 
         /* ── CHARTS ── */
-        .chart-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin: 18px 0; }
+        .chart-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 14px 0; }
         .chart-grid.full { grid-template-columns: 1fr; }
         .chart-card {
-            background: var(--bg-card);
+            background: linear-gradient(160deg, #ffffff 0%, #f4f7ff 100%);
             border: 1px solid var(--border);
             border-radius: var(--radius);
-            padding: 22px;
-            box-shadow: var(--shadow-sm);
+            padding: 16px 10px 10px;
+            box-shadow: 0 4px 20px rgba(26,39,68,0.10), 0 1px 4px rgba(26,39,68,0.06);
             transition: transform .2s, box-shadow .2s;
         }
-        .chart-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); }
-        .chart-card-title { font-size: 13px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 14px; }
-        .chart-canvas-wrap { position: relative; height: 300px; }
-        .chart-canvas-wrap.tall { height: 320px; }
-        .chart-canvas-wrap.medium { height: 280px; }
+        .chart-card:hover { transform: translateY(-4px); box-shadow: 0 10px 36px rgba(26,39,68,0.15); }
+        .chart-card-title {
+            font-size: 12px; font-weight: 700; color: var(--navy);
+            text-transform: uppercase; letter-spacing: .07em;
+            margin-bottom: 10px; padding: 0 6px;
+            display: flex; align-items: center; gap: 7px;
+        }
+        .chart-card-title::before { content:''; display:inline-block; width:3px; height:14px; border-radius:3px; background:linear-gradient(180deg,var(--gold),var(--navy)); }
+        .chart-canvas-wrap { position: relative; height: 290px; }
 
         /* ── ACTION BAR ── */
         .action-bar {
@@ -594,155 +392,35 @@
             padding: 18px 0;
         }
 
+        /* ── TABS (for individual vs family summary) ── */
+        .tab-bar { display: flex; gap: 4px; background: var(--bg); border-radius: var(--radius-sm); padding: 4px; width: fit-content; margin-bottom: 20px; }
+        .tab-btn {
+            padding: 8px 18px; border-radius: 6px; border: none;
+            font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500;
+            cursor: pointer; background: transparent; color: var(--text-muted);
+            transition: all .18s;
+        }
+        .tab-btn.active { background: var(--bg-card); color: var(--navy); box-shadow: var(--shadow-sm); font-weight: 600; }
+
         /* ── FOOTER ── */
         .footer { text-align: center; padding: 24px 0 0; color: var(--text-muted); font-size: 12px; border-top: 1px solid var(--border); margin-top: 40px; }
 
         /* ── RESPONSIVE ── */
-
-        /* Tablet: 768px–1024px */
-        @media (max-width: 1024px) {
-            .hero-panel { grid-template-columns: 1fr; }
-            .hero-kpis { grid-template-columns: repeat(2, 1fr); }
-            .chart-grid { grid-template-columns: 1fr; }
-            .cards-grid { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
-        }
-
-        /* Tablet landscape: up to 900px */
         @media (max-width: 900px) {
             .chart-grid { grid-template-columns: 1fr; }
-            .page-header { padding: 20px 18px 16px; }
-            .container { padding: 16px 14px 32px; }
-            .family-year-table { font-size: 12px; }
-            .family-year-table thead th,
-            .family-year-table tbody td,
-            .family-year-table tfoot td { padding: 7px 8px; }
+            .page-header { padding: 20px 14px 18px; }
+            .container { padding: 12px 6px 32px; }
+            .chart-canvas-wrap { height: 240px; }
         }
-
-        /* Mobile: up to 600px */
         @media (max-width: 600px) {
-            /* Header */
-            .page-header { padding: 14px 14px 12px; }
-            .header-top { gap: 8px; }
-            .header-logo { gap: 10px; }
-            .logo-icon { width: 38px; height: 38px; font-size: 17px; }
-            .header-title { font-size: 17px; }
-            .header-subtitle { font-size: 11px; }
-
-            /* Hero panel — stack vertically */
-            .hero-panel { grid-template-columns: 1fr; gap: 12px; padding: 16px 14px; margin: 14px 0 12px; border-radius: 14px; }
-            .hero-title { font-size: 20px; }
-            .hero-copy p { font-size: 12px; }
-            .hero-credit { font-size: 13px; padding: 8px 12px; }
-            .hero-actions { gap: 8px; }
-            .hero-actions .btn { flex: 1 1 calc(50% - 4px); min-width: 0; justify-content: center; }
-            .hero-kpis { grid-template-columns: repeat(2, 1fr); gap: 8px; }
-            .hero-stat { padding: 10px 12px; min-height: 70px; }
-            .hero-stat .value { font-size: 14px; }
-            .hero-stat .best-value { font-size: 16px; }
-            .hero-stat .label { font-size: 10px; }
-
-            /* KPI stat cards */
-            .stat-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
-            .stat-card { padding: 12px 14px; }
-            .stat-value { font-size: 18px; }
-            .stat-label { font-size: 10px; }
-
-            /* Section headings */
-            .section-heading { margin: 24px 0 14px; gap: 8px; }
-            .section-heading h2 { font-size: 17px; }
-
-            /* Control panels */
-            .panel { padding: 14px 14px; }
-            .panel-row { flex-direction: column; align-items: stretch; gap: 10px; }
+            .header-title { font-size: 20px; }
+            .stat-grid { grid-template-columns: 1fr 1fr; }
+            .family-stats { grid-template-columns: 1fr 1fr; }
             input[type="number"], input[type="text"] { width: 100%; }
             .btn { width: 100%; justify-content: center; }
-            .file-btn-wrap { width: 100%; }
-            .file-btn-wrap .btn { width: 100%; }
-            .user-radio-group { gap: 6px; }
-            .user-pill { padding: 7px 12px; font-size: 12px; }
-
-            /* Data table — horizontal scroll + compact cells */
-            .table-wrap { border-radius: 10px; }
-            .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-            table { font-size: 11px; min-width: 560px; }
-            thead th { padding: 9px 8px; font-size: 10px; }
-            td { padding: 7px 8px; }
-            td input[type="number"] { width: 72px; padding: 4px 6px; font-size: 11px; }
-
-            /* Year cards */
-            .cards-grid { grid-template-columns: 1fr; gap: 12px; }
-            .year-card { padding: 16px 16px; }
-            .year-card-header h3 { font-size: 16px; }
-
-            /* Family section */
-            .family-header { padding: 14px 16px; gap: 10px; }
-            .family-icon { width: 36px; height: 36px; font-size: 16px; }
-            .family-header-text h3 { font-size: 16px; }
-            .family-body { padding: 14px 14px; }
-            .family-stats { grid-template-columns: repeat(2, 1fr); gap: 8px; }
-            .fam-stat { padding: 10px 12px; }
-            .fam-stat .fs-val { font-size: 16px; }
-            .family-members-row { gap: 8px; }
-            .member-chip { padding: 5px 10px; font-size: 12px; }
-
-            /* Family year table — scrollable */
-            .family-section .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-            .family-year-table { font-size: 11px; min-width: 420px; }
-            .family-year-table thead th,
-            .family-year-table tbody td,
-            .family-year-table tfoot td { padding: 6px 7px; }
-
-            /* Charts */
-            .chart-card { padding: 12px 10px; }
-            .chart-card-title { font-size: 11px; margin-bottom: 10px; }
-            .chart-canvas-wrap { height: 200px; }
-            .chart-canvas-wrap.tall { height: 220px; }
-            .chart-canvas-wrap.medium { height: 200px; }
-
-            /* Action bar */
-            .action-bar { flex-direction: column; gap: 8px; padding: 14px 0; }
-            .action-bar .btn { width: 100%; }
-            .action-bar .file-btn-wrap { width: 100%; }
-
-            /* Password modal */
-            .pwd-box { width: calc(100vw - 32px); padding: 28px 22px; border-radius: 16px; }
-            .pwd-box h3 { font-size: 18px; }
-            .pwd-actions { flex-direction: column; }
-            .pwd-actions .btn { width: 100%; }
-
-            /* Profile select screen */
-            #profileSelectScreen { padding: 24px 16px; }
-            .ps-title { font-size: 20px; }
-            .ps-subtitle { font-size: 12px; margin-bottom: 24px; }
-            .ps-cards { gap: 12px; }
-            .ps-card { padding: 18px 16px; min-width: 120px; flex: 1 1 calc(50% - 6px); max-width: calc(50% - 6px); }
-            .ps-name { font-size: 13px; }
-            .ps-avatar { width: 44px; height: 44px; font-size: 18px; }
-            #psPasswordStep { margin-top: 20px; max-width: 100%; }
-
-            /* Toast */
-            #toast-container { bottom: 16px; right: 10px; left: 10px; }
-            .toast { min-width: 0; width: 100%; max-width: 100%; }
-
-            /* Scroll progress bar stays full width — no change needed */
-
-            /* Yearly summary table */
-            .yearly-table { font-size: 11px; min-width: 460px; }
-            .yearly-table thead th,
-            .yearly-table td { padding: 8px 10px; }
-
-            /* Footer */
-            .footer { font-size: 11px; }
-        }
-
-        /* Very small phones: up to 380px */
-        @media (max-width: 380px) {
-            .header-title { font-size: 14px; }
-            .logo-icon { width: 32px; height: 32px; font-size: 14px; }
-            .stat-grid { grid-template-columns: 1fr; }
-            .hero-kpis { grid-template-columns: 1fr; }
-            .ps-card { flex: 1 1 100%; max-width: 100%; }
-            .hero-actions .btn { flex: 1 1 100%; }
+            .panel-row { flex-direction: column; align-items: stretch; }
+            .chart-canvas-wrap { height: 210px; }
+            .chart-card { padding: 12px 4px 6px; }
         }
 
         /* ── ANIMATIONS ── */
@@ -751,358 +429,41 @@
         .fade-up-2 { animation: fadeUp .4s .1s ease both; }
         .fade-up-3 { animation: fadeUp .4s .2s ease both; }
 
-        /* ── PASSWORD MODAL ── */
-        #pwdModal {
-            position: fixed; inset: 0; z-index: 9999;
-            background: rgba(10,20,40,0.65);
-            display: flex; align-items: center; justify-content: center;
-            backdrop-filter: blur(5px);
-        }
-        .pwd-box {
-            background: #fff;
-            border-radius: 20px;
-            padding: 40px 44px;
-            box-shadow: 0 28px 70px rgba(10,20,40,0.3);
-            width: 380px;
-            text-align: center;
-            animation: fadeUp .25s ease both;
-        }
-        .pwd-box h3 { font-family: 'Playfair Display', serif; font-size: 22px; color: var(--navy); margin-bottom: 8px; }
-        .pwd-box p { color: var(--text-muted); font-size: 13px; margin-bottom: 22px; line-height: 1.6; }
-        .pwd-box input[type="password"] {
-            width: 100%; padding: 12px 16px; border: 1.5px solid var(--border);
-            border-radius: 9px; font-size: 15px; text-align: center;
-            letter-spacing: 3px; margin-bottom: 10px; outline: none;
-            font-family: 'DM Sans', sans-serif; background: var(--bg);
-            transition: border-color .18s, box-shadow .18s;
-        }
-        .pwd-box input[type="password"]:focus { border-color: var(--navy); box-shadow: 0 0 0 3px rgba(26,39,68,0.12); background: #fff; }
-        .pwd-error { color: var(--crimson); font-size: 12.5px; margin-bottom: 14px; font-weight: 500; }
-        .pwd-actions { display: flex; gap: 10px; justify-content: center; margin-top: 18px; }
-
-        /* ── PROFILE SELECT SCREEN ── */
-        #profileSelectScreen {
-            position: fixed; inset: 0; z-index: 9998;
-            background: linear-gradient(135deg, var(--navy) 0%, #1a3a6e 60%, #0d2240 100%);
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            padding: 40px 20px;
-        }
-        .ps-title { font-family: 'Playfair Display', serif; font-size: 28px; color: #fff; margin-bottom: 6px; text-align: center; }
-        .ps-subtitle { font-size: 13px; color: rgba(255,255,255,0.55); margin-bottom: 40px; text-align: center; letter-spacing: .04em; }
-        .ps-cards { display: flex; flex-wrap: wrap; gap: 18px; justify-content: center; max-width: 700px; }
-        .ps-card {
-            background: rgba(255,255,255,0.07); border: 1.5px solid rgba(255,255,255,0.14);
-            border-radius: 16px; padding: 28px 32px; min-width: 140px; text-align: center;
-            cursor: pointer; transition: background .18s, border-color .18s, transform .18s;
-            color: #fff;
-        }
-        .ps-card:hover { background: rgba(255,255,255,0.15); border-color: var(--gold); transform: translateY(-3px); }
-        .ps-card:focus { outline: 2px solid var(--gold); outline-offset: 3px; }
-        .ps-avatar {
-            width: 54px; height: 54px; border-radius: 50%; margin: 0 auto 12px;
-            display: flex; align-items: center; justify-content: center;
-            font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 700;
-            background: rgba(201,164,82,0.25); color: var(--gold); border: 2px solid var(--gold);
-        }
-        .ps-name { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
-        .ps-family { font-size: 11px; color: rgba(255,255,255,0.45); letter-spacing: .06em; text-transform: uppercase; }
-        /* password step inside profile select */
-        #psPasswordStep { display: none; flex-direction: column; align-items: center; margin-top: 32px; width: 100%; max-width: 320px; }
-        #psPasswordStep .ps-back { background: none; border: none; color: rgba(255,255,255,0.55); font-size: 12px; cursor: pointer; margin-bottom: 16px; text-decoration: underline; }
-        #psPasswordStep .ps-back:hover { color: #fff; }
-        #psSelectedName { font-family: 'Playfair Display', serif; font-size: 20px; color: #fff; margin-bottom: 6px; text-align: center; }
-        #psPasswordStep input[type="password"] {
-            width: 100%; padding: 12px 16px; border: 1.5px solid rgba(255,255,255,0.25);
-            border-radius: 9px; font-size: 15px; text-align: center; letter-spacing: 3px;
-            background: rgba(255,255,255,0.1); color: #fff; outline: none; margin-bottom: 10px;
-            font-family: 'DM Sans', sans-serif; transition: border-color .18s;
-        }
-        #psPasswordStep input[type="password"]::placeholder { color: rgba(255,255,255,0.4); letter-spacing: normal; }
-        #psPasswordStep input[type="password"]:focus { border-color: var(--gold); }
-        #psPwdError { color: #f5a0a0; font-size: 12.5px; margin-bottom: 10px; display: none; }
-        #psUnlockBtn {
-            width: 100%; padding: 13px; border: none; border-radius: 9px;
-            background: var(--gold); color: var(--navy); font-weight: 700; font-size: 15px;
-            cursor: pointer; transition: background .18s, opacity .18s;
-        }
-        #psUnlockBtn:hover { background: var(--gold-light); }
-
-        /* ── USER-SWITCH FADE ── */
-        .container { transition: opacity .18s ease; }
-        .container.switching { opacity: 0; pointer-events: none; }
-
-        /* ── STICKY HEADER + SCROLL PROGRESS ── */
-        #scroll-progress { position: fixed; top: 0; left: 0; width: 0%; height: 3px; background: linear-gradient(90deg, var(--gold), var(--gold-light)); z-index: 10001; transition: width .1s linear; pointer-events: none; }
-        .page-header { position: sticky; top: 0; z-index: 900; transition: padding .22s ease; }
-        .page-header.condensed { padding-top: 10px; padding-bottom: 10px; }
-        .page-header.condensed .header-subtitle { display: none; }
-
-        /* ── PRINT STYLESHEET ── */
-        @media print {
-            @page { size: A4 landscape; margin: 12mm 14mm; }
-
-            /* Hide all interactive chrome */
-            #toast-container, #pwdModal, #profileSelectScreen, #scroll-progress,
-            .action-bar, .hero-actions, .hero-badge, .hero-credit, .btn, .file-btn-wrap,
-            .pwd-actions, .delete-confirm-bar, .sh-icon { display: none !important; }
-            /* Keep logo visible in print */
-            .gp-logo-wrap { display: flex !important; }
-            .gp-name { color: #c9a84c !important; }
-            .gp-tag { color: #666 !important; }
-
-            /* Reset layout */
-            html, body { background: #fff !important; font-size: 11px; }
-            .page-header { position: static !important; box-shadow: none !important;
-                padding: 8mm 0 4mm !important; border-bottom: 1.5pt solid #1a2a4a; }
-            .header-subtitle { display: block !important; }
-            .container { padding: 0 !important; max-width: 100% !important; }
-
-            /* Colour & chart fidelity */
-            * { print-color-adjust: exact !important; -webkit-print-color-adjust: exact !important; }
-
-            /* Two-column chart grid fits A4 landscape nicely */
-            .chart-grid { display: grid !important; grid-template-columns: 1fr 1fr !important;
-                gap: 8mm !important; }
-            .chart-grid.full { grid-template-columns: 1fr !important; }
-            .chart-canvas-wrap { height: 180px !important; }
-            .chart-canvas-wrap.medium { height: 160px !important; }
-
-            /* Keep cards intact across page breaks */
-            .chart-card, .family-section, .panel, .stat-card, .year-card {
-                break-inside: avoid; page-break-inside: avoid;
-                box-shadow: none !important; border: 0.5pt solid #d0d8e8 !important; }
-            .section-heading { break-before: auto; margin-top: 6mm; }
-            .cards-grid { display: grid !important; grid-template-columns: repeat(3,1fr) !important; gap: 5mm !important; }
-            .stat-grid { grid-template-columns: repeat(3,1fr) !important; gap: 5mm !important; }
-
-            /* Tables readable at print size */
-            table { font-size: 10px !important; }
-            th, td { padding: 5px 7px !important; }
-            .table-scroll { overflow: visible !important; }
-
-            /* KPI strip */
-            .kpi-strip { flex-wrap: wrap !important; gap: 4mm !important; }
-            .kpi-item { min-width: 80px !important; }
-
-            /* Hero — just show the title line */
-            .hero-copy h1 { font-size: 16px !important; margin: 0 !important; }
-            .hero-kpis { display: none !important; }
-        }
-
-        /* ── MOBILE TOUCH IMPROVEMENTS ── */
-        .table-scroll, .family-section div[style*="overflow-x"] {
-            -webkit-overflow-scrolling: touch;
-            overscroll-behavior-x: contain;
-        }
-        /* Safe-area padding for iPhone notch / home indicator */
-        .page-header {
-            padding-left: max(40px, env(safe-area-inset-left));
-            padding-right: max(40px, env(safe-area-inset-right));
-        }
-        @media (max-width: 600px) {
-            .page-header {
-                padding-left: max(14px, env(safe-area-inset-left));
-                padding-right: max(14px, env(safe-area-inset-right));
-            }
-            .container {
-                padding-left: max(14px, env(safe-area-inset-left));
-                padding-right: max(14px, env(safe-area-inset-right));
-            }
-            #toast-container {
-                bottom: max(16px, env(safe-area-inset-bottom));
-                left: max(10px, env(safe-area-inset-left));
-                right: max(10px, env(safe-area-inset-right));
-            }
-        }
-
-        /* ── SVG ICONS ── */
-        .icon { width: 1.1em; height: 1.1em; vertical-align: middle; display: inline-block; flex-shrink: 0; }
-        .icon-lg { width: 28px; height: 28px; }
-        .icon-xl { width: 36px; height: 36px; }
-
-        /* ── SR-ONLY (accessible labels) ── */
-        .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
-
-        /* ── TOAST NOTIFICATIONS ── */
-        #toast-container { position: fixed; bottom: 28px; right: 28px; z-index: 10000; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
-        .toast {
-            min-width: 280px; max-width: 380px;
-            padding: 14px 18px; border-radius: 12px;
-            font-family: 'DM Sans', sans-serif; font-size: 13.5px; font-weight: 500;
-            color: #fff; box-shadow: 0 8px 32px rgba(0,0,0,0.22);
-            display: flex; align-items: flex-start; gap: 10px;
-            pointer-events: all; cursor: default;
-            animation: toastIn .28s cubic-bezier(.21,1.02,.73,1) both;
-        }
-        .toast.dismissing { animation: toastOut .22s ease forwards; }
-        .toast-icon { flex-shrink: 0; font-size: 16px; margin-top: 1px; }
-        .toast-body { flex: 1; }
-        .toast-title { font-weight: 700; margin-bottom: 2px; font-size: 13px; }
-        .toast-msg { line-height: 1.4; }
-        .toast-close { flex-shrink: 0; background: none; border: none; color: rgba(255,255,255,0.7); font-size: 16px; cursor: pointer; padding: 0; line-height: 1; align-self: center; }
-        .toast-close:hover { color: #fff; }
-        .toast-actions { display: flex; gap: 8px; margin-top: 10px; }
-        .toast-actions button {
-            padding: 6px 14px; border-radius: 7px; border: 1.5px solid rgba(255,255,255,0.5);
-            background: rgba(255,255,255,0.15); color: #fff; font-size: 12.5px;
-            font-family: 'DM Sans', sans-serif; font-weight: 600; cursor: pointer; transition: background .15s;
-        }
-        .toast-actions button:hover { background: rgba(255,255,255,0.28); }
-        .toast-actions .toast-btn-confirm { background: rgba(255,255,255,0.25); }
-        .toast.success { background: linear-gradient(135deg,#1a7a4a,#22a05e); }
-        .toast.error   { background: linear-gradient(135deg,#a93226,#c0392b); }
-        .toast.warning { background: linear-gradient(135deg,#b7820a,#d4a017); }
-        .toast.info    { background: linear-gradient(135deg,#1a2744,#2e4070); }
-        @keyframes toastIn  { from { opacity:0; transform: translateY(16px) scale(.95); } to { opacity:1; transform: translateY(0) scale(1); } }
-        @keyframes toastOut { from { opacity:1; transform: translateY(0) scale(1); } to { opacity:0; transform: translateY(8px) scale(.95); } }
-
-        /* ── INLINE DELETE CONFIRM ── */
-        .delete-confirm-bar {
-            display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
-            background: rgba(192,57,43,0.08); border: 1px solid rgba(192,57,43,0.25);
-            border-radius: 8px; padding: 6px 10px; font-size: 12.5px; color: var(--crimson); font-weight: 500;
-        }
-        .delete-confirm-bar button { padding: 4px 12px; border-radius: 6px; border: none; font-size: 12px; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; }
-        .delete-confirm-bar .dc-yes { background: var(--crimson); color: #fff; }
-        .delete-confirm-bar .dc-yes:hover { background: #a93226; }
-        .delete-confirm-bar .dc-no { background: var(--bg); color: var(--text-mid); }
-        .delete-confirm-bar .dc-no:hover { background: var(--border); }
+        /* Tab content visibility */
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
     </style>
 </head>
 <body>
 
-<!-- ── SVG ICON SPRITE ── -->
-<svg xmlns="http://www.w3.org/2000/svg" style="display:none" aria-hidden="true">
-  <symbol id="icon-trend-up" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></symbol>
-  <symbol id="icon-table" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="9" x2="9" y2="21"/></symbol>
-  <symbol id="icon-bar-chart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="2" y1="20" x2="22" y2="20"/></symbol>
-  <symbol id="icon-calendar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></symbol>
-  <symbol id="icon-users" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></symbol>
-  <symbol id="icon-globe" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></symbol>
-  <symbol id="icon-trophy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="8 21 12 17 16 21"/><line x1="12" y1="17" x2="12" y2="11"/><path d="M7 4H4a2 2 0 0 0-2 2v2a4 4 0 0 0 4 4h12a4 4 0 0 0 4-4V6a2 2 0 0 0-2-2h-3"/><rect x="7" y="2" width="10" height="10" rx="2"/></symbol>
-  <symbol id="icon-home" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></symbol>
-  <symbol id="icon-home2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-9.6L12 3 4 11.4V21"/><path d="M9 21V12h6v9"/><path d="M3 11l9-8 9 8"/></symbol>
-  <symbol id="icon-user" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></symbol>
-  <symbol id="icon-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></symbol>
-  <symbol id="icon-unlock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></symbol>
-  <symbol id="icon-download" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></symbol>
-  <symbol id="icon-upload" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></symbol>
-  <symbol id="icon-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></symbol>
-  <symbol id="icon-print" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></symbol>
-  <symbol id="icon-line-chart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></symbol>
-</svg>
-
-<div id="scroll-progress" role="progressbar" aria-label="Page scroll progress"></div>
-<div id="toast-container" aria-live="polite" aria-label="Notifications"></div>
-
-<!-- ── PROFILE SELECT SCREEN ── -->
-<div id="profileSelectScreen">
-    <div style="margin-bottom:16px;color:var(--gold);opacity:.85"><svg class="icon icon-xl" aria-hidden="true"><use href="#icon-trend-up"/></svg></div>
-    <div class="ps-title">Gautam Dharohar LLP</div>
-    <div class="ps-subtitle">Select your profile to continue</div>
-    <div class="ps-cards" id="psCards"></div>
-    <div id="psPasswordStep">
-        <button class="ps-back" onclick="psShowCards()">&#8592; Back to profiles</button>
-        <div id="psSelectedName"></div>
-        <p style="font-size:12px;color:rgba(255,255,255,0.45);margin-bottom:16px;text-align:center">Enter your password to access this profile</p>
-        <input type="password" id="psPwdInput" placeholder="Password" onkeydown="if(event.key==='Enter')psVerify()">
-        <div id="psPwdError">Incorrect password. Please try again.</div>
-        <button id="psUnlockBtn" onclick="psVerify()">
-            <svg class="icon" aria-hidden="true"><use href="#icon-unlock"/></svg> Unlock Profile
-        </button>
-    </div>
-</div>
-
-<!-- ── PASSWORD MODAL ── -->
-<div id="pwdModal" style="display:none">
-    <div class="pwd-box">
-        <div style="margin-bottom:12px;color:var(--navy)"><svg class="icon icon-xl" aria-hidden="true"><use href="#icon-lock"/></svg></div>
-        <h3 id="pwdModalTitle">Profile Locked</h3>
-        <p id="pwdModalDesc">Enter your personal password to view this profile's financial data.</p>
-        <label class="sr-only" for="pwdInput">Password</label>
-        <input type="password" id="pwdInput" placeholder="Enter password" onkeydown="if(event.key==='Enter')verifyPassword()">
-        <div class="pwd-error" id="pwdError" style="display:none">Incorrect password. Please try again.</div>
-        <div class="pwd-actions">
-            <button class="btn btn-secondary" id="pwdCancelBtn" onclick="closePwdModal()">Cancel</button>
-            <button class="btn btn-primary" onclick="verifyPassword()"><svg class="icon" aria-hidden="true"><use href="#icon-unlock"/></svg> Unlock</button>
-        </div>
-    </div>
-</div>
-
-<div class="page-header dark-bg">
+<div class="page-header">
     <div class="header-inner">
         <div class="header-top">
             <div class="header-logo">
-                <div class="logo-icon"><svg class="icon icon-lg" aria-hidden="true"><use href="#icon-trend-up"/></svg></div>
+                <div class="logo-icon">📈</div>
                 <div>
-                    <div class="header-title">Gautam Dharohar LLP</div>
-                    <div class="header-subtitle">Building wealth, preserving legacy · Family Portfolio Overview</div>
+                    <div class="header-title">Financial Performance Dashboard</div>
+                    <div class="header-subtitle">Stock &amp; Investment Tracker · Family Portfolio Overview</div>
                 </div>
             </div>
-            <!-- Gautam Dharohar LLP logo -->
-            <div class="gp-logo-wrap" title="Gautam Dharohar LLP">
-                <div class="gp-logo-text">
-                    <span class="gp-name">Gautam Dharohar</span>
-                    <span class="gp-tag">LLP · Est. 2026</span>
-                </div>
-                <svg class="gp-logo-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-label="Gautam Dharohar LLP logo">
-                    <!-- Outer ring -->
-                    <circle cx="50" cy="50" r="48" fill="#0d2240" stroke="#c9a84c" stroke-width="2.5"/>
-                    <!-- Inner subtle ring -->
-                    <circle cx="50" cy="50" r="42" fill="none" stroke="rgba(201,168,76,0.25)" stroke-width="1"/>
-                    <!-- Banyan tree trunk -->
-                    <rect x="46" y="52" width="8" height="22" rx="3" fill="#c9a84c"/>
-                    <!-- Aerial roots -->
-                    <line x1="38" y1="60" x2="36" y2="74" stroke="#c9a84c" stroke-width="1.8" stroke-linecap="round" opacity="0.7"/>
-                    <line x1="62" y1="60" x2="64" y2="74" stroke="#c9a84c" stroke-width="1.8" stroke-linecap="round" opacity="0.7"/>
-                    <line x1="32" y1="56" x2="30" y2="74" stroke="#c9a84c" stroke-width="1.4" stroke-linecap="round" opacity="0.5"/>
-                    <line x1="68" y1="56" x2="70" y2="74" stroke="#c9a84c" stroke-width="1.4" stroke-linecap="round" opacity="0.5"/>
-                    <!-- Ground line -->
-                    <line x1="26" y1="74" x2="74" y2="74" stroke="#c9a84c" stroke-width="1.8" stroke-linecap="round" opacity="0.6"/>
-                    <!-- Tree canopy layers -->
-                    <ellipse cx="50" cy="38" rx="22" ry="14" fill="#c9a84c" opacity="0.9"/>
-                    <ellipse cx="36" cy="46" rx="13" ry="9" fill="#c9a84c" opacity="0.8"/>
-                    <ellipse cx="64" cy="46" rx="13" ry="9" fill="#c9a84c" opacity="0.8"/>
-                    <ellipse cx="50" cy="32" rx="16" ry="11" fill="#f0d080" opacity="0.7"/>
-                    <!-- GD monogram at bottom -->
-                    <text x="50" y="92" text-anchor="middle" font-family="Georgia, serif" font-size="9" font-weight="700" fill="rgba(201,168,76,0.75)" letter-spacing="2">GD</text>
-                </svg>
-            </div>
+            <div class="dev-badge">✦ Developed by <strong style="margin-left:4px">Ajit Gautam</strong></div>
         </div>
     </div>
 </div>
 
-<div id="mainContent" style="display:none">
-    <div class="container">
-
-    <div class="hero-panel fade-up">
-        <div class="hero-copy">
-            <div class="hero-badge">✦ High-level tracker for monthly performance, user comparisons and portfolio mix.</div>
-            <h1 class="hero-title">Monitor returns, asset allocation and user performance all in one place.</h1>
-            <p class="hero-credit blinking">Developed by Ajit Gautam</p>
-            <div class="hero-actions">
-                <button onclick="document.getElementById('newEquity').focus()" class="btn btn-primary"><svg class="icon" aria-hidden="true"><use href="#icon-plus"/></svg> Add new month</button>
-                <button onclick="downloadExcel()" class="btn btn-gold"><svg class="icon" aria-hidden="true"><use href="#icon-download"/></svg> Export Excel</button>
-                <button onclick="window.print()" class="btn btn-secondary"><svg class="icon" aria-hidden="true"><use href="#icon-print"/></svg> Print / Save PDF</button>
-            </div>
-        </div>
-        <div>
-            <div class="hero-kpis" id="heroLiveStats"></div>
-        </div>
-    </div>
+<div class="container">
 
     <!-- ── USER MANAGEMENT ── -->
     <div class="panel fade-up">
-        <div class="panel-title"><svg class="icon" aria-hidden="true"><use href="#icon-users"/></svg> User Management</div>
+        <div class="panel-title">👤 User Management</div>
         <div class="panel-row">
             <div>
                 <div style="font-size:11px;color:var(--text-muted);margin-bottom:6px;font-weight:500">SELECT USER</div>
                 <div id="userSelectionRadios" class="user-radio-group"></div>
             </div>
             <div style="display:flex;gap:8px;align-items:center;margin-left:auto;flex-wrap:wrap">
-                <label class="sr-only" for="newUsername">New username</label>
                 <input type="text" id="newUsername" placeholder="New username" style="width:160px">
-                <button onclick="addUser()" class="btn btn-primary"><svg class="icon" aria-hidden="true"><use href="#icon-plus"/></svg> Add User</button>
+                <button onclick="addUser()" class="btn btn-primary">＋ Add User</button>
                 <button onclick="deleteUser()" class="btn btn-danger">✕ Delete User</button>
             </div>
         </div>
@@ -1110,20 +471,13 @@
 
     <!-- ── ADD MONTH ── -->
     <div class="panel fade-up-2">
-        <div class="panel-title"><svg class="icon" aria-hidden="true"><use href="#icon-plus"/></svg> Add Monthly Data</div>
+        <div class="panel-title">➕ Add Monthly Data</div>
         <div class="panel-row">
-            <label class="sr-only" for="newMonth">Month</label>
             <input type="text" id="newMonth" placeholder="Month" readonly>
-            <label class="sr-only" for="newEquity">Equity Return</label>
             <input type="number" id="newEquity" placeholder="Equity Return">
-            <label class="sr-only" for="newFO">F&amp;O Return</label>
             <input type="number" id="newFO" placeholder="F&amp;O Return">
-            <label class="sr-only" for="newBond">Bond Interest</label>
             <input type="number" id="newBond" placeholder="Bond Interest">
-            <label class="sr-only" for="newDeposit">Deposit</label>
             <input type="number" id="newDeposit" placeholder="Deposit">
-            <label class="sr-only" for="newCommodity">Commodity Return</label>
-            <input type="number" id="newCommodity" placeholder="Commodity Return">
             <button onclick="addNewMonth()" class="btn btn-success">Add Month</button>
         </div>
     </div>
@@ -1133,109 +487,81 @@
 
     <!-- ── DATA TABLE ── -->
     <div class="section-heading">
-        <div class="sh-icon"><svg class="icon icon-lg" aria-hidden="true"><use href="#icon-table"/></svg></div>
+        <div class="sh-icon">📋</div>
         <h2 id="tableTitle">Monthly Data</h2>
-        <div class="sh-line"></div>
-        <button class="sh-toggle collapsed" id="tableToggleBtn" onclick="toggleTableSection()" title="Expand / Collapse" aria-expanded="false">
-            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
-        </button>
-    </div>
-    <div class="table-collapsible collapsed" id="tableCollapsible">
-        <div class="table-wrap">
-            <div class="table-scroll">
-                <table id="dataTable">
-                    <thead>
-                        <tr>
-                            <th>Month</th>
-                            <th>Equity Return</th>
-                            <th>F&amp;O Return</th>
-                            <th>Commodity</th>
-                            <th>Bond Interest</th>
-                            <th>Deposit</th>
-                            <th>Capital Used</th>
-                            <th>Equity+F&amp;O</th>
-                            <th>Monthly Return</th>
-                            <th>% Return</th>
-                            <th style="text-align:center">Action</th>
-                        </tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
-            </div>
-        </div>
-        <div class="action-bar">
-            <button onclick="downloadExcel()" class="btn btn-gold"><svg class="icon" aria-hidden="true"><use href="#icon-download"/></svg> Download Excel</button>
-            <button onclick="window.print()" class="btn btn-secondary"><svg class="icon" aria-hidden="true"><use href="#icon-print"/></svg> Print / Save PDF</button>
-            <div class="file-btn-wrap">
-                <button class="btn btn-secondary"><svg class="icon" aria-hidden="true"><use href="#icon-upload"/></svg> Upload Excel</button>
-                <input type="file" id="excelFile" accept=".xlsx,.xls" onchange="uploadExcel(event)">
-            </div>
-        </div>
-    </div>
-
-    <!-- ── INDIVIDUAL CHARTS ── -->
-    <div class="section-heading">
-        <div class="sh-icon"><svg class="icon icon-lg" aria-hidden="true"><use href="#icon-bar-chart"/></svg></div>
-        <h2 id="chartsTitle">Individual Monthly Performance</h2>
-        <div class="sh-line"></div>
-    </div>
-    <div class="chart-grid full">
-        <div class="chart-card">
-            <div class="chart-card-title">Monthly % Return</div>
-            <div class="chart-canvas-wrap tall"><canvas id="percentageChart"></canvas></div>
-        </div>
-    </div>
-    <div class="chart-grid full">
-        <div class="chart-card">
-            <div class="chart-card-title">Monthly Return (₹)</div>
-            <div class="chart-canvas-wrap tall"><canvas id="amountChart"></canvas></div>
-        </div>
-    </div>
-    <div class="chart-grid full">
-        <div class="chart-card">
-            <div class="chart-card-title">Cumulative Return</div>
-            <div class="chart-canvas-wrap tall"><canvas id="cumulativeUserChart"></canvas></div>
-        </div>
-    </div>
-
-    <!-- ── INDIVIDUAL YEARLY SUMMARY ── -->
-    <div class="section-heading">
-        <div class="sh-icon"><svg class="icon icon-lg" aria-hidden="true"><use href="#icon-calendar"/></svg></div>
-        <h2>Individual Yearly Performance</h2>
         <div class="sh-line"></div>
     </div>
     <div class="table-wrap">
         <div class="table-scroll">
-            <table class="yearly-table" id="yearlySummary">
+            <table id="dataTable">
                 <thead>
                     <tr>
-                        <th>User</th>
-                        <th>Year</th>
-                        <th>Total Return</th>
-                        <th>Equity + F&O</th>
-                        <th>Commodity</th>
+                        <th>Month</th>
+                        <th>Equity Return</th>
+                        <th>F&amp;O Return</th>
                         <th>Bond Interest</th>
-                        <th>Avg Capital</th>
-                        <th>Annual Return %</th>
-                        <th>Group</th>
+                        <th>Deposit</th>
+                        <th>Capital Used</th>
+                        <th>Equity+F&amp;O</th>
+                        <th>Monthly Return</th>
+                        <th>% Return</th>
+                        <th style="text-align:center">Action</th>
                     </tr>
                 </thead>
                 <tbody></tbody>
             </table>
         </div>
     </div>
+    <div class="action-bar">
+        <button onclick="downloadExcel()" class="btn btn-gold">⬇ Download Excel</button>
+        <div class="file-btn-wrap">
+            <button class="btn btn-secondary">⬆ Upload Excel</button>
+            <input type="file" id="excelFile" accept=".xlsx,.xls" onchange="uploadExcel(event)">
+        </div>
+    </div>
+
+    <!-- ── INDIVIDUAL CHARTS ── -->
+    <div class="section-heading">
+        <div class="sh-icon">📊</div>
+        <h2 id="chartsTitle">Individual Monthly Performance</h2>
+        <div class="sh-line"></div>
+    </div>
+    <div class="chart-grid">
+        <div class="chart-card">
+            <div class="chart-card-title">Monthly % Return</div>
+            <div class="chart-canvas-wrap"><canvas id="percentageChart"></canvas></div>
+        </div>
+        <div class="chart-card">
+            <div class="chart-card-title">Monthly Return (₹)</div>
+            <div class="chart-canvas-wrap"><canvas id="amountChart"></canvas></div>
+        </div>
+    </div>
+    <div class="chart-grid full">
+        <div class="chart-card">
+            <div class="chart-card-title">Cumulative Return</div>
+            <div class="chart-canvas-wrap"><canvas id="cumulativeUserChart"></canvas></div>
+        </div>
+    </div>
+
+    <!-- ── INDIVIDUAL YEARLY SUMMARY ── -->
+    <div class="section-heading">
+        <div class="sh-icon">🗂</div>
+        <h2>Individual Yearly Performance</h2>
+        <div class="sh-line"></div>
+    </div>
+    <div id="yearlySummary" class="cards-grid"></div>
 
     <!-- ── FAMILY SUMMARIES ── -->
     <div class="section-heading">
-        <div class="sh-icon"><svg class="icon icon-lg" aria-hidden="true"><use href="#icon-users"/></svg></div>
+        <div class="sh-icon">👨‍👩‍👧‍👦</div>
         <h2>Family Portfolio Summary</h2>
         <div class="sh-line"></div>
     </div>
 
     <!-- Family 1 -->
     <div class="family-section" id="fam1Section">
-        <div class="family-header fam1-header dark-bg">
-            <div class="family-icon"><svg class="icon icon-lg" aria-hidden="true"><use href="#icon-home"/></svg></div>
+        <div class="family-header fam1-header">
+            <div class="family-icon">🏠</div>
             <div class="family-header-text">
                 <h3>Family 1</h3>
                 <p>Combined portfolio performance</p>
@@ -1243,8 +569,8 @@
         </div>
         <div class="family-body">
             <div class="family-members-row">
-                <div class="member-chip fam1-chip"><svg class="icon" aria-hidden="true"><use href="#icon-user"/></svg> Ajit Gautam</div>
-                <div class="member-chip fam1-chip"><svg class="icon" aria-hidden="true"><use href="#icon-user"/></svg> Meenu Tyagi</div>
+                <div class="member-chip fam1-chip">👤 Ajit Gautam</div>
+                <div class="member-chip fam1-chip">👤 Meenu Tyagi</div>
             </div>
             <div id="fam1Stats" class="family-stats"></div>
             <div style="overflow-x:auto;margin-top:8px">
@@ -1266,8 +592,8 @@
 
     <!-- Family 2 -->
     <div class="family-section" id="fam2Section">
-        <div class="family-header fam2-header dark-bg">
-            <div class="family-icon"><svg class="icon icon-lg" aria-hidden="true"><use href="#icon-home2"/></svg></div>
+        <div class="family-header fam2-header">
+            <div class="family-icon">🏡</div>
             <div class="family-header-text">
                 <h3>Family 2</h3>
                 <p>Combined portfolio performance</p>
@@ -1275,8 +601,8 @@
         </div>
         <div class="family-body">
             <div class="family-members-row">
-                <div class="member-chip fam2-chip"><svg class="icon" aria-hidden="true"><use href="#icon-user"/></svg> Prem Singh</div>
-                <div class="member-chip fam2-chip"><svg class="icon" aria-hidden="true"><use href="#icon-user"/></svg> Ganga</div>
+                <div class="member-chip fam2-chip">👤 Prem Singh</div>
+                <div class="member-chip fam2-chip">👤 Ganga</div>
             </div>
             <div id="fam2Stats" class="family-stats"></div>
             <div style="overflow-x:auto;margin-top:8px">
@@ -1296,85 +622,9 @@
         </div>
     </div>
 
-    <!-- ── GAUTAM FAMILY (ALL 4) ── -->
-    <div class="section-heading">
-        <div class="sh-icon"><svg class="icon icon-lg" aria-hidden="true"><use href="#icon-trophy"/></svg></div>
-        <h2>Gautam Family — All Members Combined</h2>
-        <div class="sh-line"></div>
-    </div>
-
-    <div class="family-section" id="gautamFamilySection">
-        <div class="family-header dark-bg" style="background:linear-gradient(135deg,#0f2027,#203a43,#2c5364)">
-            <div class="family-icon"><svg class="icon icon-lg" aria-hidden="true"><use href="#icon-users"/></svg></div>
-            <div class="family-header-text">
-                <h3>Gautam Family Portfolio</h3>
-                <p>Ajit Gautam · Meenu Tyagi · Prem Singh · Ganga — Consolidated view</p>
-            </div>
-        </div>
-        <div class="family-body">
-            <!-- Member chips -->
-            <div class="family-members-row">
-                <div class="member-chip fam1-chip"><svg class="icon" aria-hidden="true"><use href="#icon-user"/></svg> Ajit Gautam <span style="font-size:10px;opacity:.6;margin-left:4px">F1</span></div>
-                <div class="member-chip fam1-chip"><svg class="icon" aria-hidden="true"><use href="#icon-user"/></svg> Meenu Tyagi <span style="font-size:10px;opacity:.6;margin-left:4px">F1</span></div>
-                <div class="member-chip fam2-chip"><svg class="icon" aria-hidden="true"><use href="#icon-user"/></svg> Prem Singh <span style="font-size:10px;opacity:.6;margin-left:4px">F2</span></div>
-                <div class="member-chip fam2-chip"><svg class="icon" aria-hidden="true"><use href="#icon-user"/></svg> Ganga <span style="font-size:10px;opacity:.6;margin-left:4px">F2</span></div>
-            </div>
-
-            <!-- KPI headline strip -->
-            <div id="gautamFamilyKPI" class="family-stats" style="margin-bottom:20px"></div>
-
-            <!-- Year-wise breakdown table -->
-            <div style="overflow-x:auto">
-                <table class="family-year-table" id="gautamFamilyTable">
-                    <thead>
-                        <tr>
-                            <th style="text-align:left;min-width:60px">Year</th>
-                            <th>Ajit Return</th>
-                            <th>Meenu Return</th>
-                            <th>Prem Return</th>
-                            <th>Ganga Return</th>
-                            <th style="background:#f0f9ff;border-left:2px solid #bfdbfe">Combined Return</th>
-                            <th>Total Capital Used</th>
-                            <th>Total Deposits</th>
-                            <th style="background:#f0fdf4;border-left:2px solid #bbf7d0">Overall % Return</th>
-                        </tr>
-                    </thead>
-                    <tbody id="gautamFamilyTbody"></tbody>
-                    <tfoot>
-                        <tr>
-                            <td><strong>TOTAL</strong></td>
-                            <td id="gfAjitTotal">—</td>
-                            <td id="gfMeenuTotal">—</td>
-                            <td id="gfPremTotal">—</td>
-                            <td id="gfGangaTotal">—</td>
-                            <td id="gfCombinedTotal" style="background:#eff6ff;border-left:2px solid #bfdbfe;font-size:14px">—</td>
-                            <td id="gfCapitalTotal">—</td>
-                            <td id="gfDepositTotal">—</td>
-                            <td id="gfOverallPct" style="background:#f0fdf4;border-left:2px solid #bbf7d0">—</td>
-                        </tr>
-                    </tfoot>
-                </table>
-            </div>
-
-            <!-- Gautam Family Charts -->
-            <div style="margin-top:28px">
-                <div style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);margin-bottom:14px">Year-wise Combined Return</div>
-                <div class="chart-canvas-wrap medium"><canvas id="gautamFamilyYearChart"></canvas></div>
-            </div>
-            <div style="margin-top:24px">
-                <div style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);margin-bottom:14px">Cumulative Return — All 4 Members</div>
-                <div class="chart-canvas-wrap"><canvas id="gautamFamilyCumChart"></canvas></div>
-            </div>
-            <div style="margin-top:24px">
-                <div style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);margin-bottom:14px">Member Return Contribution by Year (%)</div>
-                <div class="chart-canvas-wrap medium"><canvas id="gautamFamilyContribChart"></canvas></div>
-            </div>
-        </div>
-    </div>
-
     <!-- ── OVERALL SUMMARY ── -->
     <div class="section-heading">
-        <div class="sh-icon"><svg class="icon icon-lg" aria-hidden="true"><use href="#icon-globe"/></svg></div>
+        <div class="sh-icon">🌐</div>
         <h2>Overall Yearly Performance (All Users)</h2>
         <div class="sh-line"></div>
     </div>
@@ -1382,7 +632,7 @@
 
     <!-- ── OVERALL CHARTS ── -->
     <div class="section-heading">
-        <div class="sh-icon"><svg class="icon icon-lg" aria-hidden="true"><use href="#icon-line-chart"/></svg></div>
+        <div class="sh-icon">📉</div>
         <h2>Overall Performance (All Users Combined)</h2>
         <div class="sh-line"></div>
     </div>
@@ -1409,76 +659,16 @@
         </div>
     </div>
 
-    <div class="footer">Gautam Dharohar LLP &copy; 2026 · Developed by <strong class="blinking">Ajit Gautam</strong></div>
+    <div class="footer">Financial Performance Dashboard &copy; 2024–2025 · Developed by Ajit Gautam</div>
 
 </div><!-- /container -->
-</div><!-- /mainContent -->
 
 <script>
-// ── Firebase Init ──
-const firebaseConfig = {
-    apiKey: "AIzaSyD-mETGOB2wAUSB1E_Anocy9UJvsj85ORQ",
-    authDomain: "family-financial-dashboa-71ddd.firebaseapp.com",
-    projectId: "family-financial-dashboa-71ddd",
-    storageBucket: "family-financial-dashboa-71ddd.firebasestorage.app",
-    messagingSenderId: "608757421536",
-    appId: "1:608757421536:web:7f197722e44dfdf3b1c785",
-    measurementId: "G-HH1QB8T256"
-};
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
-const FS_COLLECTION = 'familyDashboard';
-
 // ── Global State ──
 let allUserData = {};
 let currentUser = '';
 let currentFinancialData = [];
 const STORAGE_KEY = 'financialDashboardData_v2';
-const FORM_FIELDS = ['newEquity','newFO','newCommodity','newBond','newDeposit'];
-function persistFormValues() {
-    const values = {};
-    FORM_FIELDS.forEach(id => {
-        const el = document.getElementById(id);
-        if (el) values[id] = el.value;
-    });
-    sessionStorage.setItem('dashboardFormValues', JSON.stringify(values));
-}
-
-function restoreFormValues() {
-    try {
-        const saved = JSON.parse(sessionStorage.getItem('dashboardFormValues') || '{}');
-        FORM_FIELDS.forEach(id => {
-            const el = document.getElementById(id);
-            if (el && saved[id] !== undefined) el.value = saved[id];
-        });
-    } catch (e) {}
-}
-
-function updateHeroSummary() {
-    if (!currentFinancialData.length) {
-        document.getElementById('heroLiveStats').innerHTML = '';
-        return;
-    }
-    const totalReturn = currentFinancialData.reduce((s, i) => s + (i.monthlyReturn || 0), 0);
-    const totalEquity = currentFinancialData.reduce((s, i) => s + (i.equityReturn || 0), 0);
-    const totalFO = currentFinancialData.reduce((s, i) => s + (i.foReturn || 0), 0);
-    const totalBond = currentFinancialData.reduce((s, i) => s + (i.bondInterest || 0), 0);
-    const totalCommodity = currentFinancialData.reduce((s, i) => s + (i.commodityReturn || 0), 0);
-    const bestMonth = currentFinancialData.reduce((best, item) => (item.monthlyReturn || 0) > (best.monthlyReturn || 0) ? item : best, currentFinancialData[0]);
-    const worstMonth = currentFinancialData.reduce((worst, item) => (item.monthlyReturn || 0) < (worst.monthlyReturn || 0) ? item : worst, currentFinancialData[0]);
-    const profileName = currentUser || '';
-    const bestAmount = bestMonth && bestMonth.monthlyReturn !== undefined ? fcPlain(bestMonth.monthlyReturn) : '—';
-    const worstAmount = worstMonth && worstMonth.monthlyReturn !== undefined ? fcPlain(worstMonth.monthlyReturn) : '—';
-    document.getElementById('heroLiveStats').innerHTML = `
-        <div class="hero-stat"><div class="label">Total return</div><div class="value">${fcPlain(totalReturn)}</div>
-            <div class="stat-sub" style="margin-top:8px">Equity: ${fcPlain(totalEquity)} &nbsp; | &nbsp; F&amp;O: ${fcPlain(totalFO)} &nbsp; | &nbsp; Bond: ${fcPlain(totalBond)} &nbsp; | &nbsp; Commodity: ${fcPlain(totalCommodity)}</div>
-        </div>
-        <div class="hero-stat"><div class="label">Best month</div><div class="best-value">${bestMonth.month || '—'}</div><div class="stat-sub" style="margin-top:6px;color:var(--emerald);font-weight:700">${bestAmount}</div></div>
-        <div class="hero-stat"><div class="label">Worst month</div><div class="worst-value">${worstMonth.month || '—'}</div><div class="stat-sub" style="margin-top:6px;color:var(--crimson);font-weight:700">${worstAmount}</div></div>
-        <div class="hero-stat"><div class="label">Profile</div><div class="value">${profileName}</div></div>
-    `;
-    runCountUpOnKPIs();
-}
 
 // ── Family Definitions ──
 const FAMILY_1 = ['Ajit Gautam', 'Meenu Tyagi'];
@@ -1579,189 +769,178 @@ const initialGangaData = [];  // Ganga data to be added by user
 
 // ── Chart Instances ──
 let percentageChart, amountChart, cumulativeUserChart, overallReturnChart, overallPercentageChart, cumulativeAllUsersChart, overallMonthlyPercentageChart;
-let gautamFamilyYearChart, gautamFamilyCumChart, gautamFamilyContribChart;
 Chart.register(ChartDataLabels);
-
-// Diagonal-stripe canvas pattern for negative bars (color-blind accessible)
-function makeStripePattern() {
-    const c = document.createElement('canvas');
-    c.width = 10; c.height = 10;
-    const ctx = c.getContext('2d');
-    ctx.fillStyle = 'rgba(192,57,43,0.18)';
-    ctx.fillRect(0, 0, 10, 10);
-    ctx.strokeStyle = 'rgba(192,57,43,0.82)';
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.moveTo(0, 10); ctx.lineTo(10, 0);
-    ctx.moveTo(-2, 2); ctx.lineTo(2, -2);
-    ctx.moveTo(8, 12); ctx.lineTo(12, 8);
-    ctx.stroke();
-    return ctx.createPattern(c, 'repeat');
-}
-const NEG_BAR_PATTERN = makeStripePattern();
 
 const CHART_COLORS = ['#2563eb','#7c3aed','#059669','#dc2626','#d97706','#0891b2','#be185d'];
 let colorIndex = 0;
 function getNextChartColor() { return CHART_COLORS[colorIndex++ % CHART_COLORS.length]; }
 
-// Returns true when the chart's canvas is narrower than 500px (mobile layout)
-function _isMobileChart(chart) { return chart.width < 500; }
+// ── 3D bar shadow plugin ──
+const bar3DPlugin = {
+    id: 'bar3D',
+    afterDatasetsDraw(chart) {
+        const ctx = chart.ctx;
+        chart.data.datasets.forEach((dataset, di) => {
+            const meta = chart.getDatasetMeta(di);
+            if (meta.type !== 'bar') return;
+            meta.data.forEach((bar, idx) => {
+                const val = dataset.data[idx];
+                if (val === null || val === undefined) return;
+                const { x, y, width, height, base } = bar.getProps(['x','y','width','height','base'], true);
+                const depth = Math.max(6, width * 0.18);
+                const barTop = val >= 0 ? y : base;
+                const barBottom = val >= 0 ? base : y;
+                const barHeight = Math.abs(barBottom - barTop);
+                const barLeft = x - width / 2;
+                const rawColor = Array.isArray(dataset.backgroundColor)
+                    ? dataset.backgroundColor[idx]
+                    : dataset.backgroundColor;
+                // right face (3D side)
+                ctx.save();
+                ctx.beginPath();
+                ctx.moveTo(barLeft + width, barTop);
+                ctx.lineTo(barLeft + width + depth, barTop - depth * 0.5);
+                ctx.lineTo(barLeft + width + depth, barBottom - depth * 0.5);
+                ctx.lineTo(barLeft + width, barBottom);
+                ctx.closePath();
+                ctx.fillStyle = shadeColor(rawColor, -28);
+                ctx.fill();
+                // top face
+                ctx.beginPath();
+                ctx.moveTo(barLeft, barTop);
+                ctx.lineTo(barLeft + width, barTop);
+                ctx.lineTo(barLeft + width + depth, barTop - depth * 0.5);
+                ctx.lineTo(barLeft + depth, barTop - depth * 0.5);
+                ctx.closePath();
+                ctx.fillStyle = shadeColor(rawColor, 28);
+                ctx.fill();
+                ctx.restore();
+            });
+        });
+    }
+};
 
-// Builds a responsive y-axis ticks config that keeps the base font scaling but adds a custom callback
-function _mkYTicks(callbackFn) {
-    return {
-        callback: callbackFn,
-        color: '#8896a8',
-        font: function(ctx) { return { size: _isMobileChart(ctx.chart) ? 9 : 11 }; },
-        maxTicksLimit: 6
-    };
+function shadeColor(color, pct) {
+    try {
+        let r, g, b, a = 1;
+        if (color && color.startsWith('rgba')) {
+            const m = color.match(/rgba\((\d+),\s*(\d+),\s*(\d+),\s*([\d.]+)\)/);
+            if (m) { r=+m[1]; g=+m[2]; b=+m[3]; a=+m[4]; }
+        } else if (color && color.startsWith('rgb')) {
+            const m = color.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/);
+            if (m) { r=+m[1]; g=+m[2]; b=+m[3]; }
+        } else if (color && color.startsWith('#')) {
+            const hex = color.length === 4
+                ? color.replace(/./g, (c,i) => i?c+c:c).slice(1)
+                : color.slice(1);
+            r = parseInt(hex.slice(0,2),16);
+            g = parseInt(hex.slice(2,4),16);
+            b = parseInt(hex.slice(4,6),16);
+        } else { return color || '#999'; }
+        r = Math.min(255, Math.max(0, r + Math.round(pct * 2.55)));
+        g = Math.min(255, Math.max(0, g + Math.round(pct * 2.55)));
+        b = Math.min(255, Math.max(0, b + Math.round(pct * 2.55)));
+        return `rgba(${r},${g},${b},${a})`;
+    } catch(e) { return color || '#999'; }
+}
+
+Chart.register(bar3DPlugin);
+
+// Build gradient bar colors with 3D look
+function mk3DGradient(chart, val) {
+    const ctx = chart.ctx;
+    const area = chart.chartArea;
+    if (!area) return val >= 0 ? 'rgba(26,122,74,0.85)' : 'rgba(192,57,43,0.85)';
+    const grad = ctx.createLinearGradient(0, area.top, 0, area.bottom);
+    if (val >= 0) {
+        grad.addColorStop(0, 'rgba(34,160,94,0.95)');
+        grad.addColorStop(1, 'rgba(16,90,50,0.85)');
+    } else {
+        grad.addColorStop(0, 'rgba(231,76,60,0.95)');
+        grad.addColorStop(1, 'rgba(150,30,20,0.85)');
+    }
+    return grad;
 }
 
 const baseChartConfig = {
     responsive: true,
     maintainAspectRatio: false,
+    layout: { padding: { top: 28, right: 8, left: 0, bottom: 4 } },
     plugins: {
         datalabels: {
-            anchor: 'end', align: 'top',
-            // Hide data labels entirely on mobile — they overlap and clip at small widths
-            display: function(context) {
-                return !_isMobileChart(context.chart);
-            },
+            anchor: ctx => ctx.dataset.data[ctx.dataIndex] >= 0 ? 'end' : 'start',
+            align: ctx => ctx.dataset.data[ctx.dataIndex] >= 0 ? 'top' : 'bottom',
+            offset: 2,
+            clip: false,
             formatter: function(value, context) {
                 if (value === null || value === undefined) return '';
                 const id = context.chart.canvas.id;
-                if (id.includes('percentage') || id.includes('Percentage')) return value.toFixed(1) + '%';
-                if (id.includes('cumulative') || id.includes('amount') || id.includes('Return')) {
-                    return '₹' + (value/100000).toFixed(1) + 'L';
+                if (id.includes('percentage') || id.includes('Percentage')) {
+                    return value.toFixed(2) + '%';
+                }
+                if (id.includes('cumulative') || id.includes('Cumulative') || id.includes('amount') || id.includes('Amount') || id.includes('Return') || id.includes('return')) {
+                    const abs = Math.abs(value);
+                    if (abs >= 10000000) return (value < 0 ? '-' : '') + '₹' + (abs/10000000).toFixed(1) + 'Cr';
+                    if (abs >= 100000) return (value < 0 ? '-' : '') + '₹' + (abs/100000).toFixed(1) + 'L';
+                    return (value < 0 ? '-' : '') + '₹' + Math.abs(Math.round(value)).toLocaleString('en-IN');
                 }
                 return value;
             },
-            color: ctx => ctx.dataset.data[ctx.dataIndex] < 0 ? '#c0392b' : '#1a7a4a',
-            font: function(context) {
-                return { weight: 'bold', size: _isMobileChart(context.chart) ? 7 : 9 };
-            }
+            color: ctx => {
+                const v = ctx.dataset.data[ctx.dataIndex];
+                return v < 0 ? '#c0392b' : '#155724';
+            },
+            font: { weight: '700', size: 10, family: "'DM Sans', sans-serif" },
+            textStrokeColor: 'rgba(255,255,255,0.8)',
+            textStrokeWidth: 3,
+            padding: 2
         },
         legend: {
-            position: 'bottom',
-            labels: {
-                font: { family: "'DM Sans', sans-serif", size: 11 },
-                color: '#4a5568',
-                boxWidth: 12,
-                padding: 10,
-                // Shorten long labels on mobile to prevent wrapping
-                generateLabels: function(chart) {
-                    const orig = Chart.defaults.plugins.legend.labels.generateLabels(chart);
-                    if (_isMobileChart(chart)) {
-                        orig.forEach(l => {
-                            if (l.text && l.text.length > 14) l.text = l.text.substring(0, 13) + '…';
-                        });
-                    }
-                    return orig;
-                }
-            }
+            labels: { font: { family: "'DM Sans', sans-serif", size: 12 }, color: '#4a5568', padding: 14, usePointStyle: true },
+            position: 'top'
         },
         tooltip: {
             backgroundColor: '#1a2744',
-            titleFont: { family: "'DM Sans'", weight: '600' },
-            bodyFont: { family: "'DM Sans'", size: 13 },
+            titleFont: { family: "'DM Sans'", size: 13 },
+            bodyFont: { family: "'DM Sans'", size: 12 },
             padding: 12,
-            callbacks: {
-                label: function(ctx) {
-                    const id = ctx.chart.canvas.id;
-                    const v = ctx.parsed.y;
-                    if (v === null || v === undefined) return '';
-                    if (id.includes('percentage') || id.includes('Percentage')) {
-                        return ` ${ctx.dataset.label || ''}: ${v.toFixed(2)}%`;
-                    }
-                    if (Math.abs(v) >= 10000000) return ` ${ctx.dataset.label || ''}: ₹${(v/10000000).toFixed(2)} Cr`;
-                    return ` ${ctx.dataset.label || ''}: ₹${(v/100000).toFixed(2)} L`;
-                }
-            }
+            cornerRadius: 8,
+            borderColor: 'rgba(201,168,76,0.3)',
+            borderWidth: 1
         }
     },
     scales: {
         y: {
             beginAtZero: false,
             grid: { color: 'rgba(189,195,199,0.2)' },
-            ticks: {
-                color: '#8896a8',
-                font: function(context) {
-                    return { size: _isMobileChart(context.chart) ? 9 : 11 };
-                },
-                maxTicksLimit: 6,
-                callback: function(v) { return v.toLocaleString('en-IN'); }
-            }
+            ticks: { color: '#8896a8', font: { size: 10 }, maxTicksLimit: 6, callback: function(v) {
+                const abs = Math.abs(v);
+                if (abs >= 10000000) return (v<0?'-':'')+'₹'+(abs/10000000).toFixed(1)+'Cr';
+                if (abs >= 100000) return (v<0?'-':'')+'₹'+(abs/100000).toFixed(1)+'L';
+                return v.toLocaleString('en-IN');
+            }},
+            border: { display: false }
         },
         x: {
             grid: { display: false },
-            ticks: {
-                color: '#8896a8',
-                font: function(context) {
-                    return { size: _isMobileChart(context.chart) ? 8 : 10 };
-                },
-                autoSkip: true,
-                maxTicksLimit: 7,
-                maxRotation: 45,
-                minRotation: 0
-            }
+            ticks: { color: '#8896a8', font: { size: 9 }, maxRotation: 45, minRotation: 0 },
+            border: { display: false }
         }
     },
     interaction: { mode: 'index', intersect: false }
 };
 
-// ── Storage (Firestore) ──
-// Save a single profile's data to Firestore
+// ── Storage ──
 function saveUserData() {
-    if (!currentUser) return;
-    const entries = allUserData[currentUser] || [];
-    db.collection(FS_COLLECTION).doc(currentUser).set({ entries })
-        .catch(e => console.error('Firestore save error:', e));
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(allUserData)); } catch(e) { console.error(e); }
 }
-
-// Save ALL profiles at once (used after bulk operations)
-function saveAllUserData() {
-    const batch = db.batch();
-    Object.keys(allUserData).forEach(name => {
-        const ref = db.collection(FS_COLLECTION).doc(name);
-        batch.set(ref, { entries: allUserData[name] || [] });
-    });
-    batch.commit().catch(e => console.error('Firestore batch save error:', e));
+function loadUserData() {
+    try {
+        const d = localStorage.getItem(STORAGE_KEY);
+        if (d) { const p = JSON.parse(d); if (p && Object.keys(p).length) return p; }
+    } catch(e) {}
+    return null;
 }
-
-// Load all profiles from Firestore; falls back to seed data if empty
-async function loadAllUserDataFromFirestore() {
-    const snapshot = await db.collection(FS_COLLECTION).get();
-    if (snapshot.empty) return null;
-    const result = {};
-    snapshot.forEach(doc => { result[doc.id] = doc.data().entries || []; });
-    return Object.keys(result).length ? result : null;
-}
-
-// Real-time listener — auto-refreshes UI when any device changes Firestore data
-let _fsUnsub = null;
-function setupRealtimeSync() {
-    if (_fsUnsub) _fsUnsub();
-    _fsUnsub = db.collection(FS_COLLECTION).onSnapshot(snapshot => {
-        let changed = false;
-        snapshot.docChanges().forEach(change => {
-            if (change.type === 'removed') return;
-            const key = change.doc.id;
-            const newEntries = change.doc.data().entries || [];
-            allUserData[key] = newEntries;
-            if (key === currentUser) {
-                currentFinancialData = newEntries;
-                changed = true;
-            }
-        });
-        if (changed && currentUser && profileUnlocked) {
-            updateAll();
-            showToast('Data synced from cloud', 'info');
-        }
-    }, err => console.error('Firestore sync error:', err));
-}
-
-// Legacy localStorage helpers (kept for devName only)
-function loadUserData() { return null; }
 
 // ── Formatting ──
 function fc(v) {
@@ -1786,174 +965,26 @@ function fp(v) {
     return `<span class="neutral">${str}</span>`;
 }
 
-// ── Profile Select Screen ──
-let _psSelectedUser = '';
-
-function showProfileSelectScreen() {
-    sessionStorage.removeItem('gp_session_user'); // force re-auth when switching profiles
-    const screen = document.getElementById('profileSelectScreen');
-    const content = document.getElementById('mainContent');
-    if (screen) screen.style.display = 'flex';
-    if (content) content.style.display = 'none';
-    psShowCards();
-    _buildPsCards();
-}
-
-function _buildPsCards() {
-    const wrap = document.getElementById('psCards');
-    if (!wrap) return;
-    wrap.innerHTML = '';
-    const familyLabel = { 1: 'Family 1', 2: 'Family 2' };
-    Object.keys(PROFILE_PASSWORDS).forEach(name => {
-        const fam = getFamilyForUser(name);
-        const initials = name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
-        const card = document.createElement('button');
-        card.className = 'ps-card';
-        card.setAttribute('tabindex', '0');
-        card.innerHTML = `
-            <div class="ps-avatar">${initials}</div>
-            <div class="ps-name">${name}</div>
-            <div class="ps-family">${familyLabel[fam] || ''}</div>
-        `;
-        card.addEventListener('click', () => psSelectProfile(name));
-        wrap.appendChild(card);
-    });
-}
-
-function psSelectProfile(name) {
-    _psSelectedUser = name;
-    document.getElementById('psCards').style.display = 'none';
-    const step = document.getElementById('psPasswordStep');
-    step.style.display = 'flex';
-    document.getElementById('psSelectedName').textContent = name;
-    document.getElementById('psPwdInput').value = '';
-    document.getElementById('psPwdError').style.display = 'none';
-    setTimeout(() => document.getElementById('psPwdInput').focus(), 80);
-}
-
-function psShowCards() {
-    document.getElementById('psCards').style.display = 'flex';
-    const step = document.getElementById('psPasswordStep');
-    step.style.display = 'none';
-    _psSelectedUser = '';
-}
-
-function psVerify() {
-    const val = document.getElementById('psPwdInput').value;
-    const expected = PROFILE_PASSWORDS[_psSelectedUser] || '';
-    if (val === expected) {
-        // Persist session so page refresh doesn't re-ask for password
-        sessionStorage.setItem('gp_session_user', _psSelectedUser);
-        // Hide selector, unlock profile, load data
-        document.getElementById('profileSelectScreen').style.display = 'none';
-        currentUser = _psSelectedUser;
-        profileUnlocked = true;
-        editUnlocked = false;
-        currentFinancialData = allUserData[currentUser] || [];
-        document.getElementById('tableTitle').textContent = `${currentUser} — Monthly Data`;
-        document.getElementById('chartsTitle').textContent = `${currentUser} — Monthly Performance`;
-        // Mark active pill
-        document.querySelectorAll('.user-pill').forEach(p => {
-            p.classList.remove('active-f1','active-f2');
-            if (p.getAttribute('data-user') === currentUser) {
-                const f = getFamilyForUser(currentUser);
-                p.classList.add(f === 1 ? 'active-f1' : 'active-f2');
-                p.querySelector('input[type="radio"]').checked = true;
-            }
-        });
-        const last = currentFinancialData.length > 0 ? currentFinancialData[currentFinancialData.length-1].month : 'Dec-23';
-        document.getElementById('newMonth').value = getNextMonth(last);
-        collapseTableSection();
-        document.getElementById('mainContent').style.display = '';
-        updateAll();
-        showToast('Welcome, ' + currentUser + '!', 'success');
-    } else {
-        document.getElementById('psPwdError').style.display = 'block';
-        document.getElementById('psPwdInput').value = '';
-        document.getElementById('psPwdInput').focus();
-    }
-}
-
 // ── User Management ──
-async function initializeUserManagement() {
-    // Show loading overlay while Firestore loads
-    _showDbLoading(true);
-    let loaded = null;
-    try { loaded = await loadAllUserDataFromFirestore(); } catch(e) { console.error('Firestore load error:', e); }
-    _showDbLoading(false);
-
+function initializeUserManagement() {
+    const loaded = loadUserData();
     if (loaded) {
         allUserData = loaded;
     } else {
-        // First run — seed default data and push to Firestore
         allUserData['Ajit Gautam'] = [...initialAjitData];
         allUserData['Prem Singh'] = [...initialPremSinghData];
         allUserData['Meenu Tyagi'] = [...initialMeenuTyagiData];
         allUserData['Ganga'] = [...initialGangaData];
-        saveAllUserData();
     }
-    // Ensure all four profiles always exist (new devices never see missing keys)
     if (!allUserData['Ajit Gautam']) allUserData['Ajit Gautam'] = [...initialAjitData];
     if (!allUserData['Prem Singh']) allUserData['Prem Singh'] = [...initialPremSinghData];
     if (!allUserData['Meenu Tyagi']) allUserData['Meenu Tyagi'] = [...initialMeenuTyagiData];
     if (!allUserData['Ganga']) allUserData['Ganga'] = [...initialGangaData];
 
-    setupRealtimeSync();
     rebuildRadios();
-
-    // Resume session from previous tab/refresh without re-entering password
-    const sessionUser = sessionStorage.getItem('gp_session_user');
-    if (sessionUser && allUserData[sessionUser]) {
-        currentUser = sessionUser;
-        profileUnlocked = true;
-        editUnlocked = false;
-        currentFinancialData = allUserData[currentUser] || [];
-        document.getElementById('tableTitle').textContent = `${currentUser} — Monthly Data`;
-        document.getElementById('chartsTitle').textContent = `${currentUser} — Monthly Performance`;
-        document.querySelectorAll('.user-pill').forEach(p => {
-            p.classList.remove('active-f1','active-f2');
-            if (p.getAttribute('data-user') === currentUser) {
-                const f = getFamilyForUser(currentUser);
-                p.classList.add(f === 1 ? 'active-f1' : 'active-f2');
-                p.querySelector('input[type="radio"]').checked = true;
-            }
-        });
-        const last = currentFinancialData.length > 0 ? currentFinancialData[currentFinancialData.length-1].month : 'Dec-23';
-        document.getElementById('newMonth').value = getNextMonth(last);
-        collapseTableSection();
-        document.getElementById('profileSelectScreen').style.display = 'none';
-        document.getElementById('mainContent').style.display = '';
-        updateAll();
-    } else {
-        showProfileSelectScreen();
-    }
-}
-
-function _showDbLoading(show) {
-    let el = document.getElementById('dbLoadingOverlay');
-    if (!el) {
-        el = document.createElement('div');
-        el.id = 'dbLoadingOverlay';
-        el.innerHTML = `<div style="text-align:center">
-            <div style="width:48px;height:48px;border:4px solid rgba(255,255,255,0.2);border-top-color:#c9a84c;border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 16px"></div>
-            <div style="color:#fff;font-size:16px;font-weight:600;letter-spacing:0.5px">Loading dashboard…</div>
-            <div style="color:rgba(255,255,255,0.6);font-size:12px;margin-top:6px">Syncing data from cloud</div>
-        </div>`;
-        Object.assign(el.style, {
-            position:'fixed', inset:'0', background:'rgba(16,34,65,0.96)',
-            display:'flex', alignItems:'center', justifyContent:'center',
-            zIndex:'99999', fontFamily:'DM Sans,sans-serif'
-        });
-        document.body.appendChild(el);
-        // keyframe for spinner
-        if (!document.getElementById('dbLoadingStyle')) {
-            const s = document.createElement('style');
-            s.id = 'dbLoadingStyle';
-            s.textContent = '@keyframes spin{to{transform:rotate(360deg)}}';
-            document.head.appendChild(s);
-        }
-    }
-    el.style.display = show ? 'flex' : 'none';
+    const keys = Object.keys(allUserData).sort();
+    currentUser = keys[0];
+    switchUser(currentUser);
 }
 
 function rebuildRadios() {
@@ -1983,66 +1014,46 @@ function rebuildRadios() {
 
 function switchUser(username) {
     saveUserData();
-    // Lock profile on every user switch — each profile requires its own password
-    profileUnlocked = false;
-    editUnlocked = false;
-    pendingEditCallback = null;
-
-    const container = document.querySelector('.container');
-    if (container) container.classList.add('switching');
-    setTimeout(() => {
-        currentUser = username;
-        currentFinancialData = allUserData[currentUser] || [];
-        document.getElementById('tableTitle').textContent = `${username} — Monthly Data`;
-        document.getElementById('chartsTitle').textContent = `${username} — Monthly Performance`;
-        // Highlight active pill
-        document.querySelectorAll('.user-pill').forEach(p => {
-            p.classList.remove('active-f1','active-f2');
-            if (p.getAttribute('data-user') === username) {
-                const f = getFamilyForUser(username);
-                p.classList.add(f === 1 ? 'active-f1' : 'active-f2');
-                p.querySelector('input[type="radio"]').checked = true;
-            }
-        });
-        const last = currentFinancialData.length > 0 ? currentFinancialData[currentFinancialData.length-1].month : 'Dec-23';
-        document.getElementById('newMonth').value = getNextMonth(last);
-        // Collapse table and hide content — data revealed only after password
-        collapseTableSection();
-        const content = document.getElementById('mainContent');
-        if (content) content.style.display = 'none';
-        if (container) container.classList.remove('switching');
-        _showPwdModal('profile');
-    }, 160);
+    currentUser = username;
+    currentFinancialData = allUserData[currentUser] || [];
+    document.getElementById('tableTitle').textContent = `${username} — Monthly Data`;
+    document.getElementById('chartsTitle').textContent = `${username} — Monthly Performance`;
+    // Highlight active pill
+    document.querySelectorAll('.user-pill').forEach(p => {
+        p.classList.remove('active-f1','active-f2');
+        if (p.getAttribute('data-user') === username) {
+            const f = getFamilyForUser(username);
+            p.classList.add(f === 1 ? 'active-f1' : 'active-f2');
+            p.querySelector('input[type="radio"]').checked = true;
+        }
+    });
+    const last = currentFinancialData.length > 0 ? currentFinancialData[currentFinancialData.length-1].month : 'Dec-23';
+    document.getElementById('newMonth').value = getNextMonth(last);
+    updateAll();
 }
 
 function addUser() {
-    requirePassword(() => {
-        const input = document.getElementById('newUsername');
-        const name = input.value.trim();
-        if (!name) { showToast('Please enter a username.', 'warning'); return; }
-        if (allUserData[name]) { showToast(`"${name}" already exists.`, 'warning'); return; }
-        allUserData[name] = [];
-        rebuildRadios();
-        switchUser(name);
-        input.value = '';
-    });
+    const input = document.getElementById('newUsername');
+    const name = input.value.trim();
+    if (!name) { alert('Please enter a username.'); return; }
+    if (allUserData[name]) { alert(`"${name}" already exists.`); return; }
+    allUserData[name] = [];
+    rebuildRadios();
+    switchUser(name);
+    input.value = '';
 }
 
 function deleteUser() {
-    requirePassword(() => {
-        const checked = document.querySelector('input[name="userSelection"]:checked');
-        if (!checked) { showToast('Select a user to delete.', 'warning'); return; }
-        const del = checked.value;
-        if (Object.keys(allUserData).length <= 1) { showToast('Cannot delete the last user.', 'error'); return; }
-        showConfirmToast(`Delete "${del}" and all their data? This cannot be undone.`, () => {
-            delete allUserData[del];
-            rebuildRadios();
-            const remaining = Object.keys(allUserData).sort();
-            switchUser(remaining[0]);
-            saveUserData();
-            showToast(`User "${del}" deleted.`, 'success');
-        }, 'Delete User');
-    });
+    const checked = document.querySelector('input[name="userSelection"]:checked');
+    if (!checked) { alert('Select a user to delete.'); return; }
+    const del = checked.value;
+    if (Object.keys(allUserData).length <= 1) { alert('Cannot delete last user.'); return; }
+    if (!confirm(`Delete "${del}" and all their data?`)) return;
+    delete allUserData[del];
+    rebuildRadios();
+    const remaining = Object.keys(allUserData).sort();
+    switchUser(remaining[0]);
+    saveUserData();
 }
 
 function getNextMonth(str) {
@@ -2054,28 +1065,23 @@ function getNextMonth(str) {
 }
 
 function addNewMonth() {
-    requirePassword(() => {
-        const month = document.getElementById('newMonth').value.trim();
-        if (!month) { showToast('Month cannot be empty.', 'warning'); return; }
-        if (currentFinancialData.some(i => i.month === month)) {
-            showToast(`Data for ${month} already exists.`, 'warning'); return;
-        }
-        currentFinancialData.push({
-            month,
-            equityReturn: parseFloat(document.getElementById('newEquity').value) || 0,
-            foReturn: parseFloat(document.getElementById('newFO').value) || 0,
-            commodityReturn: parseFloat(document.getElementById('newCommodity').value) || 0,
-            bondInterest: parseFloat(document.getElementById('newBond').value) || 0,
-            deposit: parseFloat(document.getElementById('newDeposit').value) || 0,
-            capitalUsed: 0
-        });
-        sortData(currentFinancialData);
-        allUserData[currentUser] = currentFinancialData;
-        persistFormValues();
-        document.getElementById('newMonth').value = getNextMonth(month);
-        saveUserData(); scheduleUpdateAll();
-        showToast(`${month} added successfully.`, 'success');
+    const month = document.getElementById('newMonth').value.trim();
+    if (!month) { alert('Month cannot be empty.'); return; }
+    if (currentFinancialData.some(i => i.month === month)) {
+        alert(`Data for ${month} already exists.`); return;
+    }
+    currentFinancialData.push({
+        month,
+        equityReturn: parseFloat(document.getElementById('newEquity').value) || 0,
+        foReturn: parseFloat(document.getElementById('newFO').value) || 0,
+        bondInterest: parseFloat(document.getElementById('newBond').value) || 0,
+        deposit: parseFloat(document.getElementById('newDeposit').value) || 0,
+        capitalUsed: 0
     });
+    sortData(currentFinancialData);
+    ['newEquity','newFO','newBond','newDeposit'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('newMonth').value = getNextMonth(month);
+    updateAll(); saveUserData();
 }
 
 function sortData(arr) {
@@ -2090,7 +1096,7 @@ function sortData(arr) {
 function calculateMetrics() {
     currentFinancialData.forEach((item, i) => {
         item.equityFo = (item.equityReturn||0) + (item.foReturn||0);
-        item.monthlyReturn = item.equityFo + (item.bondInterest||0) + (item.commodityReturn||0);
+        item.monthlyReturn = item.equityFo + (item.bondInterest||0);
         if (i === 0) {
             item.capitalUsed = parseFloat(item.capitalUsed) || 0;
         } else {
@@ -2107,21 +1113,18 @@ function updateKPIStrip() {
     const totalReturn = currentFinancialData.reduce((s,i) => s + (i.monthlyReturn||0), 0);
     const totalEquityFo = currentFinancialData.reduce((s,i) => s + (i.equityFo||0), 0);
     const totalBond = currentFinancialData.reduce((s,i) => s + (i.bondInterest||0), 0);
-    const totalCommodity = currentFinancialData.reduce((s,i) => s + (i.commodityReturn||0), 0);
     const lastCapital = currentFinancialData[currentFinancialData.length-1].capitalUsed || 0;
     const avgPct = currentFinancialData.reduce((s,i) => s + parseFloat(i.percentage||0), 0) / currentFinancialData.length;
     const bestMonth = currentFinancialData.reduce((best,i) => (i.monthlyReturn||0) > (best.monthlyReturn||0) ? i : best, currentFinancialData[0]);
 
     document.getElementById('kpiStrip').innerHTML = `
-        <div class="stat-card"><div class="stat-label">Total Return</div><div class="stat-value ${totalReturn>=0?'pos':'neg'}" data-countup="${totalReturn}" data-countup-fmt="lakh">${fcPlain(totalReturn)}</div><div class="stat-sub">${currentFinancialData.length} months</div></div>
-        <div class="stat-card"><div class="stat-label">Equity + F&O</div><div class="stat-value ${totalEquityFo>=0?'pos':'neg'}" data-countup="${totalEquityFo}" data-countup-fmt="lakh">${fcPlain(totalEquityFo)}</div><div class="stat-sub">Trading returns</div></div>
-        <div class="stat-card"><div class="stat-label">Commodity</div><div class="stat-value ${totalCommodity>=0?'pos':'neg'}" data-countup="${totalCommodity}" data-countup-fmt="lakh">${fcPlain(totalCommodity)}</div><div class="stat-sub">Commodity returns</div></div>
-        <div class="stat-card"><div class="stat-label">Bond Income</div><div class="stat-value pos" data-countup="${totalBond}" data-countup-fmt="lakh">${fcPlain(totalBond)}</div><div class="stat-sub">Interest earned</div></div>
-        <div class="stat-card"><div class="stat-label">Current Capital</div><div class="stat-value" data-countup="${lastCapital}" data-countup-fmt="cr">${fcPlain(lastCapital)}</div><div class="stat-sub">Latest month</div></div>
-        <div class="stat-card"><div class="stat-label">Avg Monthly %</div><div class="stat-value ${avgPct>=0?'pos':'neg'}" data-countup="${avgPct}" data-countup-fmt="pct">${avgPct.toFixed(2)}%</div><div class="stat-sub">Return rate</div></div>
+        <div class="stat-card"><div class="stat-label">Total Return</div><div class="stat-value ${totalReturn>=0?'pos':'neg'}">${fcPlain(totalReturn)}</div><div class="stat-sub">${currentFinancialData.length} months</div></div>
+        <div class="stat-card"><div class="stat-label">Equity + F&O</div><div class="stat-value ${totalEquityFo>=0?'pos':'neg'}">${fcPlain(totalEquityFo)}</div><div class="stat-sub">Trading returns</div></div>
+        <div class="stat-card"><div class="stat-label">Bond Income</div><div class="stat-value pos">${fcPlain(totalBond)}</div><div class="stat-sub">Interest earned</div></div>
+        <div class="stat-card"><div class="stat-label">Current Capital</div><div class="stat-value">${fcPlain(lastCapital)}</div><div class="stat-sub">Latest month</div></div>
+        <div class="stat-card"><div class="stat-label">Avg Monthly %</div><div class="stat-value ${avgPct>=0?'pos':'neg'}">${avgPct.toFixed(2)}%</div><div class="stat-sub">Return rate</div></div>
         <div class="stat-card"><div class="stat-label">Best Month</div><div class="stat-value pos">${bestMonth.month}</div><div class="stat-sub">${fcPlain(bestMonth.monthlyReturn||0)}</div></div>
     `;
-    runCountUpOnKPIs();
 }
 
 // ── Table ──
@@ -2132,44 +1135,39 @@ function updateTable() {
             <td>${item.month}</td>
             <td>${inp(item.equityReturn,'equityReturn')}</td>
             <td>${inp(item.foReturn,'foReturn')}</td>
-            <td>${inp(item.commodityReturn||0,'commodityReturn')}</td>
             <td>${inp(item.bondInterest,'bondInterest')}</td>
             <td>${inp(item.deposit,'deposit')}</td>
             <td>${i===0 ? inp(item.capitalUsed,'capitalUsed') : fc(item.capitalUsed||0)}</td>
             <td>${fc(item.equityFo||0)}</td>
             <td>${fc(item.monthlyReturn||0)}</td>
             <td>${fp(item.percentage)}</td>
-            <td style="text-align:center"><button onclick="showDeleteConfirm(this,'${item.month}')" class="btn btn-danger btn-sm">Delete</button></td>
+            <td style="text-align:center"><button onclick="deleteMonth('${item.month}')" class="btn btn-danger btn-sm">Delete</button></td>
         </tr>`;
     }).join('');
 }
 
 function updateEntry(month, el, field) {
     const v = parseFloat(el.value);
-    if (isNaN(v)) { showToast('Enter a valid number.', 'error'); return; }
-    requirePassword(() => {
-        const item = allUserData[currentUser].find(i => i.month === month);
-        if (item) { item[field] = v; saveUserData(); scheduleUpdateAll(); }
-    });
-}
-
-function showDeleteConfirm(btn, month) {
-    const td = btn.parentElement;
-    td.innerHTML = `<div class="delete-confirm-bar">
-        Delete <strong>${month}</strong>?
-        <button class="dc-yes" onclick="deleteMonth('${month}')">Yes, Delete</button>
-        <button class="dc-no" onclick="updateTable()">Cancel</button>
-    </div>`;
+    if (isNaN(v)) { alert('Enter a valid number.'); return; }
+    const item = allUserData[currentUser].find(i => i.month === month);
+    if (item) { item[field] = v; updateAll(); saveUserData(); }
 }
 
 function deleteMonth(m) {
-    requirePassword(() => {
-        const idx = allUserData[currentUser].findIndex(i => i.month === m);
-        if (idx !== -1) {
-            allUserData[currentUser].splice(idx, 1);
-            saveUserData(); scheduleUpdateAll();
-            showToast(`${m} deleted.`, 'success');
-        }
+    const idx = allUserData[currentUser].findIndex(i => i.month === m);
+    if (idx !== -1) { allUserData[currentUser].splice(idx,1); updateAll(); saveUserData(); }
+}
+
+// ── Gradient bar color builder (post-init, uses chart context) ──
+function mkGradColors(chart, dataArr) {
+    const ctx = chart.ctx;
+    const area = chart.chartArea;
+    if (!area) return dataArr.map(v => v >= 0 ? 'rgba(34,160,94,0.9)' : 'rgba(231,76,60,0.9)');
+    return dataArr.map(v => {
+        const g = ctx.createLinearGradient(0, area.top, 0, area.bottom);
+        if (v >= 0) { g.addColorStop(0,'rgba(52,199,120,0.95)'); g.addColorStop(1,'rgba(16,90,50,0.88)'); }
+        else { g.addColorStop(0,'rgba(239,68,68,0.95)'); g.addColorStop(1,'rgba(140,20,20,0.88)'); }
+        return g;
     });
 }
 
@@ -2178,17 +1176,26 @@ function updateCharts() {
     if (percentageChart) percentageChart.destroy();
     if (amountChart) amountChart.destroy();
     const labels = currentFinancialData.map(d => d.month);
-    const mkColor = arr => arr.map(v => v >= 0 ? 'rgba(26,122,74,0.75)' : NEG_BAR_PATTERN);
+    const pctData = currentFinancialData.map(d => parseFloat(d.percentage));
+    const retData = currentFinancialData.map(d => d.monthlyReturn);
+    const flatPosColor = v => v >= 0 ? 'rgba(52,199,120,0.88)' : 'rgba(239,68,68,0.88)';
 
     percentageChart = new Chart(document.getElementById('percentageChart'), {
         type: 'bar',
-        data: { labels, datasets: [{ label: '% Return', data: currentFinancialData.map(d => parseFloat(d.percentage)), backgroundColor: mkColor(currentFinancialData.map(d => parseFloat(d.percentage))), borderRadius: 4, borderWidth: 0 }] },
-        options: { ...baseChartConfig, scales: { ...baseChartConfig.scales, y: { ...baseChartConfig.scales.y, ticks: _mkYTicks(v => v.toFixed(2)+'%') } } }
+        data: { labels, datasets: [{ label: '% Return', data: pctData, backgroundColor: pctData.map(flatPosColor), borderRadius: 5, borderWidth: 0, borderSkipped: false }] },
+        options: {
+            ...baseChartConfig,
+            animation: { onComplete: function() { const c = this; c.data.datasets[0].backgroundColor = mkGradColors(c, pctData); c.update('none'); } },
+            scales: { ...baseChartConfig.scales, y: { ...baseChartConfig.scales.y, ticks: { callback: v => v.toFixed(1)+'%', color:'#8896a8', font:{size:10}, maxTicksLimit:6 }, border:{display:false} } }
+        }
     });
     amountChart = new Chart(document.getElementById('amountChart'), {
         type: 'bar',
-        data: { labels, datasets: [{ label: 'Monthly Return (₹)', data: currentFinancialData.map(d => d.monthlyReturn), backgroundColor: mkColor(currentFinancialData.map(d => d.monthlyReturn)), borderRadius: 4, borderWidth: 0 }] },
-        options: baseChartConfig
+        data: { labels, datasets: [{ label: 'Monthly Return (₹)', data: retData, backgroundColor: retData.map(flatPosColor), borderRadius: 5, borderWidth: 0, borderSkipped: false }] },
+        options: {
+            ...baseChartConfig,
+            animation: { onComplete: function() { const c = this; c.data.datasets[0].backgroundColor = mkGradColors(c, retData); c.update('none'); } }
+        }
     });
 }
 
@@ -2196,10 +1203,27 @@ function updateCumulativeUserChart() {
     if (cumulativeUserChart) cumulativeUserChart.destroy();
     let cum = 0;
     const cumData = currentFinancialData.map(d => { cum += d.monthlyReturn; return cum; });
-    cumulativeUserChart = new Chart(document.getElementById('cumulativeUserChart'), {
+    const canvas = document.getElementById('cumulativeUserChart');
+    const ctx2 = canvas.getContext('2d');
+    const gradFill = ctx2.createLinearGradient(0, 0, 0, 290);
+    gradFill.addColorStop(0, 'rgba(37,99,235,0.22)');
+    gradFill.addColorStop(1, 'rgba(37,99,235,0.02)');
+    cumulativeUserChart = new Chart(canvas, {
         type: 'line',
-        data: { labels: currentFinancialData.map(d => d.month), datasets: [{ label: `Cumulative — ${currentUser}`, data: cumData, borderColor: '#2563eb', backgroundColor: 'rgba(37,99,235,0.08)', fill: true, tension: 0.35, pointRadius: function(ctx) { return _isMobileChart(ctx.chart) ? 1.5 : 3; }, pointBackgroundColor: cumData.map(v => v < 0 ? '#c0392b' : '#2563eb') }] },
-        options: { ...baseChartConfig, scales: { ...baseChartConfig.scales, y: { ...baseChartConfig.scales.y, ticks: _mkYTicks(v => '₹'+(v/100000).toFixed(1)+'L') } } }
+        data: { labels: currentFinancialData.map(d => d.month), datasets: [{
+            label: `Cumulative — ${currentUser}`,
+            data: cumData,
+            borderColor: '#2563eb',
+            borderWidth: 2.5,
+            backgroundColor: gradFill,
+            fill: true, tension: 0.38,
+            pointRadius: 4,
+            pointHoverRadius: 7,
+            pointBackgroundColor: cumData.map(v => v < 0 ? '#e74c3c' : '#2563eb'),
+            pointBorderColor: '#fff',
+            pointBorderWidth: 2
+        }]},
+        options: { ...baseChartConfig, scales: { ...baseChartConfig.scales, y: { ...baseChartConfig.scales.y, ticks: { callback: v => { const a=Math.abs(v); if(a>=10000000)return (v<0?'-':'')+'₹'+(a/10000000).toFixed(1)+'Cr'; if(a>=100000)return (v<0?'-':'')+'₹'+(a/100000).toFixed(1)+'L'; return v.toLocaleString('en-IN'); }, color:'#8896a8', font:{size:10}, maxTicksLimit:6 }, border:{display:false} } } }
     });
 }
 
@@ -2208,10 +1232,9 @@ function calcYearlyForUser(userData) {
     const y = {};
     userData.forEach(e => {
         const yr = '20'+e.month.split('-')[1];
-        if (!y[yr]) y[yr] = { equity:0, fo:0, commodity:0, bonds:0, total:0, capSum:0, count:0, deposits:0 };
+        if (!y[yr]) y[yr] = { equity:0, fo:0, bonds:0, total:0, capSum:0, count:0, deposits:0 };
         y[yr].equity += e.equityReturn||0;
         y[yr].fo += e.foReturn||0;
-        y[yr].commodity += e.commodityReturn||0;
         y[yr].bonds += e.bondInterest||0;
         y[yr].total += e.monthlyReturn||0;
         y[yr].capSum += e.capitalUsed||0;
@@ -2222,52 +1245,40 @@ function calcYearlyForUser(userData) {
         const d = y[yr];
         const avg = d.count ? d.capSum/d.count : 0;
         d.avgCapital = avg;
-        // Annualise: multiply by 12/count so partial years are comparable to full years.
-        // For a complete 12-month year 12/12 = 1 (no change).
-        d.annualPct = avg > 0 ? (d.total / avg) * (12 / d.count) * 100 : 0;
+        d.annualPct = avg > 0 ? (d.total/avg)*100 : 0;
     }
     return y;
 }
 
 function displayAllUsersYearlySummaries() {
-    const container = document.querySelector('#yearlySummary tbody');
+    const container = document.getElementById('yearlySummary');
     container.innerHTML = '';
     Object.keys(allUserData).sort().forEach(username => {
         const yd = calcYearlyForUser(allUserData[username]);
+        const card = document.createElement('div');
+        card.className = 'year-card';
         const fam = getFamilyForUser(username);
-        const familyLabel = fam ? `Family ${fam}` : 'Other';
-        const years = Object.keys(yd).sort();
-
-        const groupRow = document.createElement('tr');
-        groupRow.className = 'group-row';
-        groupRow.innerHTML = `<td colspan="9">${username} — ${familyLabel} (${years.length} year${years.length !== 1 ? 's' : ''})</td>`;
-        container.appendChild(groupRow);
-
-        if (!years.length) {
-            const emptyRow = document.createElement('tr');
-            emptyRow.className = 'year-row';
-            emptyRow.innerHTML = `<td colspan="9" style="color:var(--text-muted);font-style:italic;padding:14px 16px">No yearly performance data available yet.</td>`;
-            container.appendChild(emptyRow);
-            return;
-        }
-
-        years.forEach(yr => {
+        const famColor = fam === 1 ? '#2563eb' : fam === 2 ? '#7c3aed' : '#1a2744';
+        let html = `<div class="year-card-header">
+            <h3>${username}</h3>
+            <span style="background:${famColor}15;color:${famColor};font-size:10px;font-weight:600;padding:3px 9px;border-radius:20px;border:1px solid ${famColor}30">
+                ${fam ? 'Family '+fam : 'Other'}
+            </span>
+        </div>`;
+        Object.keys(yd).sort().forEach(yr => {
             const d = yd[yr];
-            const row = document.createElement('tr');
-            row.className = 'year-row';
-            row.innerHTML = `
-                <td></td>
-                <td>${yr}</td>
-                <td><span class="${d.total>=0?'pos':'neg'}">${fcPlain(d.total)}</span></td>
-                <td>${fcPlain(d.equity + d.fo)}</td>
-                <td><span class="${d.commodity>=0?'pos':'neg'}">${fcPlain(d.commodity || 0)}</span></td>
-                <td class="pos">${fcPlain(d.bonds)}</td>
-                <td>${fcPlain(d.avgCapital)}</td>
-                <td><span class="${d.annualPct>=0?'pos':'neg'}">${d.annualPct.toFixed(2)}%</span></td>
-                <td>${familyLabel}</td>
-            `;
-            container.appendChild(row);
+            const pct = d.annualPct.toFixed(2);
+            const isPos = d.total >= 0;
+            html += `
+                <div style="margin-bottom:12px;padding:12px;background:var(--bg);border-radius:8px;border:1px solid var(--border)">
+                    <div style="font-weight:600;color:var(--navy);margin-bottom:8px;font-size:13px">${yr}</div>
+                    <div class="summary-row"><span class="sr-label">Total Return</span><span class="sr-value ${isPos?'pos':'neg'}">${fcPlain(d.total)}</span></div>
+                    <div class="summary-row"><span class="sr-label">Annual Return %</span><span class="sr-value ${parseFloat(pct)>=0?'pos':'neg'}">${pct}%</span></div>
+                    <div class="summary-row"><span class="sr-label">Avg Capital</span><span class="sr-value">${fcPlain(d.avgCapital)}</span></div>
+                </div>`;
         });
+        card.innerHTML = html;
+        container.appendChild(card);
     });
 }
 
@@ -2296,16 +1307,14 @@ function updateFamilySection(famNum, members, statsId, tableId, m1TotalId, m2Tot
         const d2 = m2Yearly[yr] || { total: 0, avgCapital: 0, annualPct: 0, count: 0 };
         const combined = d1.total + d2.total;
         const avgCap = (d1.avgCapital + d2.avgCapital);
-        // Annualise: use max months reported by either member so partial years are comparable
-        const monthsReported = Math.max(d1.count, d2.count, 1);
-        const avgPct = avgCap > 0 ? (combined / avgCap) * (12 / monthsReported) * 100 : 0;
+        const avgPct = avgCap > 0 ? (combined / avgCap) * 100 : 0;
         totM1 += d1.total; totM2 += d2.total; totCombined += combined;
         totalCap += avgCap; pctSum += avgPct; pctCount++;
         const tr = document.createElement('tr');
         tr.innerHTML = `
             <td><strong>${yr}</strong></td>
             <td>${d1.count > 0 ? `<span class="${d1.total>=0?'pos':'neg'}">${fcPlain(d1.total)}</span>` : '<span style="color:var(--text-muted)">No data</span>'}</td>
-            <td>${d2.count > 0 ? `<span class="${d2.total>=0?'pos':'neg'}">${fcPlain(d2.total)}</span>` : '<span style="color:var(--text-muted)">No data yet</span>'}</td>
+            <td>${d2.count > 0 ? `<span class="${d2.total>=0?'pos':'neg'}">${fcPlain(d2.total)}</span>` : '<span style="color:var(--text-muted)">No data</span>'}</td>
             <td><span class="${combined>=0?'pos':'neg'}" style="font-weight:700">${fcPlain(combined)}</span></td>
             <td>${fcPlain(avgCap)}</td>
             <td><span class="${avgPct>=0?'pos':'neg'}">${avgPct.toFixed(2)}%</span></td>
@@ -2382,17 +1391,26 @@ function updateOverallCharts() {
     if (overallPercentageChart) overallPercentageChart.destroy();
     const oy = calcOverallYearly();
     const years = Object.keys(oy).sort();
-    const mkColor = arr => arr.map(v => v>=0?'rgba(26,122,74,0.75)':NEG_BAR_PATTERN);
+    const flatPosColor = v => v >= 0 ? 'rgba(52,199,120,0.88)' : 'rgba(239,68,68,0.88)';
+    const retData = years.map(y => oy[y].total);
+    const pctData = years.map(y => oy[y].avgPct);
 
     overallReturnChart = new Chart(document.getElementById('overallReturnChart'), {
         type: 'bar',
-        data: { labels: years, datasets: [{ label: 'Total Return (₹)', data: years.map(y => oy[y].total), backgroundColor: mkColor(years.map(y=>oy[y].total)), borderRadius: 5, borderWidth: 0 }] },
-        options: baseChartConfig
+        data: { labels: years, datasets: [{ label: 'Total Return (₹)', data: retData, backgroundColor: retData.map(flatPosColor), borderRadius: 6, borderWidth: 0, borderSkipped: false }] },
+        options: {
+            ...baseChartConfig,
+            animation: { onComplete: function() { const c=this; c.data.datasets[0].backgroundColor=mkGradColors(c,retData); c.update('none'); } }
+        }
     });
     overallPercentageChart = new Chart(document.getElementById('overallPercentageChart'), {
         type: 'bar',
-        data: { labels: years, datasets: [{ label: 'Avg % Return', data: years.map(y => oy[y].avgPct), backgroundColor: mkColor(years.map(y=>oy[y].avgPct)), borderRadius: 5, borderWidth: 0 }] },
-        options: { ...baseChartConfig, scales: { ...baseChartConfig.scales, y: { ...baseChartConfig.scales.y, ticks: _mkYTicks(v => v.toFixed(2)+'%') } } }
+        data: { labels: years, datasets: [{ label: 'Avg % Return', data: pctData, backgroundColor: pctData.map(flatPosColor), borderRadius: 6, borderWidth: 0, borderSkipped: false }] },
+        options: {
+            ...baseChartConfig,
+            animation: { onComplete: function() { const c=this; c.data.datasets[0].backgroundColor=mkGradColors(c,pctData); c.update('none'); } },
+            scales: { ...baseChartConfig.scales, y: { ...baseChartConfig.scales.y, ticks: { callback: v => v.toFixed(1)+'%', color:'#8896a8', font:{size:10}, maxTicksLimit:6 }, border:{display:false} } }
+        }
     });
 }
 
@@ -2406,16 +1424,31 @@ function updateCumulativeAllUsersChart() {
         return (parseInt(ya)-parseInt(yb)) || (mi[ma]-mi[mb]);
     });
     colorIndex = 0;
+    const canvas = document.getElementById('cumulativeAllUsersChart');
+    const ctx2 = canvas.getContext('2d');
     const datasets = Object.keys(allUserData).sort().map(username => {
         const ud = allUserData[username];
         let cum = 0;
         const map = new Map(ud.map(i => [i.month, i.monthlyReturn]));
         const color = getNextChartColor();
-        return { label: username, data: allMonths.map(m => { if(map.has(m)){cum+=map.get(m);return cum;} return null; }), borderColor: color, backgroundColor: 'transparent', fill: false, tension: 0.3, pointRadius: function(ctx) { return _isMobileChart(ctx.chart) ? 1.5 : 3; }, spanGaps: true };
+        const cumData = allMonths.map(m => { if(map.has(m)){cum+=map.get(m);return cum;} return null; });
+        const gradFill = ctx2.createLinearGradient(0, 0, 0, 290);
+        const hexColor = color.startsWith('#') ? color : color;
+        gradFill.addColorStop(0, shadeColor(hexColor, 0).replace(')', ',0.18)').replace('rgb(', 'rgba('));
+        gradFill.addColorStop(1, shadeColor(hexColor, 0).replace(')', ',0.02)').replace('rgb(', 'rgba('));
+        return {
+            label: username, data: cumData,
+            borderColor: color, borderWidth: 2.5,
+            backgroundColor: gradFill, fill: true, tension: 0.38,
+            pointRadius: 4, pointHoverRadius: 7,
+            pointBackgroundColor: cumData.map(v => v === null ? color : (v < 0 ? '#e74c3c' : color)),
+            pointBorderColor: '#fff', pointBorderWidth: 2,
+            spanGaps: true
+        };
     });
-    cumulativeAllUsersChart = new Chart(document.getElementById('cumulativeAllUsersChart'), {
+    cumulativeAllUsersChart = new Chart(canvas, {
         type: 'line', data: { labels: allMonths, datasets },
-        options: { ...baseChartConfig, scales: { ...baseChartConfig.scales, y: { ...baseChartConfig.scales.y, ticks: _mkYTicks(v => '₹'+(v/100000).toFixed(1)+'L') } } }
+        options: { ...baseChartConfig, scales: { ...baseChartConfig.scales, y: { ...baseChartConfig.scales.y, ticks: { callback: v => { const a=Math.abs(v); if(a>=10000000)return (v<0?'-':'')+'₹'+(a/10000000).toFixed(1)+'Cr'; if(a>=100000)return (v<0?'-':'')+'₹'+(a/100000).toFixed(1)+'L'; return v.toLocaleString('en-IN'); }, color:'#8896a8', font:{size:10}, maxTicksLimit:6 }, border:{display:false} } } }
     });
 }
 
@@ -2429,41 +1462,43 @@ function updateMonthlyPercentageAllUsersChart() {
         return (parseInt(ya)-parseInt(yb)) || (mi[ma]-mi[mb]);
     });
     colorIndex = 0;
+    const canvas = document.getElementById('overallMonthlyPercentageChart');
+    const ctx2 = canvas.getContext('2d');
     const datasets = Object.keys(allUserData).sort().map(username => {
         const ud = allUserData[username];
         const map = new Map(ud.map(i => [i.month, parseFloat(i.percentage||0)]));
         const color = getNextChartColor();
-        return { label: username, data: allMonths.map(m => map.has(m) ? map.get(m) : null), borderColor: color, backgroundColor: 'transparent', fill: false, tension: 0.3, pointRadius: function(ctx) { return _isMobileChart(ctx.chart) ? 1.5 : 3; }, spanGaps: true };
+        const pctData = allMonths.map(m => map.has(m) ? map.get(m) : null);
+        const gradFill = ctx2.createLinearGradient(0, 0, 0, 290);
+        gradFill.addColorStop(0, shadeColor(color, 0).replace(')', ',0.15)').replace('rgb(', 'rgba('));
+        gradFill.addColorStop(1, shadeColor(color, 0).replace(')', ',0.01)').replace('rgb(', 'rgba('));
+        return {
+            label: username, data: pctData,
+            borderColor: color, borderWidth: 2.5,
+            backgroundColor: gradFill, fill: true, tension: 0.38,
+            pointRadius: 4, pointHoverRadius: 7,
+            pointBackgroundColor: pctData.map(v => v === null ? color : (v < 0 ? '#e74c3c' : color)),
+            pointBorderColor: '#fff', pointBorderWidth: 2,
+            spanGaps: true
+        };
     });
-    overallMonthlyPercentageChart = new Chart(document.getElementById('overallMonthlyPercentageChart'), {
+    overallMonthlyPercentageChart = new Chart(canvas, {
         type: 'line', data: { labels: allMonths, datasets },
-        options: { ...baseChartConfig, scales: { ...baseChartConfig.scales, y: { ...baseChartConfig.scales.y, ticks: _mkYTicks(v => v.toFixed(2)+'%') } } }
+        options: { ...baseChartConfig, scales: { ...baseChartConfig.scales, y: { ...baseChartConfig.scales.y, ticks: { callback: v => v.toFixed(1)+'%', color:'#8896a8', font:{size:10}, maxTicksLimit:6 }, border:{display:false} } } }
     });
 }
 
 // ── Excel ──
 function downloadExcel() {
-    if (!currentFinancialData.length) { showToast('No data to download.', 'warning'); return; }
-    // Ensure derived fields (equityFo, monthlyReturn, percentage, capitalUsed) are up to date
-    calculateMetrics();
-    const rows = [['Month','Equity Return','F&O Return','Commodity Return','Bond Interest','Deposit','Capital Used','Equity+F&O','Monthly Return','% Return']];
-    currentFinancialData.forEach(i => rows.push([
-        i.month,
-        i.equityReturn || 0,
-        i.foReturn || 0,
-        i.commodityReturn || 0,
-        i.bondInterest || 0,
-        i.deposit || 0,
-        i.capitalUsed || 0,
-        i.equityFo || 0,
-        i.monthlyReturn || 0,
-        parseFloat(i.percentage || 0) / 100   // stored as "2.34", export as 0.0234 so Excel renders 2.34%
-    ]));
+    const data = allUserData[currentUser] || [];
+    if (!data.length) { alert('No data to download.'); return; }
+    const rows = [['Month','Equity Return','F&O Return','Bond Interest','Deposit','Capital Used','Equity+F&O','Monthly Return','% Return']];
+    data.forEach(i => rows.push([i.month, i.equityReturn, i.foReturn, i.bondInterest, i.deposit, i.capitalUsed, i.equityFo, i.monthlyReturn, (parseFloat(i.percentage||0)/100)]));
     const wb = XLSX.utils.book_new();
     const ws = XLSX.utils.aoa_to_sheet(rows);
     const range = XLSX.utils.decode_range(ws['!ref']);
-    for (let R = range.s.r + 1; R <= range.e.r; R++) {
-        const ref = XLSX.utils.encode_cell({ c: 9, r: R }); // % Return is column index 9 (10th column)
+    for (let R = range.s.r+1; R <= range.e.r; R++) {
+        const ref = XLSX.utils.encode_cell({c:8,r:R});
         if (ws[ref]) ws[ref].z = '0.00%';
     }
     XLSX.utils.book_append_sheet(wb, ws, `${currentUser}`);
@@ -2473,13 +1508,12 @@ function downloadExcel() {
 function uploadExcel(event) {
     const file = event.target.files[0];
     if (!file) return;
-    requirePassword(() => {
     const reader = new FileReader();
     reader.onload = e => {
         const wb = XLSX.read(e.target.result, {type:'binary'});
         const ws = wb.Sheets[wb.SheetNames[0]];
         const rows = XLSX.utils.sheet_to_json(ws, {header:1});
-        if (rows.length < 2) { showToast('File is empty or unreadable.', 'error'); return; }
+        if (rows.length < 2) { alert('File is empty.'); return; }
         const headers = rows[0];
         const entries = [];
         for (let i = 1; i < rows.length; i++) {
@@ -2490,7 +1524,6 @@ function uploadExcel(event) {
                 month: String(month).trim(),
                 equityReturn: parseFloat(r[headers.indexOf('Equity Return')])||0,
                 foReturn: parseFloat(r[headers.indexOf('F&O Return')])||0,
-                commodityReturn: parseFloat(r[headers.indexOf('Commodity')])||0,
                 bondInterest: parseFloat(r[headers.indexOf('Bond Interest')])||0,
                 deposit: parseFloat(r[headers.indexOf('Deposit')])||0,
                 capitalUsed: parseFloat(r[headers.indexOf('Capital Used')])||0
@@ -2501,618 +1534,28 @@ function uploadExcel(event) {
         sortData(currentFinancialData);
         allUserData[currentUser] = currentFinancialData;
         updateAll(); saveUserData();
-        showToast(`Imported ${entries.length} month${entries.length !== 1 ? 's' : ''} successfully.`, 'success', 'Import Complete');
+        alert(`Uploaded ${entries.length} months successfully.`);
     };
     reader.readAsBinaryString(file);
-    }); // end requirePassword
-}
-
-// ── Gautam Family (All 4 Members) ──
-function updateGautamFamilySection() {
-    const MEMBERS = [
-        { key: 'Ajit Gautam',  shortName: 'Ajit',  kpiId: 'gfAjitTotal'  },
-        { key: 'Meenu Tyagi',  shortName: 'Meenu', kpiId: 'gfMeenuTotal' },
-        { key: 'Prem Singh',   shortName: 'Prem',  kpiId: 'gfPremTotal'  },
-        { key: 'Ganga',        shortName: 'Ganga', kpiId: 'gfGangaTotal' }
-    ];
-
-    // Build per-year per-member data
-    const memberYearly = {};
-    MEMBERS.forEach(m => {
-        memberYearly[m.key] = calcYearlyForUser(allUserData[m.key] || []);
-    });
-
-    const allYears = [...new Set(MEMBERS.flatMap(m => Object.keys(memberYearly[m.key])))].sort();
-
-    // Grand totals per member
-    const grandTotals = {};
-    MEMBERS.forEach(m => { grandTotals[m.key] = 0; });
-    let grandCombined = 0, grandCapital = 0, grandDeposits = 0;
-    let grandPctSum = 0, grandPctCount = 0;
-
-    const tbody = document.getElementById('gautamFamilyTbody');
-    tbody.innerHTML = '';
-
-    // Year-chart data
-    const yearLabels = allYears;
-    const memberReturns = MEMBERS.map(() => []);
-    const combinedByYear = [];
-    const capitalByYear = [];
-    const pctByYear = [];
-
-    allYears.forEach(yr => {
-        let combined = 0, capSum = 0, depSum = 0;
-        const memberVals = MEMBERS.map(m => {
-            const d = memberYearly[m.key][yr] || { total:0, avgCapital:0, annualPct:0, count:0 };
-            return d;
-        });
-
-        let maxCount = 0;
-        memberVals.forEach((d, i) => {
-            combined += d.total;
-            capSum += d.avgCapital;
-            depSum += (memberYearly[MEMBERS[i].key][yr] || { deposits:0 }).deposits;
-            grandTotals[MEMBERS[i].key] += d.total;
-            memberReturns[i].push(d.total);
-            if (d.count > maxCount) maxCount = d.count;
-        });
-
-        // Annualise: scale by 12/months-reported so partial years compare fairly to full years
-        const monthsFactor = maxCount > 0 ? 12 / maxCount : 1;
-        const pct = capSum > 0 ? (combined / capSum) * monthsFactor * 100 : 0;
-        grandCombined += combined;
-        grandCapital += capSum;
-        grandDeposits += depSum;
-        grandPctSum += pct; grandPctCount++;
-        combinedByYear.push(combined);
-        capitalByYear.push(capSum);
-        pctByYear.push(pct);
-
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-            <td><strong>${yr}</strong></td>
-            ${memberVals.map((d, i) => `<td>${memberYearly[MEMBERS[i].key][yr] 
-                ? `<span class="${d.total>=0?'pos':'neg'}">${fcPlain(d.total)}</span>` 
-                : `<span style="color:var(--text-muted);font-size:11px">—</span>`}</td>`).join('')}
-            <td style="background:#eff6ff;border-left:2px solid #bfdbfe;font-weight:700">
-                <span class="${combined>=0?'pos':'neg'}">${fcPlain(combined)}</span>
-            </td>
-            <td>${fcPlain(capSum)}</td>
-            <td>${fcPlain(depSum)}</td>
-            <td style="background:#f0fdf4;border-left:2px solid #bbf7d0">
-                <span class="${pct>=0?'pos':'neg'}">${pct.toFixed(2)}%</span>
-            </td>
-        `;
-        tbody.appendChild(tr);
-    });
-
-    // Footer totals
-    MEMBERS.forEach(m => {
-        const el = document.getElementById(m.kpiId);
-        if (el) el.innerHTML = `<span class="${grandTotals[m.key]>=0?'pos':'neg'}">${fcPlain(grandTotals[m.key])}</span>`;
-    });
-    const avgPct = grandPctCount ? grandPctSum / grandPctCount : 0;
-    const avgCapital = grandPctCount ? grandCapital / grandPctCount : 0;
-    document.getElementById('gfCombinedTotal').innerHTML = `<span class="${grandCombined>=0?'pos':'neg'}" style="font-size:14px;font-weight:700">${fcPlain(grandCombined)}</span>`;
-    document.getElementById('gfCapitalTotal').innerHTML = fcPlain(avgCapital);
-    document.getElementById('gfDepositTotal').innerHTML = fcPlain(grandDeposits);
-    document.getElementById('gfOverallPct').innerHTML = `<span class="${avgPct>=0?'pos':'neg'}" style="font-weight:700">${avgPct.toFixed(2)}%</span>`;
-
-    // KPI strip
-    const activeMembers = MEMBERS.filter(m => (allUserData[m.key]||[]).length > 0).length;
-    document.getElementById('gautamFamilyKPI').innerHTML = `
-        <div class="fam-stat"><div class="fs-label">Total Combined Return</div><div class="fs-val" style="color:${grandCombined>=0?'var(--emerald)':'var(--crimson)'}">${fcPlain(grandCombined)}</div></div>
-        <div class="fam-stat"><div class="fs-label">Ajit Gautam</div><div class="fs-val" style="color:${grandTotals['Ajit Gautam']>=0?'var(--emerald)':'var(--crimson)'};font-size:17px">${fcPlain(grandTotals['Ajit Gautam'])}</div></div>
-        <div class="fam-stat"><div class="fs-label">Meenu Tyagi</div><div class="fs-val" style="color:${grandTotals['Meenu Tyagi']>=0?'var(--emerald)':'var(--crimson)'};font-size:17px">${fcPlain(grandTotals['Meenu Tyagi'])}</div></div>
-        <div class="fam-stat"><div class="fs-label">Prem Singh</div><div class="fs-val" style="color:${grandTotals['Prem Singh']>=0?'var(--emerald)':'var(--crimson)'};font-size:17px">${fcPlain(grandTotals['Prem Singh'])}</div></div>
-        <div class="fam-stat"><div class="fs-label">Ganga</div><div class="fs-val" style="color:${grandTotals['Ganga']>=0?'var(--emerald)':'var(--crimson)'};font-size:17px">${(allUserData['Ganga']||[]).length?fcPlain(grandTotals['Ganga']):'No data yet'}</div></div>
-        <div class="fam-stat"><div class="fs-label">Avg Annual %</div><div class="fs-val" style="color:${avgPct>=0?'var(--emerald)':'var(--crimson)'}">${avgPct.toFixed(2)}%</div></div>
-        <div class="fam-stat"><div class="fs-label">Avg Capital Deployed</div><div class="fs-val" style="font-size:16px">${fcPlain(avgCapital)}</div></div>
-        <div class="fam-stat"><div class="fs-label">Active Members</div><div class="fs-val">${activeMembers} / 4</div></div>
-    `;
-
-    // ── Year-wise combined return chart ──
-    if (gautamFamilyYearChart) gautamFamilyYearChart.destroy();
-    gautamFamilyYearChart = new Chart(document.getElementById('gautamFamilyYearChart'), {
-        type: 'bar',
-        data: {
-            labels: yearLabels,
-            datasets: [{
-                label: 'Combined Return (₹)',
-                data: combinedByYear,
-                backgroundColor: combinedByYear.map(v => v>=0 ? 'rgba(37,99,235,0.75)' : 'rgba(192,57,43,0.75)'),
-                borderRadius: 6, borderWidth: 0
-            }, {
-                label: 'Total Capital Used (₹)',
-                data: capitalByYear,
-                backgroundColor: 'rgba(124,58,237,0.25)',
-                borderColor: 'rgba(124,58,237,0.7)',
-                borderWidth: 2,
-                type: 'line',
-                fill: false,
-                tension: 0.3,
-                pointRadius: function(ctx) { return _isMobileChart(ctx.chart) ? 2 : 5; },
-                yAxisID: 'y1'
-            }]
-        },
-        options: {
-            ...baseChartConfig,
-            plugins: {
-                ...baseChartConfig.plugins,
-                datalabels: {
-                    anchor: 'end', align: 'top',
-                    formatter: (v, ctx) => ctx.datasetIndex === 0 ? '₹'+(v/100000).toFixed(1)+'L' : '',
-                    color: ctx => ctx.dataset.data[ctx.dataIndex] < 0 ? '#c0392b' : '#1a7a4a',
-                    font: { weight: 'bold', size: 9 }
-                }
-            },
-            scales: {
-                y: { beginAtZero: false, grid: { color: 'rgba(189,195,199,0.2)' }, ticks: { callback: v => '₹'+(v/100000).toFixed(0)+'L', color:'#8896a8', font:{size:10} }, title: { display: true, text: 'Return (₹)', color:'#8896a8' } },
-                y1: { beginAtZero: false, position: 'right', grid: { drawOnChartArea: false }, ticks: { callback: v => '₹'+(v/10000000).toFixed(1)+'Cr', color:'#7c3aed', font:{size:10} }, title: { display: true, text: 'Capital (₹)', color:'#7c3aed' } },
-                x: { grid: { display: false }, ticks: { color:'#8896a8', font:{size:11} } }
-            }
-        }
-    });
-
-    // ── Cumulative all-4 chart ──
-    if (gautamFamilyCumChart) gautamFamilyCumChart.destroy();
-    const allMonthsSet = new Set();
-    MEMBERS.forEach(m => (allUserData[m.key]||[]).forEach(d => allMonthsSet.add(d.month)));
-    const mi2 = {Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,Jul:6,Aug:7,Sep:8,Oct:9,Nov:10,Dec:11};
-    const allMonths = Array.from(allMonthsSet).sort((a,b) => {
-        const [ma,ya] = a.split('-'), [mb,yb] = b.split('-');
-        return (parseInt(ya)-parseInt(yb)) || (mi2[ma]-mi2[mb]);
-    });
-    const memberColors = ['#2563eb','#7c3aed','#059669','#d97706'];
-    const cumDatasets = MEMBERS.map((m, i) => {
-        const ud = allUserData[m.key] || [];
-        const map = new Map(ud.map(d => [d.month, d.monthlyReturn]));
-        let cum = 0;
-        const color = memberColors[i];
-        return {
-            label: m.shortName,
-            data: allMonths.map(mo => { if(map.has(mo)){cum+=map.get(mo);return cum;} return null; }),
-            borderColor: color,
-            backgroundColor: color+'18',
-            fill: i === 0,
-            tension: 0.35,
-            pointRadius: function(ctx) { return _isMobileChart(ctx.chart) ? 1.5 : 3; },
-            spanGaps: true
-        };
-    });
-    // Combined total line
-    const combinedCumMap = {};
-    MEMBERS.forEach(m => {
-        (allUserData[m.key]||[]).forEach(d => {
-            combinedCumMap[d.month] = (combinedCumMap[d.month]||0) + (d.monthlyReturn||0);
-        });
-    });
-    let cumComb = 0;
-    cumDatasets.push({
-        label: '★ All Combined',
-        data: allMonths.map(mo => { cumComb += (combinedCumMap[mo]||0); return cumComb; }),
-        borderColor: '#0f2027',
-        backgroundColor: 'transparent',
-        borderWidth: 2.5,
-        borderDash: [5,3],
-        fill: false,
-        tension: 0.35,
-        pointRadius: function(ctx) { return _isMobileChart(ctx.chart) ? 2 : 4; },
-        pointBackgroundColor: '#0f2027'
-    });
-    gautamFamilyCumChart = new Chart(document.getElementById('gautamFamilyCumChart'), {
-        type: 'line',
-        data: { labels: allMonths, datasets: cumDatasets },
-        options: {
-            ...baseChartConfig,
-            plugins: { ...baseChartConfig.plugins, datalabels: { display: false } },
-            scales: {
-                y: { beginAtZero: false, grid: { color:'rgba(189,195,199,0.2)' }, ticks: { callback: v => '₹'+(v/100000).toFixed(1)+'L', color:'#8896a8', font:{size:10} } },
-                x: { grid: { display:false }, ticks: { color:'#8896a8', font:{size:10} } }
-            }
-        }
-    });
-
-    // ── Member contribution stacked bar ──
-    if (gautamFamilyContribChart) gautamFamilyContribChart.destroy();
-    gautamFamilyContribChart = new Chart(document.getElementById('gautamFamilyContribChart'), {
-        type: 'bar',
-        data: {
-            labels: yearLabels,
-            datasets: MEMBERS.map((m, i) => ({
-                label: m.shortName,
-                data: memberReturns[i],
-                backgroundColor: memberColors[i]+'bb',
-                borderColor: memberColors[i],
-                borderWidth: 1,
-                borderRadius: 4
-            }))
-        },
-        options: {
-            ...baseChartConfig,
-            plugins: {
-                ...baseChartConfig.plugins,
-                datalabels: {
-                    display: ctx => Math.abs(ctx.dataset.data[ctx.dataIndex]) > 50000,
-                    anchor: 'center', align: 'center',
-                    formatter: v => v >= 0 ? '₹'+(v/100000).toFixed(1)+'L' : '-₹'+(Math.abs(v)/100000).toFixed(1)+'L',
-                    color: '#fff',
-                    font: { weight: 'bold', size: 8 }
-                }
-            },
-            scales: {
-                x: { stacked: true, grid: { display: false }, ticks: { color:'#8896a8', font:{size:11} } },
-                y: { stacked: true, grid: { color:'rgba(189,195,199,0.2)' }, ticks: { callback: v => '₹'+(v/100000).toFixed(0)+'L', color:'#8896a8', font:{size:10} } }
-            }
-        }
-    });
 }
 
 // ── Master Update ──
-let _updateTimer = null;
-function scheduleUpdateAll() {
-    clearTimeout(_updateTimer);
-    _updateTimer = setTimeout(updateAll, 300);
-}
 function updateAll() {
     currentFinancialData = allUserData[currentUser] || [];
     calculateMetrics();
-    updateHeroSummary();
     updateKPIStrip();
     updateTable();
     updateCharts();
     updateCumulativeUserChart();
     displayAllUsersYearlySummaries();
     updateFamilySummaries();
-    updateGautamFamilySection();
     updateOverallYearlySummary();
     updateOverallCharts();
     updateCumulativeAllUsersChart();
     updateMonthlyPercentageAllUsersChart();
 }
 
-// ── Toast Notifications ──
-const TOAST_ICONS = { success: '✓', error: '✕', warning: '⚠', info: 'ℹ' };
-const TOAST_TITLES = { success: 'Success', error: 'Error', warning: 'Notice', info: 'Info' };
-
-function showToast(message, type = 'info', title = null, duration = 3500) {
-    const container = document.getElementById('toast-container');
-    const toast = document.createElement('div');
-    toast.className = `toast ${type}`;
-    toast.innerHTML = `
-        <span class="toast-icon">${TOAST_ICONS[type] || 'ℹ'}</span>
-        <div class="toast-body">
-            <div class="toast-title">${title || TOAST_TITLES[type] || 'Notice'}</div>
-            <div class="toast-msg">${message}</div>
-        </div>
-        <button class="toast-close" aria-label="Dismiss">×</button>`;
-    toast.querySelector('.toast-close').onclick = () => dismissToast(toast);
-    container.appendChild(toast);
-    if (duration > 0) setTimeout(() => dismissToast(toast), duration);
-    return toast;
-}
-
-function showConfirmToast(message, onConfirm, title = 'Confirm Action') {
-    const container = document.getElementById('toast-container');
-    const toast = document.createElement('div');
-    toast.className = 'toast error';
-    toast.innerHTML = `
-        <span class="toast-icon">⚠</span>
-        <div class="toast-body">
-            <div class="toast-title">${title}</div>
-            <div class="toast-msg">${message}</div>
-            <div class="toast-actions">
-                <button class="toast-btn-confirm">Yes, Delete</button>
-                <button class="toast-btn-cancel">Cancel</button>
-            </div>
-        </div>`;
-    toast.querySelector('.toast-btn-confirm').onclick = () => { dismissToast(toast); onConfirm(); };
-    toast.querySelector('.toast-btn-cancel').onclick = () => dismissToast(toast);
-    container.appendChild(toast);
-    return toast;
-}
-
-function dismissToast(toast) {
-    if (!toast || !toast.parentNode) return;
-    toast.classList.add('dismissing');
-    setTimeout(() => toast.parentNode && toast.parentNode.removeChild(toast), 230);
-}
-
-// ── Password Protection ──
-// Per-profile passwords — viewing requires profile password, editing requires same password
-const PROFILE_PASSWORDS = {
-    'Ajit Gautam':  'Print@999',
-    'Ganga':        'Print@777',
-    'Meenu Tyagi':  'Print@444',
-    'Prem Singh':   'Print@777',
-};
-
-const MASTER_EDIT_PASSWORD = 'Print@111'; // unlocks editing across all profiles
-
-let profileUnlocked = false;  // true after profile password entered (view access)
-let editUnlocked = false;      // true after master password entered (edit access)
-let pendingEditCallback = null;
-let _pwdMode = 'profile';      // 'profile' = view lock, 'edit' = edit lock
-
-function _showPwdModal(mode) {
-    _pwdMode = mode;
-    const modal = document.getElementById('pwdModal');
-    const title = document.getElementById('pwdModalTitle');
-    const desc  = document.getElementById('pwdModalDesc');
-    const cancelBtn = document.getElementById('pwdCancelBtn');
-    if (mode === 'profile') {
-        title.textContent = currentUser + ' — Profile Locked';
-        desc.textContent  = 'Enter your personal password to view this profile\'s financial data.';
-        if (cancelBtn) cancelBtn.style.display = 'none';
-    } else {
-        title.textContent = 'Edit Access Required';
-        desc.textContent  = 'Enter the master password (Print@111) to unlock editing for any profile.';
-        if (cancelBtn) cancelBtn.style.display = '';
-    }
-    modal.style.display = 'flex';
-    document.getElementById('pwdInput').value = '';
-    document.getElementById('pwdError').style.display = 'none';
-    setTimeout(() => document.getElementById('pwdInput').focus(), 80);
-}
-
-function requirePassword(callback) {
-    if (editUnlocked) { callback(); return; }
-    pendingEditCallback = callback;
-    _showPwdModal('edit');
-}
-
-function verifyPassword() {
-    const val = document.getElementById('pwdInput').value;
-    if (_pwdMode === 'profile') {
-        // Profile view unlock — check per-profile password
-        if (val === (PROFILE_PASSWORDS[currentUser] || '')) {
-            profileUnlocked = true;
-            document.getElementById('pwdModal').style.display = 'none';
-            const content = document.getElementById('mainContent');
-            if (content) content.style.display = '';
-            updateAll();
-            showToast('Welcome, ' + currentUser + '!', 'success');
-        } else {
-            document.getElementById('pwdError').style.display = 'block';
-            document.getElementById('pwdInput').value = '';
-            document.getElementById('pwdInput').focus();
-        }
-    } else {
-        // Edit unlock — check master password only
-        if (val === MASTER_EDIT_PASSWORD) {
-            editUnlocked = true;
-            document.getElementById('pwdModal').style.display = 'none';
-            if (pendingEditCallback) { pendingEditCallback(); pendingEditCallback = null; }
-        } else {
-            document.getElementById('pwdError').style.display = 'block';
-            document.getElementById('pwdInput').value = '';
-            document.getElementById('pwdInput').focus();
-        }
-    }
-}
-
-function closePwdModal() {
-    if (_pwdMode === 'profile' && !profileUnlocked) {
-        showToast('Please enter your profile password to continue.', 'warning');
-        return;
-    }
-    document.getElementById('pwdModal').style.display = 'none';
-    pendingEditCallback = null;
-}
-
-// ── Dynamic Developer Name ──
-function editDevName() {
-    const current = document.getElementById('devName').textContent.trim();
-    const newName = prompt('Enter developer name:', current);
-    if (newName && newName.trim()) {
-        document.getElementById('devName').textContent = newName.trim();
-        localStorage.setItem('devName', newName.trim());
-    }
-}
-function loadDevName() {
-    const saved = localStorage.getItem('devName');
-    if (saved) document.getElementById('devName').textContent = saved;
-}
-
-// ── Count-up Animation ──
-function animateCountUp(el, endValue, duration, formatter) {
-    const start = performance.now();
-    const startVal = 0;
-    function tick(now) {
-        const elapsed = now - start;
-        const progress = Math.min(elapsed / duration, 1);
-        const eased = 1 - Math.pow(1 - progress, 3);
-        const current = startVal + (endValue - startVal) * eased;
-        el.textContent = formatter(current);
-        if (progress < 1) requestAnimationFrame(tick);
-        else el.textContent = formatter(endValue);
-    }
-    requestAnimationFrame(tick);
-}
-
-function runCountUpOnKPIs() {
-    document.querySelectorAll('[data-countup]').forEach(el => {
-        const end = parseFloat(el.getAttribute('data-countup'));
-        const fmt = el.getAttribute('data-countup-fmt') || 'number';
-        if (isNaN(end)) return;
-        animateCountUp(el, end, 800, v => {
-            if (fmt === 'pct') return v.toFixed(2) + '%';
-            if (fmt === 'cr') return '₹' + (v / 10000000).toFixed(2) + ' Cr';
-            if (fmt === 'lakh') return '₹' + (v / 100000).toFixed(2) + 'L';
-            return v.toLocaleString('en-IN', { maximumFractionDigits: 0 });
-        });
-    });
-}
-
-// ── Collapsible Table ──
-function toggleTableSection() {
-    const collapsible = document.getElementById('tableCollapsible');
-    const btn = document.getElementById('tableToggleBtn');
-    if (!collapsible || !btn) return;
-    const isCollapsed = collapsible.classList.contains('collapsed');
-    collapsible.classList.toggle('collapsed', !isCollapsed);
-    btn.classList.toggle('collapsed', !isCollapsed);
-    btn.setAttribute('aria-expanded', isCollapsed ? 'true' : 'false');
-}
-
-function collapseTableSection() {
-    const collapsible = document.getElementById('tableCollapsible');
-    const btn = document.getElementById('tableToggleBtn');
-    if (!collapsible || !btn) return;
-    collapsible.classList.add('collapsed');
-    btn.classList.add('collapsed');
-    btn.setAttribute('aria-expanded', 'false');
-}
-
-// ── Scroll Progress Bar ──
-function initScrollProgress() {
-    const bar = document.getElementById('scroll-progress');
-    const header = document.querySelector('.page-header');
-    if (!bar) return;
-    window.addEventListener('scroll', () => {
-        const scrollTop = window.scrollY;
-        const docH = document.documentElement.scrollHeight - window.innerHeight;
-        bar.style.width = docH > 0 ? (scrollTop / docH * 100) + '%' : '0%';
-        if (header) {
-            const condensed = scrollTop > (header.offsetHeight * 0.6);
-            header.classList.toggle('condensed', condensed);
-        }
-    }, { passive: true });
-}
-
-// Block direct typing in form inputs until password is given
-function guardFormInputs() {
-    FORM_FIELDS.forEach(id => {
-        const el = document.getElementById(id);
-        if (!el) return;
-        el.addEventListener('focus', function(e) {
-            if (!editUnlocked) {
-                e.target.blur();
-                requirePassword(() => { e.target.focus(); });
-            }
-        });
-    });
-    // Guard the username input too
-    const nu = document.getElementById('newUsername');
-    if (nu) {
-        nu.addEventListener('focus', function(e) {
-            if (!editUnlocked) {
-                e.target.blur();
-                requirePassword(() => { e.target.focus(); });
-            }
-        });
-    }
-}
-
-// Guard inline table inputs via event delegation
-document.addEventListener('focusin', function(e) {
-    if (!editUnlocked && e.target.tagName === 'INPUT' && e.target.closest('#dataTable')) {
-        e.target.blur();
-        requirePassword(() => { e.target.focus(); });
-    }
-});
-
-document.addEventListener('DOMContentLoaded', () => {
-    initializeUserManagement();
-    loadDevName();
-    restoreFormValues();
-    guardFormInputs();
-    initScrollProgress();
-    FORM_FIELDS.forEach(id => {
-        const el = document.getElementById(id);
-        if (el) {
-            el.addEventListener('input', persistFormValues);
-            el.addEventListener('change', persistFormValues);
-        }
-    });
-});
-</script>
-<script>
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('sw.js').catch(() => {});
-  });
-}
-</script>
-<style>
-#pwaInstallBanner {
-  display: none;
-  position: fixed;
-  bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: linear-gradient(135deg, #1a2744 0%, #243356 100%);
-  border: 1px solid #c9a84c55;
-  border-radius: 16px;
-  padding: 14px 20px;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.45);
-  z-index: 99998;
-  display: none;
-  align-items: center;
-  gap: 14px;
-  max-width: 420px;
-  width: calc(100vw - 40px);
-  font-family: 'DM Sans', sans-serif;
-  animation: pwaSlideUp 0.4s ease;
-}
-@keyframes pwaSlideUp { from { opacity:0; transform: translateX(-50%) translateY(20px); } to { opacity:1; transform: translateX(-50%) translateY(0); } }
-#pwaInstallBanner .pwa-icon { font-size: 28px; flex-shrink: 0; }
-#pwaInstallBanner .pwa-text { flex: 1; }
-#pwaInstallBanner .pwa-text strong { display: block; color: #c9a84c; font-size: 14px; font-weight: 700; margin-bottom: 2px; }
-#pwaInstallBanner .pwa-text span { color: rgba(255,255,255,0.75); font-size: 12px; }
-#pwaInstallBanner .pwa-install-btn {
-  background: #c9a84c; color: #1a2744; border: none; border-radius: 10px;
-  padding: 9px 18px; font-weight: 700; font-size: 13px; cursor: pointer;
-  white-space: nowrap; flex-shrink: 0;
-  transition: background 0.2s;
-}
-#pwaInstallBanner .pwa-install-btn:hover { background: #e0bc5a; }
-#pwaInstallBanner .pwa-dismiss-btn {
-  background: none; border: none; color: rgba(255,255,255,0.5);
-  font-size: 18px; cursor: pointer; padding: 2px 4px; flex-shrink: 0; line-height: 1;
-}
-#pwaInstallBanner .pwa-dismiss-btn:hover { color: #fff; }
-</style>
-<div id="pwaInstallBanner" role="dialog" aria-label="Install App">
-  <span class="pwa-icon">📲</span>
-  <div class="pwa-text">
-    <strong>Install Dharohar App</strong>
-    <span>Add to home screen for quick access &amp; offline use</span>
-  </div>
-  <button class="pwa-install-btn" id="pwaInstallBtn">Install</button>
-  <button class="pwa-dismiss-btn" id="pwaDismissBtn" aria-label="Dismiss">×</button>
-</div>
-<script>
-(function(){
-  let _pwaPrompt = null;
-  const banner = document.getElementById('pwaInstallBanner');
-  // Don't show again if user already dismissed this session
-  if (sessionStorage.getItem('pwa_dismissed')) return;
-
-  window.addEventListener('beforeinstallprompt', e => {
-    e.preventDefault();
-    _pwaPrompt = e;
-    banner.style.display = 'flex';
-  });
-
-  document.getElementById('pwaInstallBtn').addEventListener('click', () => {
-    if (!_pwaPrompt) return;
-    _pwaPrompt.prompt();
-    _pwaPrompt.userChoice.then(choice => {
-      banner.style.display = 'none';
-      _pwaPrompt = null;
-    });
-  });
-
-  document.getElementById('pwaDismissBtn').addEventListener('click', () => {
-    banner.style.display = 'none';
-    sessionStorage.setItem('pwa_dismissed', '1');
-  });
-
-  // Auto-hide after 15 seconds if user doesn't interact
-  window.addEventListener('appinstalled', () => { banner.style.display = 'none'; });
-})();
+document.addEventListener('DOMContentLoaded', () => { initializeUserManagement(); });
 </script>
 </body>
 </html>
-
