@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Gautam Dharohar LLP — Family Portfolio</title>
+    <title>Gautam Family Financial Dashboard</title>
     <meta name="theme-color" content="#1a2744">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -188,6 +188,13 @@
         @keyframes blink {
             0%, 100% { opacity: 1; }
             50% { opacity: 0.65; }
+        }
+        .flash-slow {
+            animation: flashSlow 3s ease-in-out infinite;
+        }
+        @keyframes flashSlow {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.35; }
         }
 
 
@@ -1004,7 +1011,7 @@
 <!-- ── PROFILE SELECT SCREEN ── -->
 <div id="profileSelectScreen">
     <div style="margin-bottom:16px;color:var(--gold);opacity:.85"><svg class="icon icon-xl" aria-hidden="true"><use href="#icon-trend-up"/></svg></div>
-    <div class="ps-title">Gautam Dharohar LLP</div>
+    <div class="ps-title">Gautam Family Financial Dashboard</div>
     <div class="ps-subtitle">Select your profile to continue</div>
     <div class="ps-cards" id="psCards"></div>
     <div id="psPasswordStep">
@@ -1041,17 +1048,17 @@
             <div class="header-logo">
                 <div class="logo-icon"><svg class="icon icon-lg" aria-hidden="true"><use href="#icon-trend-up"/></svg></div>
                 <div>
-                    <div class="header-title">Gautam Dharohar LLP</div>
-                    <div class="header-subtitle">Building wealth, preserving legacy · Family Portfolio Overview</div>
+                    <div class="header-title">Gautam Family Financial Dashboard</div>
+                    <div class="header-subtitle flash-slow">Developed by Ajit Gautam</div>
                 </div>
             </div>
-            <!-- Gautam Dharohar LLP logo -->
-            <div class="gp-logo-wrap" title="Gautam Dharohar LLP">
+            <!-- Gautam Family Financial Dashboard logo -->
+            <div class="gp-logo-wrap" title="Gautam Family Financial Dashboard">
                 <div class="gp-logo-text">
-                    <span class="gp-name">Gautam Dharohar</span>
-                    <span class="gp-tag">LLP · Est. 2026</span>
+                    <span class="gp-name">Gautam Family</span>
+                    <span class="gp-tag">Est. 2026</span>
                 </div>
-                <svg class="gp-logo-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-label="Gautam Dharohar LLP logo">
+                <svg class="gp-logo-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-label="Gautam Family Financial Dashboard logo">
                     <!-- Outer ring -->
                     <circle cx="50" cy="50" r="48" fill="#0d2240" stroke="#c9a84c" stroke-width="2.5"/>
                     <!-- Inner subtle ring -->
@@ -1415,7 +1422,7 @@
         </div>
     </div>
 
-    <div class="footer">Gautam Dharohar LLP &copy; 2026 · Developed by <strong class="blinking">Ajit Gautam</strong></div>
+    <div class="footer">Gautam Family Financial Dashboard &copy; 2026 · Developed by <strong class="blinking">Ajit Gautam</strong></div>
 
 </div><!-- /container -->
 </div><!-- /mainContent -->
