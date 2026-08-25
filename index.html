@@ -87,7 +87,7 @@
             background: rgba(255,255,255,0.03);
             pointer-events: none;
         }
-        .header-inner { max-width: 1400px; margin: 0 auto; position: relative; z-index: 1; }
+        .header-inner { max-width: 1600px; margin: 0 auto; position: relative; z-index: 1; }
         .header-top { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
         .gp-logo-wrap { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
         .gp-logo-svg { width: 52px; height: 52px; flex-shrink: 0; filter: drop-shadow(0 2px 8px rgba(201,168,76,0.4)); }
@@ -192,7 +192,7 @@
 
 
         /* ── CONTAINER ── */
-        .container { max-width: 1400px; margin: 0 auto; padding: 28px 28px 48px; }
+        .container { max-width: 1600px; margin: 0 auto; padding: 20px 10px 48px; }
 
         /* ── SECTION HEADINGS ── */
         .section-heading {
@@ -571,18 +571,24 @@
         .yearly-table tbody tr:last-child { border-bottom: none; }
 
         /* ── CHARTS ── */
-        .chart-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin: 18px 0; }
+        .chart-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 14px 0; }
         .chart-grid.full { grid-template-columns: 1fr; }
         .chart-card {
-            background: var(--bg-card);
+            background: linear-gradient(160deg, #ffffff 0%, #f4f7ff 100%);
             border: 1px solid var(--border);
             border-radius: var(--radius);
-            padding: 22px;
-            box-shadow: var(--shadow-sm);
+            padding: 16px 10px 10px;
+            box-shadow: 0 4px 20px rgba(26,39,68,0.10), 0 1px 4px rgba(26,39,68,0.06);
             transition: transform .2s, box-shadow .2s;
         }
-        .chart-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); }
-        .chart-card-title { font-size: 13px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 14px; }
+        .chart-card:hover { transform: translateY(-4px); box-shadow: 0 10px 36px rgba(26,39,68,0.15); }
+        .chart-card-title {
+            font-size: 12px; font-weight: 700; color: var(--navy, #1a2744);
+            text-transform: uppercase; letter-spacing: .07em;
+            margin-bottom: 10px; padding: 0 6px;
+            display: flex; align-items: center; gap: 7px;
+        }
+        .chart-card-title::before { content:''; display:inline-block; width:3px; height:14px; border-radius:3px; background:linear-gradient(180deg,#c9a84c,#1a2744); }
         .chart-canvas-wrap { position: relative; height: 300px; }
         .chart-canvas-wrap.tall { height: 320px; }
         .chart-canvas-wrap.medium { height: 280px; }
@@ -610,8 +616,8 @@
         /* Tablet landscape: up to 900px */
         @media (max-width: 900px) {
             .chart-grid { grid-template-columns: 1fr; }
-            .page-header { padding: 20px 18px 16px; }
-            .container { padding: 16px 14px 32px; }
+            .page-header { padding: 20px 14px 16px; }
+            .container { padding: 12px 6px 32px; }
             .family-year-table { font-size: 12px; }
             .family-year-table thead th,
             .family-year-table tbody td,
@@ -1582,6 +1588,88 @@ let percentageChart, amountChart, cumulativeUserChart, overallReturnChart, overa
 let gautamFamilyYearChart, gautamFamilyCumChart, gautamFamilyContribChart;
 Chart.register(ChartDataLabels);
 
+// ── 3D bar plugin ──
+function shadeColor(color, pct) {
+    try {
+        let r, g, b, a = 1;
+        if (color && color.startsWith('rgba')) {
+            const m = color.match(/rgba\((\d+),\s*(\d+),\s*(\d+),\s*([\d.]+)\)/);
+            if (m) { r=+m[1]; g=+m[2]; b=+m[3]; a=+m[4]; }
+        } else if (color && color.startsWith('rgb')) {
+            const m = color.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/);
+            if (m) { r=+m[1]; g=+m[2]; b=+m[3]; }
+        } else if (color && color.startsWith('#')) {
+            const hex = color.length === 4
+                ? color.replace(/./g, (c,i) => i?c+c:c).slice(1)
+                : color.slice(1);
+            r = parseInt(hex.slice(0,2),16);
+            g = parseInt(hex.slice(2,4),16);
+            b = parseInt(hex.slice(4,6),16);
+        } else { return color || '#999'; }
+        r = Math.min(255, Math.max(0, r + Math.round(pct * 2.55)));
+        g = Math.min(255, Math.max(0, g + Math.round(pct * 2.55)));
+        b = Math.min(255, Math.max(0, b + Math.round(pct * 2.55)));
+        return `rgba(${r},${g},${b},${a})`;
+    } catch(e) { return color || '#999'; }
+}
+
+const bar3DPlugin = {
+    id: 'bar3D',
+    afterDatasetsDraw(chart) {
+        const ctx = chart.ctx;
+        chart.data.datasets.forEach((dataset, di) => {
+            const meta = chart.getDatasetMeta(di);
+            if (meta.type !== 'bar') return;
+            meta.data.forEach((bar, idx) => {
+                const val = dataset.data[idx];
+                if (val === null || val === undefined) return;
+                const { x, y, width, base } = bar.getProps(['x','y','width','height','base'], true);
+                const depth = Math.max(5, width * 0.16);
+                const barTop = val >= 0 ? y : base;
+                const barBottom = val >= 0 ? base : y;
+                const barLeft = x - width / 2;
+                const rawColor = Array.isArray(dataset.backgroundColor)
+                    ? dataset.backgroundColor[idx]
+                    : dataset.backgroundColor;
+                if (!rawColor || typeof rawColor !== 'string') return;
+                ctx.save();
+                // right face
+                ctx.beginPath();
+                ctx.moveTo(barLeft + width, barTop);
+                ctx.lineTo(barLeft + width + depth, barTop - depth * 0.5);
+                ctx.lineTo(barLeft + width + depth, barBottom - depth * 0.5);
+                ctx.lineTo(barLeft + width, barBottom);
+                ctx.closePath();
+                ctx.fillStyle = shadeColor(rawColor, -28);
+                ctx.fill();
+                // top face
+                ctx.beginPath();
+                ctx.moveTo(barLeft, barTop);
+                ctx.lineTo(barLeft + width, barTop);
+                ctx.lineTo(barLeft + width + depth, barTop - depth * 0.5);
+                ctx.lineTo(barLeft + depth, barTop - depth * 0.5);
+                ctx.closePath();
+                ctx.fillStyle = shadeColor(rawColor, 28);
+                ctx.fill();
+                ctx.restore();
+            });
+        });
+    }
+};
+Chart.register(bar3DPlugin);
+
+function mkGradColors(chart, dataArr) {
+    const ctx = chart.ctx;
+    const area = chart.chartArea;
+    if (!area) return dataArr.map(v => v >= 0 ? 'rgba(34,160,94,0.9)' : 'rgba(231,76,60,0.9)');
+    return dataArr.map(v => {
+        const g = ctx.createLinearGradient(0, area.top, 0, area.bottom);
+        if (v >= 0) { g.addColorStop(0,'rgba(52,199,120,0.95)'); g.addColorStop(1,'rgba(16,90,50,0.88)'); }
+        else { g.addColorStop(0,'rgba(239,68,68,0.95)'); g.addColorStop(1,'rgba(140,20,20,0.88)'); }
+        return g;
+    });
+}
+
 // Diagonal-stripe canvas pattern for negative bars (color-blind accessible)
 function makeStripePattern() {
     const c = document.createElement('canvas');
@@ -1620,10 +1708,12 @@ function _mkYTicks(callbackFn) {
 const baseChartConfig = {
     responsive: true,
     maintainAspectRatio: false,
+    layout: { padding: { top: 30, right: 10, left: 0, bottom: 4 } },
     plugins: {
         datalabels: {
-            anchor: 'end', align: 'top',
-            // Hide data labels entirely on mobile — they overlap and clip at small widths
+            anchor: ctx => ctx.dataset.data[ctx.dataIndex] >= 0 ? 'end' : 'start',
+            align: ctx => ctx.dataset.data[ctx.dataIndex] >= 0 ? 'top' : 'bottom',
+            offset: 2, clip: false,
             display: function(context) {
                 return !_isMobileChart(context.chart);
             },
@@ -1631,15 +1721,21 @@ const baseChartConfig = {
                 if (value === null || value === undefined) return '';
                 const id = context.chart.canvas.id;
                 if (id.includes('percentage') || id.includes('Percentage')) return value.toFixed(1) + '%';
-                if (id.includes('cumulative') || id.includes('amount') || id.includes('Return')) {
-                    return '₹' + (value/100000).toFixed(1) + 'L';
+                if (id.includes('cumulative') || id.includes('Cumulative') || id.includes('amount') || id.includes('Amount') || id.includes('Return') || id.includes('return')) {
+                    const abs = Math.abs(value);
+                    if (abs >= 10000000) return (value < 0 ? '-' : '') + '₹' + (abs/10000000).toFixed(1) + 'Cr';
+                    if (abs >= 100000) return (value < 0 ? '-' : '') + '₹' + (abs/100000).toFixed(1) + 'L';
+                    return (value < 0 ? '-' : '') + '₹' + Math.abs(Math.round(value)).toLocaleString('en-IN');
                 }
                 return value;
             },
-            color: ctx => ctx.dataset.data[ctx.dataIndex] < 0 ? '#c0392b' : '#1a7a4a',
+            color: ctx => ctx.dataset.data[ctx.dataIndex] < 0 ? '#c0392b' : '#155724',
             font: function(context) {
-                return { weight: 'bold', size: _isMobileChart(context.chart) ? 7 : 9 };
-            }
+                return { weight: '700', size: _isMobileChart(context.chart) ? 7 : 10, family: "'DM Sans', sans-serif" };
+            },
+            textStrokeColor: 'rgba(255,255,255,0.85)',
+            textStrokeWidth: 3,
+            padding: 2
         },
         legend: {
             position: 'bottom',
@@ -2178,17 +2274,26 @@ function updateCharts() {
     if (percentageChart) percentageChart.destroy();
     if (amountChart) amountChart.destroy();
     const labels = currentFinancialData.map(d => d.month);
-    const mkColor = arr => arr.map(v => v >= 0 ? 'rgba(26,122,74,0.75)' : NEG_BAR_PATTERN);
+    const flatColor = v => v >= 0 ? 'rgba(52,199,120,0.88)' : 'rgba(239,68,68,0.88)';
+    const pctData = currentFinancialData.map(d => parseFloat(d.percentage));
+    const retData = currentFinancialData.map(d => d.monthlyReturn);
 
     percentageChart = new Chart(document.getElementById('percentageChart'), {
         type: 'bar',
-        data: { labels, datasets: [{ label: '% Return', data: currentFinancialData.map(d => parseFloat(d.percentage)), backgroundColor: mkColor(currentFinancialData.map(d => parseFloat(d.percentage))), borderRadius: 4, borderWidth: 0 }] },
-        options: { ...baseChartConfig, scales: { ...baseChartConfig.scales, y: { ...baseChartConfig.scales.y, ticks: _mkYTicks(v => v.toFixed(2)+'%') } } }
+        data: { labels, datasets: [{ label: '% Return', data: pctData, backgroundColor: pctData.map(flatColor), borderRadius: 5, borderWidth: 0, borderSkipped: false }] },
+        options: {
+            ...baseChartConfig,
+            animation: { onComplete: function() { const c=this; c.data.datasets[0].backgroundColor=mkGradColors(c,pctData); c.update('none'); } },
+            scales: { ...baseChartConfig.scales, y: { ...baseChartConfig.scales.y, ticks: _mkYTicks(v => v.toFixed(1)+'%'), border:{display:false} } }
+        }
     });
     amountChart = new Chart(document.getElementById('amountChart'), {
         type: 'bar',
-        data: { labels, datasets: [{ label: 'Monthly Return (₹)', data: currentFinancialData.map(d => d.monthlyReturn), backgroundColor: mkColor(currentFinancialData.map(d => d.monthlyReturn)), borderRadius: 4, borderWidth: 0 }] },
-        options: baseChartConfig
+        data: { labels, datasets: [{ label: 'Monthly Return (₹)', data: retData, backgroundColor: retData.map(flatColor), borderRadius: 5, borderWidth: 0, borderSkipped: false }] },
+        options: {
+            ...baseChartConfig,
+            animation: { onComplete: function() { const c=this; c.data.datasets[0].backgroundColor=mkGradColors(c,retData); c.update('none'); } }
+        }
     });
 }
 
@@ -2196,10 +2301,15 @@ function updateCumulativeUserChart() {
     if (cumulativeUserChart) cumulativeUserChart.destroy();
     let cum = 0;
     const cumData = currentFinancialData.map(d => { cum += d.monthlyReturn; return cum; });
-    cumulativeUserChart = new Chart(document.getElementById('cumulativeUserChart'), {
+    const canvas = document.getElementById('cumulativeUserChart');
+    const ctx2 = canvas.getContext('2d');
+    const gradFill = ctx2.createLinearGradient(0, 0, 0, 300);
+    gradFill.addColorStop(0, 'rgba(37,99,235,0.22)');
+    gradFill.addColorStop(1, 'rgba(37,99,235,0.02)');
+    cumulativeUserChart = new Chart(canvas, {
         type: 'line',
-        data: { labels: currentFinancialData.map(d => d.month), datasets: [{ label: `Cumulative — ${currentUser}`, data: cumData, borderColor: '#2563eb', backgroundColor: 'rgba(37,99,235,0.08)', fill: true, tension: 0.35, pointRadius: function(ctx) { return _isMobileChart(ctx.chart) ? 1.5 : 3; }, pointBackgroundColor: cumData.map(v => v < 0 ? '#c0392b' : '#2563eb') }] },
-        options: { ...baseChartConfig, scales: { ...baseChartConfig.scales, y: { ...baseChartConfig.scales.y, ticks: _mkYTicks(v => '₹'+(v/100000).toFixed(1)+'L') } } }
+        data: { labels: currentFinancialData.map(d => d.month), datasets: [{ label: `Cumulative — ${currentUser}`, data: cumData, borderColor: '#2563eb', borderWidth: 2.5, backgroundColor: gradFill, fill: true, tension: 0.38, pointRadius: function(ctx) { return _isMobileChart(ctx.chart) ? 1.5 : 4; }, pointHoverRadius: 7, pointBackgroundColor: cumData.map(v => v < 0 ? '#e74c3c' : '#2563eb'), pointBorderColor: '#fff', pointBorderWidth: 2 }] },
+        options: { ...baseChartConfig, scales: { ...baseChartConfig.scales, y: { ...baseChartConfig.scales.y, ticks: _mkYTicks(v => { const a=Math.abs(v); if(a>=10000000)return (v<0?'-':'')+'₹'+(a/10000000).toFixed(1)+'Cr'; if(a>=100000)return (v<0?'-':'')+'₹'+(a/100000).toFixed(1)+'L'; return v.toLocaleString('en-IN'); }), border:{display:false} } } }
     });
 }
 
@@ -2382,17 +2492,26 @@ function updateOverallCharts() {
     if (overallPercentageChart) overallPercentageChart.destroy();
     const oy = calcOverallYearly();
     const years = Object.keys(oy).sort();
-    const mkColor = arr => arr.map(v => v>=0?'rgba(26,122,74,0.75)':NEG_BAR_PATTERN);
+    const flatColor = v => v >= 0 ? 'rgba(52,199,120,0.88)' : 'rgba(239,68,68,0.88)';
+    const retData = years.map(y => oy[y].total);
+    const pctData = years.map(y => oy[y].avgPct);
 
     overallReturnChart = new Chart(document.getElementById('overallReturnChart'), {
         type: 'bar',
-        data: { labels: years, datasets: [{ label: 'Total Return (₹)', data: years.map(y => oy[y].total), backgroundColor: mkColor(years.map(y=>oy[y].total)), borderRadius: 5, borderWidth: 0 }] },
-        options: baseChartConfig
+        data: { labels: years, datasets: [{ label: 'Total Return (₹)', data: retData, backgroundColor: retData.map(flatColor), borderRadius: 6, borderWidth: 0, borderSkipped: false }] },
+        options: {
+            ...baseChartConfig,
+            animation: { onComplete: function() { const c=this; c.data.datasets[0].backgroundColor=mkGradColors(c,retData); c.update('none'); } }
+        }
     });
     overallPercentageChart = new Chart(document.getElementById('overallPercentageChart'), {
         type: 'bar',
-        data: { labels: years, datasets: [{ label: 'Avg % Return', data: years.map(y => oy[y].avgPct), backgroundColor: mkColor(years.map(y=>oy[y].avgPct)), borderRadius: 5, borderWidth: 0 }] },
-        options: { ...baseChartConfig, scales: { ...baseChartConfig.scales, y: { ...baseChartConfig.scales.y, ticks: _mkYTicks(v => v.toFixed(2)+'%') } } }
+        data: { labels: years, datasets: [{ label: 'Avg % Return', data: pctData, backgroundColor: pctData.map(flatColor), borderRadius: 6, borderWidth: 0, borderSkipped: false }] },
+        options: {
+            ...baseChartConfig,
+            animation: { onComplete: function() { const c=this; c.data.datasets[0].backgroundColor=mkGradColors(c,pctData); c.update('none'); } },
+            scales: { ...baseChartConfig.scales, y: { ...baseChartConfig.scales.y, ticks: _mkYTicks(v => v.toFixed(1)+'%'), border:{display:false} } }
+        }
     });
 }
 
@@ -2406,16 +2525,22 @@ function updateCumulativeAllUsersChart() {
         return (parseInt(ya)-parseInt(yb)) || (mi[ma]-mi[mb]);
     });
     colorIndex = 0;
+    const canvas = document.getElementById('cumulativeAllUsersChart');
+    const ctx2 = canvas.getContext('2d');
     const datasets = Object.keys(allUserData).sort().map(username => {
         const ud = allUserData[username];
         let cum = 0;
         const map = new Map(ud.map(i => [i.month, i.monthlyReturn]));
         const color = getNextChartColor();
-        return { label: username, data: allMonths.map(m => { if(map.has(m)){cum+=map.get(m);return cum;} return null; }), borderColor: color, backgroundColor: 'transparent', fill: false, tension: 0.3, pointRadius: function(ctx) { return _isMobileChart(ctx.chart) ? 1.5 : 3; }, spanGaps: true };
+        const cumData = allMonths.map(m => { if(map.has(m)){cum+=map.get(m);return cum;} return null; });
+        const gradFill = ctx2.createLinearGradient(0, 0, 0, 300);
+        gradFill.addColorStop(0, shadeColor(color, 0).replace(/rgba?\((\d+,\d+,\d+)[^)]*\)/, 'rgba($1,0.16)'));
+        gradFill.addColorStop(1, shadeColor(color, 0).replace(/rgba?\((\d+,\d+,\d+)[^)]*\)/, 'rgba($1,0.01)'));
+        return { label: username, data: cumData, borderColor: color, borderWidth: 2.5, backgroundColor: gradFill, fill: true, tension: 0.38, pointRadius: function(ctx) { return _isMobileChart(ctx.chart) ? 1.5 : 4; }, pointHoverRadius: 7, pointBackgroundColor: cumData.map(v => v === null ? color : (v < 0 ? '#e74c3c' : color)), pointBorderColor: '#fff', pointBorderWidth: 2, spanGaps: true };
     });
-    cumulativeAllUsersChart = new Chart(document.getElementById('cumulativeAllUsersChart'), {
+    cumulativeAllUsersChart = new Chart(canvas, {
         type: 'line', data: { labels: allMonths, datasets },
-        options: { ...baseChartConfig, scales: { ...baseChartConfig.scales, y: { ...baseChartConfig.scales.y, ticks: _mkYTicks(v => '₹'+(v/100000).toFixed(1)+'L') } } }
+        options: { ...baseChartConfig, scales: { ...baseChartConfig.scales, y: { ...baseChartConfig.scales.y, ticks: _mkYTicks(v => { const a=Math.abs(v); if(a>=10000000)return (v<0?'-':'')+'₹'+(a/10000000).toFixed(1)+'Cr'; if(a>=100000)return (v<0?'-':'')+'₹'+(a/100000).toFixed(1)+'L'; return v.toLocaleString('en-IN'); }), border:{display:false} } } }
     });
 }
 
@@ -2429,15 +2554,21 @@ function updateMonthlyPercentageAllUsersChart() {
         return (parseInt(ya)-parseInt(yb)) || (mi[ma]-mi[mb]);
     });
     colorIndex = 0;
+    const canvas = document.getElementById('overallMonthlyPercentageChart');
+    const ctx2 = canvas.getContext('2d');
     const datasets = Object.keys(allUserData).sort().map(username => {
         const ud = allUserData[username];
         const map = new Map(ud.map(i => [i.month, parseFloat(i.percentage||0)]));
         const color = getNextChartColor();
-        return { label: username, data: allMonths.map(m => map.has(m) ? map.get(m) : null), borderColor: color, backgroundColor: 'transparent', fill: false, tension: 0.3, pointRadius: function(ctx) { return _isMobileChart(ctx.chart) ? 1.5 : 3; }, spanGaps: true };
+        const pctData = allMonths.map(m => map.has(m) ? map.get(m) : null);
+        const gradFill = ctx2.createLinearGradient(0, 0, 0, 300);
+        gradFill.addColorStop(0, shadeColor(color, 0).replace(/rgba?\((\d+,\d+,\d+)[^)]*\)/, 'rgba($1,0.13)'));
+        gradFill.addColorStop(1, shadeColor(color, 0).replace(/rgba?\((\d+,\d+,\d+)[^)]*\)/, 'rgba($1,0.01)'));
+        return { label: username, data: pctData, borderColor: color, borderWidth: 2.5, backgroundColor: gradFill, fill: true, tension: 0.38, pointRadius: function(ctx) { return _isMobileChart(ctx.chart) ? 1.5 : 4; }, pointHoverRadius: 7, pointBackgroundColor: pctData.map(v => v === null ? color : (v < 0 ? '#e74c3c' : color)), pointBorderColor: '#fff', pointBorderWidth: 2, spanGaps: true };
     });
-    overallMonthlyPercentageChart = new Chart(document.getElementById('overallMonthlyPercentageChart'), {
+    overallMonthlyPercentageChart = new Chart(canvas, {
         type: 'line', data: { labels: allMonths, datasets },
-        options: { ...baseChartConfig, scales: { ...baseChartConfig.scales, y: { ...baseChartConfig.scales.y, ticks: _mkYTicks(v => v.toFixed(2)+'%') } } }
+        options: { ...baseChartConfig, scales: { ...baseChartConfig.scales, y: { ...baseChartConfig.scales.y, ticks: _mkYTicks(v => v.toFixed(1)+'%'), border:{display:false} } } }
     });
 }
 
