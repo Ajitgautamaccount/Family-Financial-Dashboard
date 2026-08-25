@@ -980,9 +980,73 @@
         .delete-confirm-bar .dc-yes:hover { background: #a93226; }
         .delete-confirm-bar .dc-no { background: var(--bg); color: var(--text-mid); }
         .delete-confirm-bar .dc-no:hover { background: var(--border); }
+
+        /* ── Chart hover tooltip ── */
+        #chartTooltip {
+            position: fixed;
+            z-index: 99999;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.15s ease;
+            min-width: 180px;
+            max-width: 280px;
+        }
+        #chartTooltip.visible { opacity: 1; }
+        .ct-inner {
+            background: rgba(14,22,50,0.97);
+            border: 1.5px solid #c9a84c;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.45), 0 2px 8px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        .ct-header {
+            background: linear-gradient(90deg,#1a2744,#243356);
+            padding: 8px 14px 7px;
+            border-bottom: 1px solid rgba(201,168,76,0.3);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 12px;
+            font-weight: 700;
+            color: #c9a84c;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+        .ct-body { padding: 10px 14px 8px; }
+        .ct-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 4px 0;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            color: #ffffff;
+            white-space: nowrap;
+        }
+        .ct-dot {
+            width: 10px; height: 10px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+        .ct-arrow {
+            font-size: 11px;
+            font-weight: 700;
+        }
+        .ct-arrow.up  { color: #34c778; }
+        .ct-arrow.dn  { color: #ef4444; }
+        .ct-val { font-size: 15px; margin-left: auto; padding-left: 10px; }
+        .ct-val.pos { color: #34c778; }
+        .ct-val.neg { color: #ef4444; }
+        .ct-footer {
+            padding: 5px 14px 8px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 11px;
+            color: rgba(180,196,220,0.75);
+            border-top: 1px solid rgba(255,255,255,0.07);
+        }
     </style>
 </head>
 <body>
+<div id="chartTooltip"><div class="ct-inner"><div class="ct-header" id="ctHeader"></div><div class="ct-body" id="ctBody"></div><div class="ct-footer" id="ctFooter"></div></div></div>
 
 <!-- ── SVG ICON SPRITE ── -->
 <svg xmlns="http://www.w3.org/2000/svg" style="display:none" aria-hidden="true">
@@ -1709,6 +1773,14 @@ const barHoverGlowPlugin = {
 };
 Chart.register(barHoverGlowPlugin);
 
+// Hide HTML tooltip when mouse leaves a chart canvas
+document.addEventListener('mouseleave', function(e) {
+    if (e.target && e.target.tagName === 'CANVAS') {
+        const el = document.getElementById('chartTooltip');
+        if (el) el.classList.remove('visible');
+    }
+}, true);
+
 function mkGradColors(chart, dataArr) {
     const ctx = chart.ctx;
     const area = chart.chartArea;
@@ -1808,46 +1880,55 @@ const baseChartConfig = {
             }
         },
         tooltip: {
-            enabled: true,
-            backgroundColor: 'rgba(18,28,58,0.97)',
-            titleFont: { family: "'DM Sans'", weight: '700', size: 13 },
-            titleColor: '#c9a84c',
-            bodyFont: { family: "'DM Sans'", size: 14, weight: '600' },
-            bodyColor: '#ffffff',
-            footerFont: { family: "'DM Sans'", size: 11 },
-            footerColor: 'rgba(200,212,230,0.75)',
-            borderColor: '#c9a84c',
-            borderWidth: 1.5,
-            padding: { top: 10, right: 16, bottom: 10, left: 16 },
-            cornerRadius: 10,
-            caretSize: 7,
-            caretPadding: 6,
-            displayColors: true,
-            boxPadding: 4,
-            callbacks: {
-                title: function(items) {
-                    return items[0] ? '📅  ' + items[0].label : '';
-                },
-                label: function(ctx) {
-                    const id = ctx.chart.canvas.id;
-                    const v = ctx.parsed.y;
-                    if (v === null || v === undefined) return '';
-                    const sign = v >= 0 ? '▲' : '▼';
-                    if (id.includes('percentage') || id.includes('Percentage')) {
-                        return `  ${sign}  ${ctx.dataset.label || ''}: ${v.toFixed(2)}%`;
-                    }
-                    let formatted;
+            enabled: false,
+            external: function(context) {
+                const ttEl  = document.getElementById('chartTooltip');
+                const hdrEl = document.getElementById('ctHeader');
+                const bdEl  = document.getElementById('ctBody');
+                const ftEl  = document.getElementById('ctFooter');
+                if (!ttEl) return;
+                const tooltip = context.tooltip;
+                if (tooltip.opacity === 0) { ttEl.classList.remove('visible'); return; }
+                const id = context.chart.canvas.id;
+                const isPct = id.includes('percentage') || id.includes('Percentage');
+                function fmtVal(v) {
+                    if (v === null || v === undefined) return '—';
+                    if (isPct) return (v >= 0 ? '+' : '') + v.toFixed(2) + '%';
                     const abs = Math.abs(v);
-                    if (abs >= 10000000) formatted = (v < 0 ? '-' : '') + '₹' + (abs/10000000).toFixed(2) + ' Cr';
-                    else if (abs >= 100000) formatted = (v < 0 ? '-' : '') + '₹' + (abs/100000).toFixed(2) + ' L';
-                    else formatted = (v < 0 ? '-' : '') + '₹' + abs.toLocaleString('en-IN');
-                    return `  ${sign}  ${ctx.dataset.label || ''}: ${formatted}`;
-                },
-                footer: function(items) {
-                    const v = items[0] ? items[0].parsed.y : null;
-                    if (v === null) return '';
-                    return v >= 0 ? '  Positive Return' : '  Negative Return';
+                    if (abs >= 10000000) return (v < 0 ? '-' : '') + '₹' + (abs/10000000).toFixed(2) + ' Cr';
+                    if (abs >= 100000)   return (v < 0 ? '-' : '') + '₹' + (abs/100000).toFixed(2) + ' L';
+                    return (v < 0 ? '-' : '') + '₹' + abs.toLocaleString('en-IN');
                 }
+                hdrEl.textContent = '📅  ' + (tooltip.title[0] || '');
+                let bodyHtml = '';
+                tooltip.dataPoints.forEach(dp => {
+                    const v = dp.parsed.y;
+                    const isPos = v >= 0;
+                    const color = dp.dataset.borderColor || (Array.isArray(dp.dataset.backgroundColor) ? dp.dataset.backgroundColor[dp.dataIndex] : dp.dataset.backgroundColor) || (isPos ? '#34c778' : '#ef4444');
+                    const colorStr = (color && typeof color === 'string') ? color : (isPos ? '#34c778' : '#ef4444');
+                    const arrowCls = isPos ? 'up' : 'dn';
+                    const valCls   = isPos ? 'pos' : 'neg';
+                    const arrow    = isPos ? '▲' : '▼';
+                    const label    = dp.dataset.label || '';
+                    bodyHtml += `<div class="ct-row"><span class="ct-dot" style="background:${colorStr}"></span><span class="ct-arrow ${arrowCls}">${arrow}</span><span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis">${label}</span><span class="ct-val ${valCls}">${fmtVal(v)}</span></div>`;
+                });
+                bdEl.innerHTML = bodyHtml;
+                const anyNeg = tooltip.dataPoints.some(dp => dp.parsed.y < 0);
+                const anyPos = tooltip.dataPoints.some(dp => dp.parsed.y >= 0);
+                ftEl.textContent = anyNeg && anyPos ? 'Mixed returns this period' : anyNeg ? 'Negative return' : 'Positive return';
+                // Position tooltip near cursor but keep on screen
+                const canvasRect = context.chart.canvas.getBoundingClientRect();
+                let left = canvasRect.left + tooltip.caretX + 16;
+                let top  = canvasRect.top  + tooltip.caretY - 20;
+                ttEl.style.left = left + 'px';
+                ttEl.style.top  = top  + 'px';
+                ttEl.classList.add('visible');
+                // Clamp to viewport after render
+                requestAnimationFrame(() => {
+                    const r = ttEl.getBoundingClientRect();
+                    if (r.right  > window.innerWidth  - 8) ttEl.style.left = (left - r.width  - 32) + 'px';
+                    if (r.bottom > window.innerHeight - 8) ttEl.style.top  = (top  - r.height + 20) + 'px';
+                });
             }
         }
     },
