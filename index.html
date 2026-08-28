@@ -1090,6 +1090,138 @@
             color: rgba(180,196,220,0.75);
             border-top: 1px solid rgba(255,255,255,0.07);
         }
+        /* ── PAGE NAV TABS ── */
+        .page-nav {
+            background: var(--navy);
+            border-bottom: 2px solid rgba(201,168,76,0.2);
+            position: sticky; top: 0; z-index: 200;
+        }
+        .page-nav-inner {
+            max-width: 1440px; margin: 0 auto; padding: 0 2.5%;
+            display: flex; gap: 0;
+        }
+        .page-nav-btn {
+            display: flex; align-items: center; gap: 8px;
+            padding: 13px 22px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 13px; font-weight: 600;
+            color: rgba(255,255,255,0.55);
+            background: none; border: none;
+            border-bottom: 3px solid transparent;
+            cursor: pointer; letter-spacing: 0.04em;
+            text-transform: uppercase;
+            transition: color .2s, border-color .2s;
+            margin-bottom: -2px;
+        }
+        .page-nav-btn:hover { color: rgba(255,255,255,0.85); }
+        .page-nav-btn.active {
+            color: var(--gold);
+            border-bottom-color: var(--gold);
+        }
+
+        /* ── HOLDINGS PAGE ── */
+        .holdings-summary-strip {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 14px; margin: 0 0 32px;
+        }
+        .h-stat {
+            background: #fff; border-radius: var(--radius);
+            padding: 18px 20px;
+            box-shadow: var(--shadow-sm);
+            border-left: 4px solid var(--gold);
+        }
+        .h-stat.bonds  { border-left-color: #0891b2; }
+        .h-stat.equity { border-left-color: #2563eb; }
+        .h-stat.mf     { border-left-color: #7c3aed; }
+        .h-stat.gold   { border-left-color: #d97706; }
+        .h-stat.total  { border-left-color: var(--navy); background: var(--navy); }
+        .h-stat.total .hs-label,
+        .h-stat.total .hs-val { color: #fff; }
+        .h-stat.total .hs-val { color: var(--gold-light); }
+        .hs-label { font-size: 10.5px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px; }
+        .hs-val { font-size: 20px; font-weight: 700; color: var(--navy); line-height: 1.2; }
+        .hs-sub { font-size: 11.5px; margin-top: 4px; font-weight: 500; }
+        .hs-sub.pos { color: var(--emerald); }
+        .hs-sub.neg { color: var(--crimson); }
+
+        /* Holdings table */
+        .holdings-table-wrap { overflow-x: auto; border-radius: var(--radius); box-shadow: var(--shadow-sm); }
+        .holdings-table {
+            width: 100%; border-collapse: collapse;
+            font-size: 13px;
+            background: #fff;
+            border-radius: var(--radius);
+        }
+        .holdings-table thead tr {
+            background: linear-gradient(90deg, var(--navy), var(--navy-mid));
+        }
+        .holdings-table th {
+            padding: 11px 14px;
+            color: rgba(255,255,255,0.85);
+            font-size: 10.5px; font-weight: 700;
+            letter-spacing: .07em; text-transform: uppercase;
+            text-align: right; white-space: nowrap;
+        }
+        .holdings-table th:first-child { text-align: left; }
+        .holdings-table td {
+            padding: 10px 14px;
+            border-bottom: 1px solid var(--border);
+            text-align: right; white-space: nowrap;
+        }
+        .holdings-table td:first-child { text-align: left; font-weight: 600; }
+        .holdings-table tbody tr:last-child td { border-bottom: none; }
+        .holdings-table tbody tr:hover { background: var(--off-white); }
+        .holdings-table tfoot td {
+            background: #f0f4fa;
+            font-weight: 700; font-size: 13px;
+            border-top: 2px solid var(--border);
+            padding: 11px 14px;
+        }
+        .holdings-table tfoot td:first-child { text-align: left; }
+        .td-pos { color: var(--emerald); font-weight: 600; }
+        .td-neg { color: var(--crimson); font-weight: 600; }
+        .td-name { color: var(--navy); }
+
+        /* Bond interest schedule */
+        .bond-payout-table { margin-top: 24px; }
+        .bond-payout-table .holdings-table th:nth-child(3),
+        .bond-payout-table .holdings-table td:nth-child(3) { color: #0891b2; font-weight: 700; }
+
+        /* Holdings section heading */
+        .h-section { margin: 36px 0 0; }
+        .h-section-head {
+            display: flex; align-items: center; gap: 12px;
+            margin-bottom: 16px;
+        }
+        .h-section-icon {
+            width: 34px; height: 34px; border-radius: 9px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 16px; flex-shrink: 0;
+        }
+        .h-section-icon.bonds  { background: #e0f2fe; }
+        .h-section-icon.equity { background: #eff6ff; }
+        .h-section-icon.mf     { background: #f5f3ff; }
+        .h-section-icon.gold   { background: #fef3c7; }
+        .h-section-head h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 19px; font-weight: 700; color: #102241;
+        }
+        .h-section-head .h-badge {
+            margin-left: auto;
+            font-size: 11px; font-weight: 700;
+            padding: 4px 12px; border-radius: 999px;
+            background: var(--off-white); border: 1px solid var(--border);
+            color: var(--text-mid);
+        }
+
+        @media (max-width: 600px) {
+            .page-nav-btn { padding: 11px 14px; font-size: 11px; }
+            .holdings-summary-strip { grid-template-columns: repeat(2, 1fr); }
+            .hs-val { font-size: 17px; }
+            .holdings-table { font-size: 12px; }
+            .holdings-table th, .holdings-table td { padding: 9px 10px; }
+        }
     </style>
 </head>
 <body>
@@ -1196,8 +1328,20 @@
     </div>
 </div>
 
+<!-- ── PAGE NAV ── -->
+<nav class="page-nav" id="pageNav" style="display:none" aria-label="Page navigation">
+    <div class="page-nav-inner">
+        <button class="page-nav-btn active" onclick="showPage('dashboard')" id="navDashboard">
+            <svg class="icon" aria-hidden="true"><use href="#icon-line-chart"/></svg> Dashboard
+        </button>
+        <button class="page-nav-btn" onclick="showPage('holdings')" id="navHoldings">
+            <svg class="icon" aria-hidden="true"><use href="#icon-trend-up"/></svg> Holdings
+        </button>
+    </div>
+</nav>
+
 <div id="mainContent" style="display:none">
-    <div class="container">
+    <div class="container" id="dashboardPage">
 
     <div class="hero-panel fade-up">
         <div class="hero-copy">
@@ -1523,7 +1667,130 @@
 
     <div class="footer">Gautam Family Financial Dashboard &copy; 2026 · Developed by <strong class="blinking">Ajit Gautam</strong></div>
 
-</div><!-- /container -->
+</div><!-- /dashboardPage /container -->
+
+<!-- ── HOLDINGS PAGE ── -->
+<div id="holdingsPage" class="container" style="display:none">
+
+    <div class="section-heading" style="margin-top:28px">
+        <div class="sh-icon">💼</div>
+        <h2>Portfolio Holdings — Ajit Gautam</h2>
+        <div class="sh-line"></div>
+    </div>
+
+    <!-- Summary strip -->
+    <div class="holdings-summary-strip" id="holdingsSummary"></div>
+
+    <!-- ── BONDS ── -->
+    <div class="h-section">
+        <div class="h-section-head">
+            <div class="h-section-icon bonds">🏛️</div>
+            <h3>Government Bonds</h3>
+            <span class="h-badge" id="bondsBadge"></span>
+        </div>
+        <div class="holdings-table-wrap">
+            <table class="holdings-table" id="bondsTable">
+                <thead><tr>
+                    <th>Bond Name</th>
+                    <th>Qty</th>
+                    <th>Avg Cost</th>
+                    <th>LTP</th>
+                    <th>Invested</th>
+                    <th>Cur. Value</th>
+                    <th>P&amp;L</th>
+                    <th>Chg %</th>
+                    <th>Coupon Rate</th>
+                    <th>Monthly Interest</th>
+                    <th>Next Payout</th>
+                </tr></thead>
+                <tbody id="bondsTbody"></tbody>
+                <tfoot><tr id="bondsFoot"></tr></tfoot>
+            </table>
+        </div>
+
+        <!-- Bond interest payout schedule -->
+        <div class="bond-payout-table" style="margin-top:28px">
+            <div class="h-section-head" style="margin-bottom:12px">
+                <div class="h-section-icon bonds">📅</div>
+                <h3 style="font-size:16px">Interest Payout Schedule</h3>
+            </div>
+            <div class="holdings-table-wrap">
+                <table class="holdings-table" id="bondPayoutTable">
+                    <thead><tr>
+                        <th>Bond Name</th>
+                        <th>Face Value Held (₹)</th>
+                        <th>Annual Interest (₹)</th>
+                        <th>Per Payout (₹)</th>
+                        <th>Frequency</th>
+                        <th>Payout Months</th>
+                        <th>Next Payout Date</th>
+                    </tr></thead>
+                    <tbody id="bondPayoutTbody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── GOLD/ETF ── -->
+    <div class="h-section" style="margin-top:44px">
+        <div class="h-section-head">
+            <div class="h-section-icon gold">🥇</div>
+            <h3>Gold ETF</h3>
+            <span class="h-badge" id="goldBadge"></span>
+        </div>
+        <div class="holdings-table-wrap">
+            <table class="holdings-table" id="goldTable">
+                <thead><tr>
+                    <th>Instrument</th><th>Qty</th><th>Avg Cost</th><th>LTP</th>
+                    <th>Invested</th><th>Cur. Value</th><th>P&amp;L</th><th>Chg %</th>
+                </tr></thead>
+                <tbody id="goldTbody"></tbody>
+                <tfoot><tr id="goldFoot"></tr></tfoot>
+            </table>
+        </div>
+    </div>
+
+    <!-- ── EQUITY ── -->
+    <div class="h-section" style="margin-top:44px">
+        <div class="h-section-head">
+            <div class="h-section-icon equity">📈</div>
+            <h3>Equity — Stocks &amp; InvITs</h3>
+            <span class="h-badge" id="equityBadge"></span>
+        </div>
+        <div class="holdings-table-wrap">
+            <table class="holdings-table" id="equityTable">
+                <thead><tr>
+                    <th>Instrument</th><th>Qty</th><th>Avg Cost</th><th>LTP</th>
+                    <th>Invested</th><th>Cur. Value</th><th>P&amp;L</th><th>Chg %</th>
+                </tr></thead>
+                <tbody id="equityTbody"></tbody>
+                <tfoot><tr id="equityFoot"></tr></tfoot>
+            </table>
+        </div>
+    </div>
+
+    <!-- ── MUTUAL FUNDS ── -->
+    <div class="h-section" style="margin-top:44px">
+        <div class="h-section-head">
+            <div class="h-section-icon mf">🌐</div>
+            <h3>Mutual Funds</h3>
+            <span class="h-badge" id="mfBadge"></span>
+        </div>
+        <div class="holdings-table-wrap">
+            <table class="holdings-table" id="mfTable">
+                <thead><tr>
+                    <th>Fund Name</th><th>Units</th><th>Avg NAV</th><th>Cur. NAV</th>
+                    <th>Invested</th><th>Cur. Value</th><th>P&amp;L</th><th>Chg %</th>
+                </tr></thead>
+                <tbody id="mfTbody"></tbody>
+                <tfoot><tr id="mfFoot"></tr></tfoot>
+            </table>
+        </div>
+    </div>
+
+    <div class="footer" style="margin-top:48px">Gautam Family Financial Dashboard &copy; 2026 · Developed by <strong class="blinking">Ajit Gautam</strong></div>
+</div><!-- /holdingsPage -->
+
 </div><!-- /mainContent -->
 
 <script>
@@ -2017,6 +2284,7 @@ function showProfileSelectScreen() {
     const content = document.getElementById('mainContent');
     if (screen) screen.style.display = 'flex';
     if (content) content.style.display = 'none';
+    const nav = document.getElementById('pageNav'); if (nav) nav.style.display = 'none';
     psShowCards();
     _buildPsCards();
 }
@@ -2087,6 +2355,7 @@ function psVerify() {
         document.getElementById('newMonth').value = getNextMonth(last);
         collapseTableSection();
         document.getElementById('mainContent').style.display = '';
+        document.getElementById('pageNav').style.display = '';
         updateAll();
         showToast('Welcome, ' + currentUser + '!', 'success');
     } else {
@@ -2145,6 +2414,7 @@ async function initializeUserManagement() {
         collapseTableSection();
         document.getElementById('profileSelectScreen').style.display = 'none';
         document.getElementById('mainContent').style.display = '';
+        document.getElementById('pageNav').style.display = '';
         updateAll();
     } else {
         showProfileSelectScreen();
@@ -2232,6 +2502,7 @@ function switchUser(username) {
         collapseTableSection();
         const content = document.getElementById('mainContent');
         if (content) content.style.display = 'none';
+        const nav2 = document.getElementById('pageNav'); if (nav2) nav2.style.display = 'none';
         if (container) container.classList.remove('switching');
         _showPwdModal('profile');
     }, 160);
@@ -3055,6 +3326,7 @@ function verifyPassword() {
             document.getElementById('pwdModal').style.display = 'none';
             const content = document.getElementById('mainContent');
             if (content) content.style.display = '';
+            document.getElementById('pageNav').style.display = '';
             updateAll();
             showToast('Welcome, ' + currentUser + '!', 'success');
         } else {
@@ -3196,6 +3468,219 @@ document.addEventListener('focusin', function(e) {
         requirePassword(() => { e.target.focus(); });
     }
 });
+
+// ── HOLDINGS DATA ──
+const HOLDINGS_BONDS = [
+    { name:'633GS2035', qty:7500,  avgCost:101.48, ltp:101,    invested:761062.5,  curVal:757500,    pnl:-3562.5,   chgPct:-0.47, coupon:6.33, payMonths:[3,9] },
+    { name:'668GS2033', qty:100,   avgCost:100.05, ltp:100,    invested:10005,     curVal:10000,     pnl:-5,        chgPct:-0.05, coupon:6.68, payMonths:[3,9] },
+    { name:'709GOI54',  qty:55034, avgCost:102.34, ltp:95.8,   invested:5632410.98,curVal:5272257.2, pnl:-360153.78,chgPct:-6.39, coupon:7.09, payMonths:[4,10] },
+    { name:'709GOI74',  qty:94870, avgCost:98.08,  ltp:95.75,  invested:9304557.78,curVal:9083802.5, pnl:-220755.28,chgPct:-2.37, coupon:7.09, payMonths:[4,10] },
+    { name:'717GS2030', qty:2000,  avgCost:102.1,  ltp:104.25, invested:204200,    curVal:208500,    pnl:4300,      chgPct:2.11,  coupon:7.17, payMonths:[1,7] },
+    { name:'734GS2064', qty:6350,  avgCost:97.08,  ltp:99.79,  invested:616473.49, curVal:633666.5,  pnl:17193.01,  chgPct:2.79,  coupon:7.34, payMonths:[1,7] },
+    { name:'73GS2053',  qty:1000,  avgCost:102.51, ltp:99.6,   invested:102512,    curVal:99600,     pnl:-2912,     chgPct:-2.84, coupon:7.30, payMonths:[6,12] },
+    { name:'92GS2030',  qty:11876, avgCost:115.65, ltp:113.3,  invested:1373479.79,curVal:1345550.8, pnl:-27928.99, chgPct:-2.03, coupon:9.20, payMonths:[3,9] },
+];
+const HOLDINGS_GOLD = [
+    { name:'GOLDETF', qty:1050, avgCost:141.62, ltp:153.76, invested:148702.41, curVal:161448, pnl:12745.59, chgPct:8.57 },
+];
+const HOLDINGS_EQUITY = [
+    { name:'BAJAJFINSV', qty:5,    avgCost:2019.10, ltp:2002,   invested:10095.5,   curVal:10010,    pnl:-85.5,     chgPct:-0.85 },
+    { name:'BDL',        qty:220,  avgCost:1506.48, ltp:1306,   invested:331424.5,  curVal:287320,   pnl:-44104.5,  chgPct:-13.31 },
+    { name:'DELTACORP',  qty:375,  avgCost:140.39,  ltp:59.43,  invested:52645.7,   curVal:22286.25, pnl:-30359.45, chgPct:-57.67 },
+    { name:'DRREDDY',    qty:10,   avgCost:1261.28, ltp:1178,   invested:12612.8,   curVal:11780,    pnl:-832.8,    chgPct:-6.60 },
+    { name:'HDFCBANK',   qty:780,  avgCost:755.56,  ltp:720,    invested:589337.25, curVal:561600,   pnl:-27737.25, chgPct:-4.71 },
+    { name:'HDFCLIFE',   qty:40,   avgCost:647.34,  ltp:548,    invested:25893.5,   curVal:21920,    pnl:-3973.5,   chgPct:-15.35 },
+    { name:'IRBINVIT-IV',qty:7600, avgCost:61.10,   ltp:64.19,  invested:464360,    curVal:487844,   pnl:23484,     chgPct:5.06 },
+    { name:'PGINVIT-IV', qty:2500, avgCost:93.04,   ltp:100.01, invested:232600,    curVal:250025,   pnl:17425,     chgPct:7.49 },
+    { name:'SBIN',       qty:30,   avgCost:987.20,  ltp:1046.05,invested:29616,     curVal:31381.5,  pnl:1765.5,    chgPct:5.96 },
+    { name:'TCS',        qty:150,  avgCost:3214.70, ltp:2344,   invested:482205.35, curVal:351600,   pnl:-130605.35,chgPct:-27.09 },
+    { name:'TITAN',      qty:10,   avgCost:4248.80, ltp:5169.2, invested:42488,     curVal:51692,    pnl:9204,      chgPct:21.66 },
+    { name:'TMPV',       qty:155,  avgCost:458.56,  ltp:319,    invested:71077.33,  curVal:49445,    pnl:-21632.33, chgPct:-30.43 },
+    { name:'VAIBHAVGBL', qty:141,  avgCost:250.08,  ltp:221.55, invested:35261.95,  curVal:31238.55, pnl:-4023.4,   chgPct:-11.41 },
+];
+const HOLDINGS_MF = [
+    { name:'HDFC Mid Cap Fund',                           units:41.449,    avgNav:197.82,  curNav:236.919,  invested:8199.52,   curVal:9820.06,   pnl:1620.54,  chgPct:19.76 },
+    { name:'HDFC Small Cap Fund',                         units:86.691,    avgNav:140.72,  curNav:160.777,  invested:12199.43,  curVal:13937.92,  pnl:1738.48,  chgPct:14.25 },
+    { name:'ICICI Prudential Liquid Fund',                units:19.824,    avgNav:374.62,  curNav:419.2089, invested:7426.40,   curVal:8310.40,   pnl:884,      chgPct:11.90 },
+    { name:'Motilal Oswal Nifty 50 Index Fund',           units:3783.32,   avgNav:20.35,   curNav:21.0366,  invested:76996.24,  curVal:79588.19,  pnl:2591.95,  chgPct:3.37 },
+    { name:'Nippon India Diversified Equity Flexicap FoF',units:22591.103, avgNav:20.87,   curNav:21.6148,  invested:471575.72, curVal:488302.17, pnl:16726.45, chgPct:3.55 },
+    { name:'Nippon India Nifty 500 Momentum 50 Index',    units:60193.885, avgNav:8.11,    curNav:8.7593,   invested:488124.25, curVal:527256.30, pnl:39132.04, chgPct:8.02 },
+    { name:'Parag Parikh Flexi Cap Fund',                 units:2171.441,  avgNav:84.27,   curNav:90.6865,  invested:182990.81, curVal:196920.38, pnl:13929.58, chgPct:7.61 },
+    { name:'SBI Dividend Yield Fund',                     units:1375.942,  avgNav:14.10,   curNav:16.4697,  invested:19398.99,  curVal:22661.35,  pnl:3262.36,  chgPct:16.82 },
+];
+
+// Bond coupon payout month names
+const MONTH_NAMES = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+function nextPayoutDate(payMonths) {
+    const now = new Date();
+    const curMonth = now.getMonth() + 1; // 1-based
+    const curDay = now.getDate();
+    // Bonds typically pay on the 1st of the payout month
+    for (const m of payMonths.sort((a,b)=>a-b)) {
+        if (m > curMonth || (m === curMonth && curDay < 1)) {
+            return MONTH_NAMES[m-1] + ' 01, ' + now.getFullYear();
+        }
+    }
+    return MONTH_NAMES[payMonths[0]-1] + ' 01, ' + (now.getFullYear()+1);
+}
+
+function fINR(v) {
+    const a = Math.abs(v);
+    if (a >= 10000000) return (v<0?'-':'') + '₹' + (a/10000000).toFixed(2) + ' Cr';
+    if (a >= 100000)   return (v<0?'-':'') + '₹' + (a/100000).toFixed(2) + 'L';
+    if (a >= 1000)     return (v<0?'-':'') + '₹' + a.toLocaleString('en-IN', {maximumFractionDigits:0});
+    return (v<0?'-':'') + '₹' + a.toFixed(2);
+}
+function fINR2(v) { return (v<0?'-':'') + '₹' + Math.abs(v).toLocaleString('en-IN',{maximumFractionDigits:2}); }
+function pnlClass(v) { return v >= 0 ? 'td-pos' : 'td-neg'; }
+function pnlSign(v) { return v >= 0 ? '+' : ''; }
+
+function renderHoldingsTable(tbody, rows, cols) {
+    tbody.innerHTML = rows.map(r => `<tr>${cols.map(c => c(r)).join('')}</tr>`).join('');
+}
+
+function sumField(rows, field) { return rows.reduce((s,r) => s + (r[field]||0), 0); }
+
+function footCell(val, cls='') {
+    return `<td class="${cls}">${val}</td>`;
+}
+
+function renderHoldings() {
+    // ── Bonds ──
+    const bTbody = document.getElementById('bondsTbody');
+    const bFoot  = document.getElementById('bondsFoot');
+    renderHoldingsTable(bTbody, HOLDINGS_BONDS, [
+        r => `<td class="td-name">${r.name}</td>`,
+        r => `<td>${r.qty.toLocaleString('en-IN')}</td>`,
+        r => `<td>₹${r.avgCost.toFixed(2)}</td>`,
+        r => `<td>₹${r.ltp.toFixed(2)}</td>`,
+        r => `<td>${fINR(r.invested)}</td>`,
+        r => `<td>${fINR(r.curVal)}</td>`,
+        r => `<td class="${pnlClass(r.pnl)}">${pnlSign(r.pnl)}${fINR(r.pnl)}</td>`,
+        r => `<td class="${pnlClass(r.chgPct)}">${pnlSign(r.chgPct)}${r.chgPct.toFixed(2)}%</td>`,
+        r => `<td style="color:#0891b2;font-weight:700">${r.coupon.toFixed(2)}%</td>`,
+        r => { const mo = r.coupon/100 * r.qty * 100 / 12; return `<td style="color:#0891b2;font-weight:700">${fINR2(mo)}</td>`; },
+        r => `<td style="color:#0891b2">${nextPayoutDate(r.payMonths)}</td>`,
+    ]);
+    const bInv = sumField(HOLDINGS_BONDS,'invested'), bVal = sumField(HOLDINGS_BONDS,'curVal'), bPnl = sumField(HOLDINGS_BONDS,'pnl');
+    bFoot.innerHTML = `<td><strong>TOTAL</strong></td><td></td><td></td><td></td>
+        <td><strong>${fINR(bInv)}</strong></td>
+        <td><strong>${fINR(bVal)}</strong></td>
+        <td class="${pnlClass(bPnl)}"><strong>${pnlSign(bPnl)}${fINR(bPnl)}</strong></td>
+        <td></td>
+        <td style="color:#0891b2;font-weight:700">${(HOLDINGS_BONDS.reduce((s,r)=>s+r.coupon*r.qty*100,0)/bInv*100).toFixed(2)}% wtd avg</td>
+        <td style="color:#0891b2;font-weight:700">${fINR2(HOLDINGS_BONDS.reduce((s,r)=>s+r.coupon/100*r.qty*100/12,0))}/mo</td>
+        <td></td>`;
+    document.getElementById('bondsBadge').textContent = HOLDINGS_BONDS.length + ' bonds · ' + fINR(bVal) + ' invested';
+
+    // ── Bond payout schedule ──
+    const bpTbody = document.getElementById('bondPayoutTbody');
+    bpTbody.innerHTML = HOLDINGS_BONDS.map(r => {
+        const faceHeld = r.qty * 100;
+        const annual = r.coupon / 100 * faceHeld;
+        const perPayout = annual / 2;
+        const payoutMonthStr = r.payMonths.map(m => MONTH_NAMES[m-1]).join(' & ');
+        return `<tr>
+            <td class="td-name">${r.name}</td>
+            <td>${fINR(faceHeld)}</td>
+            <td style="color:#0891b2;font-weight:700">${fINR2(annual)}</td>
+            <td style="color:#0891b2;font-weight:700">${fINR2(perPayout)}</td>
+            <td>Semi-annual</td>
+            <td>${payoutMonthStr}</td>
+            <td style="color:#0891b2">${nextPayoutDate(r.payMonths)}</td>
+        </tr>`;
+    }).join('') + `<tr style="background:#e0f2fe;font-weight:700">
+        <td>TOTAL ANNUAL INTEREST</td>
+        <td>${fINR(HOLDINGS_BONDS.reduce((s,r)=>s+r.qty*100,0))}</td>
+        <td style="color:#0891b2">${fINR2(HOLDINGS_BONDS.reduce((s,r)=>s+r.coupon/100*r.qty*100,0))}</td>
+        <td style="color:#0891b2">${fINR2(HOLDINGS_BONDS.reduce((s,r)=>s+r.coupon/100*r.qty*100/2,0))}</td>
+        <td colspan="3"></td>
+    </tr>`;
+
+    // ── Gold ──
+    const gTbody = document.getElementById('goldTbody'), gFoot = document.getElementById('goldFoot');
+    renderHoldingsTable(gTbody, HOLDINGS_GOLD, [
+        r => `<td class="td-name">${r.name}</td>`,
+        r => `<td>${r.qty.toLocaleString('en-IN')}</td>`,
+        r => `<td>₹${r.avgCost.toFixed(2)}</td>`,
+        r => `<td>₹${r.ltp.toFixed(2)}</td>`,
+        r => `<td>${fINR(r.invested)}</td>`,
+        r => `<td>${fINR(r.curVal)}</td>`,
+        r => `<td class="${pnlClass(r.pnl)}">${pnlSign(r.pnl)}${fINR(r.pnl)}</td>`,
+        r => `<td class="${pnlClass(r.chgPct)}">${pnlSign(r.chgPct)}${r.chgPct.toFixed(2)}%</td>`,
+    ]);
+    const gInv=sumField(HOLDINGS_GOLD,'invested'),gVal=sumField(HOLDINGS_GOLD,'curVal'),gPnl=sumField(HOLDINGS_GOLD,'pnl');
+    gFoot.innerHTML=`<td><strong>TOTAL</strong></td><td></td><td></td><td></td><td><strong>${fINR(gInv)}</strong></td><td><strong>${fINR(gVal)}</strong></td><td class="${pnlClass(gPnl)}"><strong>${pnlSign(gPnl)}${fINR(gPnl)}</strong></td><td class="${pnlClass(gPnl)}">${pnlSign(gPnl)}${((gPnl/gInv)*100).toFixed(2)}%</td>`;
+    document.getElementById('goldBadge').textContent = HOLDINGS_GOLD.length + ' ETF · ' + fINR(gVal);
+
+    // ── Equity ──
+    const eTbody = document.getElementById('equityTbody'), eFoot = document.getElementById('equityFoot');
+    renderHoldingsTable(eTbody, HOLDINGS_EQUITY, [
+        r => `<td class="td-name">${r.name}</td>`,
+        r => `<td>${r.qty.toLocaleString('en-IN')}</td>`,
+        r => `<td>₹${r.avgCost.toFixed(2)}</td>`,
+        r => `<td>₹${r.ltp.toFixed(2)}</td>`,
+        r => `<td>${fINR(r.invested)}</td>`,
+        r => `<td>${fINR(r.curVal)}</td>`,
+        r => `<td class="${pnlClass(r.pnl)}">${pnlSign(r.pnl)}${fINR(r.pnl)}</td>`,
+        r => `<td class="${pnlClass(r.chgPct)}">${pnlSign(r.chgPct)}${r.chgPct.toFixed(2)}%</td>`,
+    ]);
+    const eInv=sumField(HOLDINGS_EQUITY,'invested'),eVal=sumField(HOLDINGS_EQUITY,'curVal'),ePnl=sumField(HOLDINGS_EQUITY,'pnl');
+    eFoot.innerHTML=`<td><strong>TOTAL</strong></td><td></td><td></td><td></td><td><strong>${fINR(eInv)}</strong></td><td><strong>${fINR(eVal)}</strong></td><td class="${pnlClass(ePnl)}"><strong>${pnlSign(ePnl)}${fINR(ePnl)}</strong></td><td class="${pnlClass(ePnl)}">${pnlSign(ePnl)}${((ePnl/eInv)*100).toFixed(2)}%</td>`;
+    document.getElementById('equityBadge').textContent = HOLDINGS_EQUITY.length + ' stocks · ' + fINR(eVal);
+
+    // ── Mutual Funds ──
+    const mTbody = document.getElementById('mfTbody'), mFoot = document.getElementById('mfFoot');
+    renderHoldingsTable(mTbody, HOLDINGS_MF, [
+        r => `<td class="td-name">${r.name}</td>`,
+        r => `<td>${r.units.toLocaleString('en-IN',{maximumFractionDigits:3})}</td>`,
+        r => `<td>₹${r.avgNav.toFixed(4)}</td>`,
+        r => `<td>₹${r.curNav.toFixed(4)}</td>`,
+        r => `<td>${fINR(r.invested)}</td>`,
+        r => `<td>${fINR(r.curVal)}</td>`,
+        r => `<td class="${pnlClass(r.pnl)}">${pnlSign(r.pnl)}${fINR(r.pnl)}</td>`,
+        r => `<td class="${pnlClass(r.chgPct)}">${pnlSign(r.chgPct)}${r.chgPct.toFixed(2)}%</td>`,
+    ]);
+    const mInv=sumField(HOLDINGS_MF,'invested'),mVal=sumField(HOLDINGS_MF,'curVal'),mPnl=sumField(HOLDINGS_MF,'pnl');
+    mFoot.innerHTML=`<td><strong>TOTAL</strong></td><td></td><td></td><td></td><td><strong>${fINR(mInv)}</strong></td><td><strong>${fINR(mVal)}</strong></td><td class="${pnlClass(mPnl)}"><strong>${pnlSign(mPnl)}${fINR(mPnl)}</strong></td><td class="${pnlClass(mPnl)}">${pnlSign(mPnl)}${((mPnl/mInv)*100).toFixed(2)}%</td>`;
+    document.getElementById('mfBadge').textContent = HOLDINGS_MF.length + ' funds · ' + fINR(mVal);
+
+    // ── Summary strip ──
+    const totalInv = bInv+gInv+eInv+mInv;
+    const totalVal = bVal+gVal+eVal+mVal;
+    const totalPnl = totalVal - totalInv;
+    const monthlyBondInt = HOLDINGS_BONDS.reduce((s,r)=>s+r.coupon/100*r.qty*100/12,0);
+    document.getElementById('holdingsSummary').innerHTML = `
+        <div class="h-stat bonds"><div class="hs-label">Bonds</div><div class="hs-val">${fINR(bVal)}</div><div class="hs-sub ${pnlClass(bPnl)}">${pnlSign(bPnl)}${fINR(bPnl)} P&amp;L</div></div>
+        <div class="h-stat gold"><div class="hs-label">Gold ETF</div><div class="hs-val">${fINR(gVal)}</div><div class="hs-sub ${pnlClass(gPnl)}">${pnlSign(gPnl)}${fINR(gPnl)} P&amp;L</div></div>
+        <div class="h-stat equity"><div class="hs-label">Equity</div><div class="hs-val">${fINR(eVal)}</div><div class="hs-sub ${pnlClass(ePnl)}">${pnlSign(ePnl)}${fINR(ePnl)} P&amp;L</div></div>
+        <div class="h-stat mf"><div class="hs-label">Mutual Funds</div><div class="hs-val">${fINR(mVal)}</div><div class="hs-sub ${pnlClass(mPnl)}">${pnlSign(mPnl)}${fINR(mPnl)} P&amp;L</div></div>
+        <div class="h-stat" style="border-left-color:#0891b2"><div class="hs-label">Monthly Bond Interest</div><div class="hs-val" style="color:#0891b2">${fINR2(monthlyBondInt)}</div><div class="hs-sub" style="color:#0891b2">Semi-annual payouts</div></div>
+        <div class="h-stat total"><div class="hs-label">Total Portfolio</div><div class="hs-val">${fINR(totalVal)}</div><div class="hs-sub ${pnlClass(totalPnl)}">${pnlSign(totalPnl)}${fINR(totalPnl)} overall P&amp;L</div></div>
+    `;
+}
+
+// ── PAGE SWITCHING ──
+function showPage(page) {
+    const dash = document.getElementById('dashboardPage');
+    const hold = document.getElementById('holdingsPage');
+    const navD = document.getElementById('navDashboard');
+    const navH = document.getElementById('navHoldings');
+    if (page === 'holdings') {
+        dash.style.display = 'none';
+        hold.style.display = '';
+        navD.classList.remove('active');
+        navH.classList.add('active');
+        renderHoldings();
+    } else {
+        hold.style.display = 'none';
+        dash.style.display = '';
+        navD.classList.add('active');
+        navH.classList.remove('active');
+    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
 
 document.addEventListener('DOMContentLoaded', () => {
     initializeUserManagement();
