@@ -1482,14 +1482,6 @@
 
             <!-- Gautam Family Charts -->
             <div style="margin-top:32px">
-                <div class="gf-chart-label">Year-wise Combined Return</div>
-                <div class="chart-canvas-wrap medium"><canvas id="gautamFamilyYearChart"></canvas></div>
-            </div>
-            <div style="margin-top:28px">
-                <div class="gf-chart-label">Cumulative Return — All 4 Members</div>
-                <div class="chart-canvas-wrap"><canvas id="gautamFamilyCumChart"></canvas></div>
-            </div>
-            <div style="margin-top:28px">
                 <div class="gf-chart-label">Member Return Contribution by Year (%)</div>
                 <div class="chart-canvas-wrap medium"><canvas id="gautamFamilyContribChart"></canvas></div>
             </div>
@@ -1703,7 +1695,7 @@ const initialGangaData = [];  // Ganga data to be added by user
 
 // ── Chart Instances ──
 let percentageChart, amountChart, cumulativeUserChart, overallReturnChart, overallPercentageChart, cumulativeAllUsersChart, overallMonthlyPercentageChart;
-let gautamFamilyYearChart, gautamFamilyCumChart, gautamFamilyContribChart;
+let gautamFamilyContribChart;
 Chart.register(ChartDataLabels);
 
 
@@ -2944,113 +2936,8 @@ function updateGautamFamilySection() {
         <div class="fam-stat"><div class="fs-label">Active Members</div><div class="fs-val">${activeMembers} / 4</div></div>
     `;
 
-    // ── Year-wise combined return chart ──
-    if (gautamFamilyYearChart) gautamFamilyYearChart.destroy();
-    gautamFamilyYearChart = new Chart(document.getElementById('gautamFamilyYearChart'), {
-        type: 'bar',
-        data: {
-            labels: yearLabels,
-            datasets: [{
-                label: 'Combined Return (₹)',
-                data: combinedByYear,
-                backgroundColor: combinedByYear.map(v => v>=0 ? 'rgba(37,99,235,0.75)' : 'rgba(192,57,43,0.75)'),
-                borderRadius: 6, borderWidth: 0
-            }, {
-                label: 'Total Capital Used (₹)',
-                data: capitalByYear,
-                backgroundColor: 'rgba(124,58,237,0.25)',
-                borderColor: 'rgba(124,58,237,0.7)',
-                borderWidth: 2,
-                type: 'line',
-                fill: false,
-                tension: 0.3,
-                pointRadius: function(ctx) { return _isMobileChart(ctx.chart) ? 2 : 5; },
-                yAxisID: 'y1'
-            }]
-        },
-        options: {
-            ...baseChartConfig,
-            plugins: {
-                ...baseChartConfig.plugins,
-                datalabels: {
-                    anchor: 'end', align: 'top',
-                    formatter: (v, ctx) => ctx.datasetIndex === 0 ? '₹'+(v/100000).toFixed(1)+'L' : '',
-                    color: ctx => ctx.dataset.data[ctx.dataIndex] < 0 ? '#c0392b' : '#1a7a4a',
-                    font: { weight: 'bold', size: 9 }
-                }
-            },
-            scales: {
-                y: { beginAtZero: false, grid: { color: 'rgba(189,195,199,0.2)' }, ticks: { callback: v => '₹'+(v/100000).toFixed(0)+'L', color:'#8896a8', font:{size:10} }, title: { display: true, text: 'Return (₹)', color:'#8896a8' } },
-                y1: { beginAtZero: false, position: 'right', grid: { drawOnChartArea: false }, ticks: { callback: v => '₹'+(v/10000000).toFixed(1)+'Cr', color:'#7c3aed', font:{size:10} }, title: { display: true, text: 'Capital (₹)', color:'#7c3aed' } },
-                x: { grid: { display: false }, ticks: { color:'#8896a8', font:{size:11} } }
-            }
-        }
-    });
-
-    // ── Cumulative all-4 chart ──
-    if (gautamFamilyCumChart) gautamFamilyCumChart.destroy();
-    const allMonthsSet = new Set();
-    MEMBERS.forEach(m => (allUserData[m.key]||[]).forEach(d => allMonthsSet.add(d.month)));
-    const mi2 = {Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,Jul:6,Aug:7,Sep:8,Oct:9,Nov:10,Dec:11};
-    const allMonths = Array.from(allMonthsSet).sort((a,b) => {
-        const [ma,ya] = a.split('-'), [mb,yb] = b.split('-');
-        return (parseInt(ya)-parseInt(yb)) || (mi2[ma]-mi2[mb]);
-    });
-    const memberColors = ['#2563eb','#7c3aed','#059669','#d97706'];
-    const cumDatasets = MEMBERS.map((m, i) => {
-        const ud = allUserData[m.key] || [];
-        const map = new Map(ud.map(d => [d.month, d.monthlyReturn]));
-        let cum = 0;
-        const color = memberColors[i];
-        const cumArr = allMonths.map(mo => { if(map.has(mo)){cum+=map.get(mo);return cum;} return null; });
-        return {
-            label: m.shortName,
-            data: cumArr,
-            borderColor: color,
-            segment: { borderColor: ctx => ctx.p1.parsed.y < 0 ? '#e74c3c' : color },
-            backgroundColor: color+'18',
-            fill: i === 0,
-            tension: 0.35,
-            pointRadius: function(ctx) { return _isMobileChart(ctx.chart) ? 1.5 : 3; },
-            pointHoverRadius: 8,
-            pointBackgroundColor: cumArr.map(v => v === null ? color : (v < 0 ? '#e74c3c' : color)),
-            spanGaps: true
-        };
-    });
-    // Combined total line
-    const combinedCumMap = {};
-    MEMBERS.forEach(m => {
-        (allUserData[m.key]||[]).forEach(d => {
-            combinedCumMap[d.month] = (combinedCumMap[d.month]||0) + (d.monthlyReturn||0);
-        });
-    });
-    let cumComb = 0;
-    cumDatasets.push({
-        label: '★ All Combined',
-        data: allMonths.map(mo => { cumComb += (combinedCumMap[mo]||0); return cumComb; }),
-        borderColor: '#0f2027',
-        backgroundColor: 'transparent',
-        borderWidth: 2.5,
-        borderDash: [5,3],
-        fill: false,
-        tension: 0.35,
-        pointRadius: function(ctx) { return _isMobileChart(ctx.chart) ? 2 : 4; },
-        pointBackgroundColor: '#0f2027'
-    });
-    gautamFamilyCumChart = new Chart(document.getElementById('gautamFamilyCumChart'), {
-        type: 'line',
-        data: { labels: allMonths, datasets: cumDatasets },
-        options: {
-            ...baseChartConfig,
-            plugins: { ...baseChartConfig.plugins, datalabels: { display: false } },
-            scales: {
-                y: { beginAtZero: false, grid: { color:'rgba(189,195,199,0.2)' }, ticks: { callback: v => '₹'+(v/100000).toFixed(1)+'L', color:'#8896a8', font:{size:10} } },
-                x: { grid: { display:false }, ticks: { color:'#8896a8', font:{size:10} } }
-            }
-        }
-    });
-
     // ── Member contribution stacked bar ──
+    const memberColors = ['#2563eb','#7c3aed','#059669','#d97706'];
     if (gautamFamilyContribChart) gautamFamilyContribChart.destroy();
     gautamFamilyContribChart = new Chart(document.getElementById('gautamFamilyContribChart'), {
         type: 'bar',
