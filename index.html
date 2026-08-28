@@ -87,7 +87,7 @@
             background: rgba(255,255,255,0.03);
             pointer-events: none;
         }
-        .header-inner { max-width: 100%; margin: 0 2.5%; position: relative; z-index: 1; }
+        .header-inner { max-width: 1440px; margin: 0 auto; padding: 0 2.5%; position: relative; z-index: 1; }
         .header-top { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
         .gp-logo-wrap { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
         .gp-logo-svg { width: 52px; height: 52px; flex-shrink: 0; filter: drop-shadow(0 2px 8px rgba(201,168,76,0.4)); }
@@ -101,8 +101,8 @@
         }
         @media (max-width: 380px) { .gp-logo-text { display: none; } }
         .hero-panel {
-            margin: 24px 0 18px;
-            padding: 24px 26px;
+            margin: 24px 0 28px;
+            padding: 28px 30px;
             border-radius: 22px;
             background: linear-gradient(125deg, rgba(255,255,255,0.96), rgba(244,246,250,0.95));
             border: 1px solid rgba(26,39,68,0.08);
@@ -160,7 +160,6 @@
         .hero-stat .value { font-size: 17px; font-weight: 700; color: var(--navy); }
         .hero-stat .best-value { color: var(--emerald); font-size: 20px; font-weight: 800; }
         .hero-stat .worst-value { color: var(--crimson); font-size: 16px; font-weight: 700; }
-        .header-top { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
         .header-logo { display: flex; align-items: center; gap: 14px; }
         .logo-icon {
             width: 48px; height: 48px;
@@ -181,13 +180,7 @@
         .header-subtitle { font-size: 13px; color: rgba(255,255,255,0.55); margin-top: 3px; }
         .blinking {
             font-weight: 800;
-            animation: blink 1.6s step-end infinite;
             color: inherit;
-            text-shadow: 0 1px 0 rgba(255,255,255,0.6);
-        }
-        @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.65; }
         }
         .flash-slow {
             animation: flashSlow 3s ease-in-out infinite;
@@ -199,26 +192,28 @@
 
 
         /* ── CONTAINER ── */
-        .container { max-width: 100%; margin: 0 auto; padding: 20px 2.5% 48px; }
+        .container { max-width: 1440px; margin: 0 auto; padding: 20px 2.5% 48px; }
 
         /* ── SECTION HEADINGS ── */
         .section-heading {
-            display: flex; align-items: center; gap: 12px;
-            margin: 40px 0 20px;
+            display: flex; align-items: center; gap: 14px;
+            margin: 44px 0 22px;
         }
         .section-heading .sh-icon {
-            width: 36px; height: 36px;
-            background: var(--navy-mid);
-            color: #fff;
+            width: 38px; height: 38px;
+            background: linear-gradient(135deg, var(--navy), var(--navy-mid));
+            color: var(--gold);
             border-radius: 10px;
             display: flex; align-items: center; justify-content: center;
             font-size: 17px;
             flex-shrink: 0;
+            box-shadow: 0 3px 10px rgba(26,39,68,0.18);
         }
         .section-heading h2 {
             font-family: 'Playfair Display', serif;
-            font-size: 22px; font-weight: 600;
+            font-size: 22px; font-weight: 700;
             color: #102241;
+            letter-spacing: -0.01em;
         }
 
         /* Dark backgrounds should use off-white text for contrast */
@@ -300,16 +295,18 @@
             background: var(--bg-card);
             border: 1px solid var(--border);
             border-radius: var(--radius);
-            padding: 22px 26px;
+            padding: 22px 28px;
             box-shadow: var(--shadow-sm);
-            margin-bottom: 18px;
+            margin-bottom: 20px;
         }
         .panel-title {
-            font-size: 12px; font-weight: 600;
-            text-transform: uppercase; letter-spacing: .06em;
+            font-size: 11px; font-weight: 700;
+            text-transform: uppercase; letter-spacing: .08em;
             color: var(--text-muted);
-            margin-bottom: 14px;
+            margin-bottom: 16px;
+            display: flex; align-items: center; gap: 7px;
         }
+        .panel-title svg { color: var(--navy); }
         .panel-row {
             display: flex; flex-wrap: wrap; gap: 12px; align-items: center;
         }
@@ -392,16 +389,16 @@
             border-radius: var(--radius);
             box-shadow: var(--shadow-sm);
             overflow: hidden;
-            margin: 20px 0;
+            margin: 22px 0;
         }
         .table-scroll { overflow-x: auto; }
         table { width: 100%; border-collapse: collapse; font-size: 13px; }
-        thead tr { background: var(--navy); }
+        thead tr { background: linear-gradient(90deg, var(--navy), var(--navy-mid)); }
         thead th {
-            padding: 13px 14px;
-            color: rgba(255,255,255,0.9);
-            font-weight: 600; font-size: 12px;
-            text-transform: uppercase; letter-spacing: .05em;
+            padding: 13px 15px;
+            color: rgba(255,255,255,0.88);
+            font-weight: 600; font-size: 11.5px;
+            text-transform: uppercase; letter-spacing: .06em;
             text-align: right; white-space: nowrap;
         }
         thead th:first-child { text-align: left; }
@@ -409,7 +406,7 @@
         tbody tr:last-child { border-bottom: none; }
         tbody tr:nth-child(even) { background: #f8fafd; }
         tbody tr:hover { background: #eef2fb; }
-        td { padding: 10px 14px; text-align: right; vertical-align: middle; color: var(--text-mid); }
+        td { padding: 11px 15px; text-align: right; vertical-align: middle; color: var(--text-mid); }
         td:first-child { text-align: left; font-weight: 600; color: var(--text); }
         td input[type="number"] {
             width: 110px; padding: 5px 10px; font-size: 12px;
@@ -422,33 +419,46 @@
         .neutral { color: var(--text-mid); }
 
         /* ── STAT CARDS ── */
-        .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px; margin: 16px 0 28px; }
+        .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(168px, 1fr)); gap: 16px; margin: 18px 0 32px; }
         .stat-card {
             background: var(--bg-card);
             border: 1px solid var(--border);
             border-radius: var(--radius);
-            padding: 18px 20px;
+            padding: 20px 22px;
             box-shadow: var(--shadow-sm);
             transition: transform .2s, box-shadow .2s;
+            position: relative;
+            overflow: hidden;
+        }
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--gold), var(--navy-light));
+            opacity: 0;
+            transition: opacity .2s;
         }
         .stat-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); }
-        .stat-label { font-size: 11.5px; color: var(--text-muted); font-weight: 500; text-transform: uppercase; letter-spacing: .04em; margin-bottom: 6px; }
-        .stat-value { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 600; color: var(--navy); line-height: 1.2; }
+        .stat-card:hover::before { opacity: 1; }
+        .stat-label { font-size: 11px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 8px; }
+        .stat-value { font-family: 'Playfair Display', serif; font-size: 24px; font-weight: 700; color: var(--navy); line-height: 1.15; }
         .stat-value.pos { color: var(--emerald); }
         .stat-value.neg { color: var(--crimson); }
-        .stat-sub { font-size: 11px; color: var(--text-muted); margin-top: 3px; }
+        .stat-sub { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
 
         /* ── YEAR CARDS ── */
-        .cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; margin: 16px 0 32px; }
+        .cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 18px; margin: 18px 0 36px; }
         .year-card {
             background: var(--bg-card);
             border: 1px solid var(--border);
+            border-top: 3px solid var(--navy);
             border-radius: var(--radius);
             padding: 22px 24px;
             box-shadow: var(--shadow-sm);
-            transition: transform .2s, box-shadow .2s;
+            transition: transform .2s, box-shadow .2s, border-top-color .2s;
         }
-        .year-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
+        .year-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); border-top-color: var(--gold); }
         .year-card-header {
             display: flex; align-items: center; justify-content: space-between;
             margin-bottom: 16px; padding-bottom: 12px;
@@ -477,11 +487,11 @@
             border: 1px solid var(--border);
             border-radius: var(--radius);
             box-shadow: var(--shadow-sm);
-            margin-bottom: 20px;
+            margin-bottom: 24px;
             overflow: hidden;
         }
         .family-header {
-            padding: 18px 24px;
+            padding: 20px 28px;
             display: flex; align-items: center; gap: 14px;
         }
         .fam1-header { background: linear-gradient(135deg, #1e40af, #2563eb); }
@@ -498,7 +508,7 @@
             font-size: 20px; font-weight: 600; color: #fff;
         }
         .family-header-text p { font-size: 12px; color: rgba(255,255,255,0.65); margin-top: 2px; }
-        .family-body { padding: 20px 24px; }
+        .family-body { padding: 24px 28px; }
         .family-members-row { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 20px; }
         .member-chip {
             display: flex; align-items: center; gap: 8px;
@@ -510,15 +520,28 @@
         .fam2-chip { background: var(--fam2-bg); border: 1.5px solid var(--fam2-border); color: var(--fam2); }
         .family-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; }
         .fam-stat {
-            background: var(--bg);
+            background: var(--off-white);
             border-radius: var(--radius-sm);
-            padding: 14px 16px;
+            padding: 16px 18px;
             border: 1px solid var(--border);
+            transition: transform .15s;
         }
-        .fam-stat .fs-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: .04em; font-weight: 500; margin-bottom: 4px; }
-        .fam-stat .fs-val { font-family: 'Playfair Display', serif; font-size: 19px; font-weight: 600; }
+        .fam-stat:hover { transform: translateY(-2px); }
+        .fam-stat .fs-label { font-size: 10.5px; color: var(--text-muted); text-transform: uppercase; letter-spacing: .06em; font-weight: 600; margin-bottom: 5px; }
+        .fam-stat .fs-val { font-family: 'Playfair Display', serif; font-size: 19px; font-weight: 700; }
         .fam1-val { color: var(--fam1); }
         .fam2-val { color: var(--fam2); }
+        /* Gautam family chart sub-labels */
+        .gf-chart-label {
+            font-size: 12px; font-weight: 700;
+            text-transform: uppercase; letter-spacing: .06em;
+            color: var(--text-muted); margin-bottom: 14px;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .gf-chart-label::before {
+            content: ''; display: inline-block; width: 3px; height: 14px;
+            border-radius: 3px; background: linear-gradient(180deg, var(--gold), var(--navy));
+        }
         .family-year-table { width: 100%; border-collapse: collapse; margin-top: 16px; font-size: 13px; }
         .family-year-table thead tr { background: var(--bg); }
         .family-year-table thead th { padding: 9px 12px; font-size: 11px; text-transform: uppercase; letter-spacing:.04em; color: var(--text-muted); font-weight: 600; text-align: right; border-bottom: 1.5px solid var(--border); background: var(--bg); }
@@ -546,58 +569,68 @@
         }
         .yearly-table thead th {
             padding: 14px 16px;
-            text-align: left;
-            color: #fff;
+            text-align: right;
+            color: rgba(255,255,255,0.9);
             font-weight: 600;
-            font-size: 12px;
+            font-size: 11.5px;
             text-transform: uppercase;
             letter-spacing: .06em;
+            white-space: nowrap;
         }
+        .yearly-table thead th:first-child,
+        .yearly-table thead th:nth-child(2) { text-align: left; }
         .yearly-table tbody tr {
             border-bottom: 1px solid var(--border);
             transition: background .12s;
         }
         .yearly-table tbody tr:nth-child(even) { background: #f8fafd; }
         .yearly-table tbody tr:hover { background: #eef2fb; }
-        .yearly-table tbody tr.group-row { background: #e8f0ff; }
+        .yearly-table tbody tr.group-row { background: linear-gradient(90deg, #e8f0ff, #edf2ff); }
         .yearly-table tbody tr.group-row td {
-            padding: 14px 16px;
+            padding: 12px 16px;
             font-weight: 700;
             color: var(--navy);
             letter-spacing: .02em;
             text-transform: uppercase;
+            font-size: 12px;
         }
-        .yearly-table tbody tr.year-row td:first-child { padding-left: 20px; }
+        .yearly-table tbody tr.year-row td:first-child { padding-left: 26px; }
         .yearly-table td {
-            padding: 12px 16px;
+            padding: 11px 16px;
             color: var(--text);
-            text-align: left;
+            text-align: right;
             vertical-align: middle;
         }
+        .yearly-table td:first-child,
+        .yearly-table td:nth-child(2) { text-align: left; }
         .yearly-table td span { display: inline-block; min-width: 80px; }
         .yearly-table tbody tr:last-child { border-bottom: none; }
 
         /* ── CHARTS ── */
-        .chart-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 14px 0; }
+        .chart-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin: 16px 0; }
         .chart-grid.full { grid-template-columns: 1fr; }
         .chart-card {
-            background: linear-gradient(160deg, #ffffff 0%, #f4f7ff 100%);
+            background: #ffffff;
             border: 1px solid var(--border);
             border-radius: var(--radius);
-            padding: 16px 10px 10px;
-            box-shadow: 0 4px 20px rgba(26,39,68,0.10), 0 1px 4px rgba(26,39,68,0.06);
+            padding: 22px 20px 16px;
+            box-shadow: 0 2px 12px rgba(26,39,68,0.07), 0 1px 3px rgba(26,39,68,0.04);
             transition: transform .2s, box-shadow .2s;
         }
-        .chart-card:hover { transform: translateY(-4px); box-shadow: 0 10px 36px rgba(26,39,68,0.15); }
+        .chart-card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(26,39,68,0.13); }
         .chart-card-title {
-            font-size: 12px; font-weight: 700; color: var(--navy, #1a2744);
-            text-transform: uppercase; letter-spacing: .07em;
-            margin-bottom: 10px; padding: 0 6px;
-            display: flex; align-items: center; gap: 7px;
+            font-size: 11.5px; font-weight: 700; color: var(--navy, #1a2744);
+            text-transform: uppercase; letter-spacing: .08em;
+            margin-bottom: 16px; padding: 0 2px;
+            display: flex; align-items: center; gap: 8px;
         }
-        .chart-card-title::before { content:''; display:inline-block; width:3px; height:14px; border-radius:3px; background:linear-gradient(180deg,#c9a84c,#1a2744); }
+        .chart-card-title::before {
+            content:''; display:inline-block; width:3px; height:16px; border-radius:3px;
+            background: linear-gradient(180deg, var(--gold) 0%, var(--navy) 100%);
+            flex-shrink: 0;
+        }
         .chart-canvas-wrap { position: relative; height: 300px; }
-        .chart-canvas-wrap.tall { height: 320px; }
+        .chart-canvas-wrap.tall { height: 330px; }
         .chart-canvas-wrap.medium { height: 280px; }
 
         /* ── ACTION BAR ── */
@@ -608,7 +641,15 @@
         }
 
         /* ── FOOTER ── */
-        .footer { text-align: center; padding: 24px 0 0; color: var(--text-muted); font-size: 12px; border-top: 1px solid var(--border); margin-top: 40px; }
+        .footer {
+            text-align: center;
+            padding: 28px 0 8px;
+            color: var(--text-muted);
+            font-size: 12.5px;
+            border-top: 1px solid var(--border);
+            margin-top: 52px;
+            letter-spacing: 0.02em;
+        }
 
         /* ── RESPONSIVE ── */
 
@@ -623,8 +664,8 @@
         /* Tablet landscape: up to 900px */
         @media (max-width: 900px) {
             .chart-grid { grid-template-columns: 1fr; }
-            .page-header { padding: 20px 14px 16px; }
-            .container { padding: 12px 6px 32px; }
+            .page-header { padding: 20px 20px 16px; }
+            .container { padding: 14px 16px 36px; }
             .family-year-table { font-size: 12px; }
             .family-year-table thead th,
             .family-year-table tbody td,
@@ -661,8 +702,9 @@
             .stat-label { font-size: 10px; }
 
             /* Section headings */
-            .section-heading { margin: 24px 0 14px; gap: 8px; }
+            .section-heading { margin: 28px 0 16px; gap: 10px; }
             .section-heading h2 { font-size: 17px; }
+            .section-heading .sh-icon { width: 32px; height: 32px; }
 
             /* Control panels */
             .panel { padding: 14px 14px; }
@@ -706,11 +748,11 @@
             .family-year-table tfoot td { padding: 6px 7px; }
 
             /* Charts */
-            .chart-card { padding: 12px 10px; }
-            .chart-card-title { font-size: 11px; margin-bottom: 10px; }
-            .chart-canvas-wrap { height: 200px; }
-            .chart-canvas-wrap.tall { height: 220px; }
-            .chart-canvas-wrap.medium { height: 200px; }
+            .chart-card { padding: 16px 14px 12px; }
+            .chart-card-title { font-size: 10.5px; margin-bottom: 12px; }
+            .chart-canvas-wrap { height: 210px; }
+            .chart-canvas-wrap.tall { height: 230px; }
+            .chart-canvas-wrap.medium { height: 210px; }
 
             /* Action bar */
             .action-bar { flex-direction: column; gap: 8px; padding: 14px 0; }
@@ -800,25 +842,30 @@
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             padding: 40px 20px;
         }
-        .ps-title { font-family: 'Playfair Display', serif; font-size: 28px; color: #fff; margin-bottom: 6px; text-align: center; }
-        .ps-subtitle { font-size: 13px; color: rgba(255,255,255,0.55); margin-bottom: 40px; text-align: center; letter-spacing: .04em; }
+        .ps-title { font-family: 'Playfair Display', serif; font-size: 30px; font-weight: 700; color: #fff; margin-bottom: 8px; text-align: center; letter-spacing: -0.01em; }
+        .ps-subtitle { font-size: 13px; color: rgba(255,255,255,0.5); margin-bottom: 44px; text-align: center; letter-spacing: .04em; }
         .ps-cards { display: flex; flex-wrap: wrap; gap: 18px; justify-content: center; max-width: 700px; }
         .ps-card {
-            background: rgba(255,255,255,0.07); border: 1.5px solid rgba(255,255,255,0.14);
-            border-radius: 16px; padding: 28px 32px; min-width: 140px; text-align: center;
-            cursor: pointer; transition: background .18s, border-color .18s, transform .18s;
+            background: rgba(255,255,255,0.06); border: 1.5px solid rgba(255,255,255,0.12);
+            border-radius: 18px; padding: 30px 28px 26px; min-width: 150px; text-align: center;
+            cursor: pointer; transition: background .2s, border-color .2s, transform .2s, box-shadow .2s;
             color: #fff;
         }
-        .ps-card:hover { background: rgba(255,255,255,0.15); border-color: var(--gold); transform: translateY(-3px); }
+        .ps-card:hover {
+            background: rgba(255,255,255,0.13); border-color: var(--gold);
+            transform: translateY(-4px); box-shadow: 0 16px 40px rgba(0,0,0,0.3);
+        }
         .ps-card:focus { outline: 2px solid var(--gold); outline-offset: 3px; }
         .ps-avatar {
-            width: 54px; height: 54px; border-radius: 50%; margin: 0 auto 12px;
+            width: 60px; height: 60px; border-radius: 50%; margin: 0 auto 14px;
             display: flex; align-items: center; justify-content: center;
-            font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 700;
-            background: rgba(201,164,82,0.25); color: var(--gold); border: 2px solid var(--gold);
+            font-family: 'Playfair Display', serif; font-size: 24px; font-weight: 700;
+            background: linear-gradient(135deg, rgba(201,168,76,0.3), rgba(201,168,76,0.12));
+            color: var(--gold); border: 2px solid rgba(201,168,76,0.6);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.2);
         }
-        .ps-name { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
-        .ps-family { font-size: 11px; color: rgba(255,255,255,0.45); letter-spacing: .06em; text-transform: uppercase; }
+        .ps-name { font-size: 15px; font-weight: 600; margin-bottom: 5px; letter-spacing: 0.01em; }
+        .ps-family { font-size: 10.5px; color: rgba(255,255,255,0.4); letter-spacing: .08em; text-transform: uppercase; }
         /* password step inside profile select */
         #psPasswordStep { display: none; flex-direction: column; align-items: center; margin-top: 32px; width: 100%; max-width: 320px; }
         #psPasswordStep .ps-back { background: none; border: none; color: rgba(255,255,255,0.55); font-size: 12px; cursor: pointer; margin-bottom: 16px; text-decoration: underline; }
@@ -1434,16 +1481,16 @@
             </div>
 
             <!-- Gautam Family Charts -->
-            <div style="margin-top:28px">
-                <div style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);margin-bottom:14px">Year-wise Combined Return</div>
+            <div style="margin-top:32px">
+                <div class="gf-chart-label">Year-wise Combined Return</div>
                 <div class="chart-canvas-wrap medium"><canvas id="gautamFamilyYearChart"></canvas></div>
             </div>
-            <div style="margin-top:24px">
-                <div style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);margin-bottom:14px">Cumulative Return — All 4 Members</div>
+            <div style="margin-top:28px">
+                <div class="gf-chart-label">Cumulative Return — All 4 Members</div>
                 <div class="chart-canvas-wrap"><canvas id="gautamFamilyCumChart"></canvas></div>
             </div>
-            <div style="margin-top:24px">
-                <div style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);margin-bottom:14px">Member Return Contribution by Year (%)</div>
+            <div style="margin-top:28px">
+                <div class="gf-chart-label">Member Return Contribution by Year (%)</div>
                 <div class="chart-canvas-wrap medium"><canvas id="gautamFamilyContribChart"></canvas></div>
             </div>
         </div>
@@ -1659,74 +1706,6 @@ let percentageChart, amountChart, cumulativeUserChart, overallReturnChart, overa
 let gautamFamilyYearChart, gautamFamilyCumChart, gautamFamilyContribChart;
 Chart.register(ChartDataLabels);
 
-// ── 3D bar plugin ──
-function shadeColor(color, pct) {
-    try {
-        let r, g, b, a = 1;
-        if (color && color.startsWith('rgba')) {
-            const m = color.match(/rgba\((\d+),\s*(\d+),\s*(\d+),\s*([\d.]+)\)/);
-            if (m) { r=+m[1]; g=+m[2]; b=+m[3]; a=+m[4]; }
-        } else if (color && color.startsWith('rgb')) {
-            const m = color.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/);
-            if (m) { r=+m[1]; g=+m[2]; b=+m[3]; }
-        } else if (color && color.startsWith('#')) {
-            const hex = color.length === 4
-                ? color.replace(/./g, (c,i) => i?c+c:c).slice(1)
-                : color.slice(1);
-            r = parseInt(hex.slice(0,2),16);
-            g = parseInt(hex.slice(2,4),16);
-            b = parseInt(hex.slice(4,6),16);
-        } else { return color || '#999'; }
-        r = Math.min(255, Math.max(0, r + Math.round(pct * 2.55)));
-        g = Math.min(255, Math.max(0, g + Math.round(pct * 2.55)));
-        b = Math.min(255, Math.max(0, b + Math.round(pct * 2.55)));
-        return `rgba(${r},${g},${b},${a})`;
-    } catch(e) { return color || '#999'; }
-}
-
-const bar3DPlugin = {
-    id: 'bar3D',
-    afterDatasetsDraw(chart) {
-        const ctx = chart.ctx;
-        chart.data.datasets.forEach((dataset, di) => {
-            const meta = chart.getDatasetMeta(di);
-            if (meta.type !== 'bar') return;
-            meta.data.forEach((bar, idx) => {
-                const val = dataset.data[idx];
-                if (val === null || val === undefined) return;
-                const { x, y, width, base } = bar.getProps(['x','y','width','height','base'], true);
-                const depth = Math.max(5, width * 0.16);
-                const barTop = val >= 0 ? y : base;
-                const barBottom = val >= 0 ? base : y;
-                const barLeft = x - width / 2;
-                const rawColor = (dataset._faceColors && dataset._faceColors[idx])
-                    || (Array.isArray(dataset.backgroundColor) ? dataset.backgroundColor[idx] : dataset.backgroundColor);
-                if (!rawColor || typeof rawColor !== 'string') return;
-                ctx.save();
-                // right face
-                ctx.beginPath();
-                ctx.moveTo(barLeft + width, barTop);
-                ctx.lineTo(barLeft + width + depth, barTop - depth * 0.5);
-                ctx.lineTo(barLeft + width + depth, barBottom - depth * 0.5);
-                ctx.lineTo(barLeft + width, barBottom);
-                ctx.closePath();
-                ctx.fillStyle = shadeColor(rawColor, -28);
-                ctx.fill();
-                // top face
-                ctx.beginPath();
-                ctx.moveTo(barLeft, barTop);
-                ctx.lineTo(barLeft + width, barTop);
-                ctx.lineTo(barLeft + width + depth, barTop - depth * 0.5);
-                ctx.lineTo(barLeft + depth, barTop - depth * 0.5);
-                ctx.closePath();
-                ctx.fillStyle = shadeColor(rawColor, 28);
-                ctx.fill();
-                ctx.restore();
-            });
-        });
-    }
-};
-Chart.register(bar3DPlugin);
 
 // Global bar hover defaults – white outline on hovered bar
 Chart.defaults.datasets.bar.hoverBorderWidth = 2;
@@ -2441,7 +2420,7 @@ function updateCharts() {
     const pctFaces = pctData.map(flatColor);
     percentageChart = new Chart(document.getElementById('percentageChart'), {
         type: 'bar',
-        data: { labels, datasets: [{ label: '% Return', data: pctData, backgroundColor: pctFaces, _faceColors: pctFaces, borderRadius: 0, borderWidth: 0, borderSkipped: false }] },
+        data: { labels, datasets: [{ label: '% Return', data: pctData, backgroundColor: pctFaces, borderRadius: 6, borderWidth: 0, borderSkipped: false }] },
         options: {
             ...baseChartConfig,
             animation: { onComplete: function() { const c=this; const ds=c.data.datasets[0]; ds.backgroundColor=mkGradColors(c,pctData); c.update('none'); } },
@@ -2451,7 +2430,7 @@ function updateCharts() {
     const retFaces = retData.map(flatColor);
     amountChart = new Chart(document.getElementById('amountChart'), {
         type: 'bar',
-        data: { labels, datasets: [{ label: 'Monthly Return (₹)', data: retData, backgroundColor: retFaces, _faceColors: retFaces, borderRadius: 0, borderWidth: 0, borderSkipped: false }] },
+        data: { labels, datasets: [{ label: 'Monthly Return (₹)', data: retData, backgroundColor: retFaces, borderRadius: 6, borderWidth: 0, borderSkipped: false }] },
         options: {
             ...baseChartConfig,
             animation: { onComplete: function() { const c=this; const ds=c.data.datasets[0]; ds.backgroundColor=mkGradColors(c,retData); c.update('none'); } }
@@ -2720,7 +2699,7 @@ function updateOverallCharts() {
     const retFacesOv = retData.map(flatColor);
     overallReturnChart = new Chart(document.getElementById('overallReturnChart'), {
         type: 'bar',
-        data: { labels: years, datasets: [{ label: 'Total Return (₹)', data: retData, backgroundColor: retFacesOv, _faceColors: retFacesOv, borderRadius: 0, borderWidth: 0, borderSkipped: false }] },
+        data: { labels: years, datasets: [{ label: 'Total Return (₹)', data: retData, backgroundColor: retFacesOv, borderRadius: 6, borderWidth: 0, borderSkipped: false }] },
         options: {
             ...baseChartConfig,
             animation: { onComplete: function() { const c=this; const ds=c.data.datasets[0]; ds.backgroundColor=mkGradColors(c,retData); c.update('none'); } }
@@ -2729,7 +2708,7 @@ function updateOverallCharts() {
     const pctFacesOv = pctData.map(flatColor);
     overallPercentageChart = new Chart(document.getElementById('overallPercentageChart'), {
         type: 'bar',
-        data: { labels: years, datasets: [{ label: 'Avg % Return', data: pctData, backgroundColor: pctFacesOv, _faceColors: pctFacesOv, borderRadius: 0, borderWidth: 0, borderSkipped: false }] },
+        data: { labels: years, datasets: [{ label: 'Avg % Return', data: pctData, backgroundColor: pctFacesOv, borderRadius: 6, borderWidth: 0, borderSkipped: false }] },
         options: {
             ...baseChartConfig,
             animation: { onComplete: function() { const c=this; const ds=c.data.datasets[0]; ds.backgroundColor=mkGradColors(c,pctData); c.update('none'); } },
@@ -2757,8 +2736,8 @@ function updateCumulativeAllUsersChart() {
         const color = getNextChartColor();
         const cumData = allMonths.map(m => { if(map.has(m)){cum+=map.get(m);return cum;} return null; });
         const gradFill = ctx2.createLinearGradient(0, 0, 0, 300);
-        gradFill.addColorStop(0, shadeColor(color, 0).replace(/rgba?\((\d+,\d+,\d+)[^)]*\)/, 'rgba($1,0.16)'));
-        gradFill.addColorStop(1, shadeColor(color, 0).replace(/rgba?\((\d+,\d+,\d+)[^)]*\)/, 'rgba($1,0.01)'));
+        gradFill.addColorStop(0, color + '28');
+        gradFill.addColorStop(1, color + '02');
         return { label: username, data: cumData, borderColor: color, segment: { borderColor: ctx => ctx.p1.parsed.y < 0 ? '#e74c3c' : color }, borderWidth: 2.5, backgroundColor: gradFill, fill: true, tension: 0.38, pointRadius: function(ctx) { return _isMobileChart(ctx.chart) ? 1.5 : 4; }, pointHoverRadius: 8, pointBackgroundColor: cumData.map(v => v === null ? color : (v < 0 ? '#e74c3c' : color)), pointBorderColor: '#fff', pointBorderWidth: 2, spanGaps: true };
     });
     cumulativeAllUsersChart = new Chart(canvas, {
@@ -2785,8 +2764,8 @@ function updateMonthlyPercentageAllUsersChart() {
         const color = getNextChartColor();
         const pctData = allMonths.map(m => map.has(m) ? map.get(m) : null);
         const gradFill = ctx2.createLinearGradient(0, 0, 0, 300);
-        gradFill.addColorStop(0, shadeColor(color, 0).replace(/rgba?\((\d+,\d+,\d+)[^)]*\)/, 'rgba($1,0.13)'));
-        gradFill.addColorStop(1, shadeColor(color, 0).replace(/rgba?\((\d+,\d+,\d+)[^)]*\)/, 'rgba($1,0.01)'));
+        gradFill.addColorStop(0, color + '21');
+        gradFill.addColorStop(1, color + '02');
         return { label: username, data: pctData, borderColor: color, borderWidth: 2.5, backgroundColor: gradFill, fill: true, tension: 0.38, pointRadius: function(ctx) { return _isMobileChart(ctx.chart) ? 1.5 : 4; }, pointHoverRadius: 7, pointBackgroundColor: pctData.map(v => v === null ? color : (v < 0 ? '#e74c3c' : color)), pointBorderColor: '#fff', pointBorderWidth: 2, spanGaps: true };
     });
     overallMonthlyPercentageChart = new Chart(canvas, {
