@@ -1401,6 +1401,9 @@
     <!-- ── KPI STRIP ── -->
     <div id="kpiStrip" class="stat-grid fade-up-3"></div>
 
+    <!-- ── UPCOMING BOND PAYOUTS ── -->
+    <div id="upcomingPayoutsStrip" style="display:flex;gap:12px;flex-wrap:wrap;margin:14px 0 4px"></div>
+
     <!-- ── DATA TABLE ── -->
     <div class="section-heading">
         <div class="sh-icon"><svg class="icon icon-lg" aria-hidden="true"><use href="#icon-table"/></svg></div>
@@ -3753,12 +3756,49 @@ function showPage(page) {
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
+function renderUpcomingPayouts() {
+    const strip = document.getElementById('upcomingPayoutsStrip');
+    if (!strip) return;
+    const now = new Date();
+    const curYear = now.getFullYear();
+    // Build all payout events for current + next year, pick next 3 from today
+    const events = [];
+    HOLDINGS_BONDS.forEach(r => {
+        const freq = r.payFreq || 2;
+        const annual = freq === 4 ? r.coupon/100*r.invested : r.coupon/100*r.qty*100;
+        const perPayout = annual / freq;
+        const day = r.payDay || 1;
+        [curYear, curYear+1].forEach(yr => {
+            r.payMonths.forEach(m => {
+                const dt = new Date(yr, m-1, day);
+                if (dt >= now) events.push({ dt, name: r.name, perPayout, month: m, day });
+            });
+        });
+    });
+    events.sort((a,b) => a.dt - b.dt);
+    const next3 = events.slice(0, 3);
+    const FULL_MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    strip.innerHTML = next3.map((e, i) => {
+        const badge = i === 0 ? '<span style="background:#059669;color:#fff;font-size:9px;font-weight:700;padding:1px 6px;border-radius:10px;letter-spacing:.04em;margin-left:6px">NEXT</span>' : '';
+        const daysAway = Math.ceil((e.dt - now) / 86400000);
+        const daysLabel = daysAway === 0 ? 'Today!' : daysAway === 1 ? 'Tomorrow' : `in ${daysAway} days`;
+        return `<div style="flex:1;min-width:180px;background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:14px 16px;box-shadow:0 2px 8px rgba(26,39,68,0.06);border-left:4px solid ${i===0?'#059669':'#0891b2'}">
+            <div style="font-size:10px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px">Upcoming Payout #${i+1} ${badge}</div>
+            <div style="font-size:15px;font-weight:700;color:#1a2744;margin-bottom:2px">${e.name}</div>
+            <div style="font-size:13px;color:#0891b2;font-weight:600;margin-bottom:4px">${FULL_MONTHS[e.month-1]} ${String(e.day).padStart(2,'0')}, ${e.dt.getFullYear()}</div>
+            <div style="font-size:18px;font-weight:800;color:#059669">${fINR2(e.perPayout)}</div>
+            <div style="font-size:10px;color:#94a3b8;margin-top:3px">${daysLabel}</div>
+        </div>`;
+    }).join('');
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     initializeUserManagement();
     loadDevName();
     restoreFormValues();
     guardFormInputs();
     initScrollProgress();
+    renderUpcomingPayouts();
     FORM_FIELDS.forEach(id => {
         const el = document.getElementById(id);
         if (el) {
