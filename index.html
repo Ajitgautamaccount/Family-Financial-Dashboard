@@ -1182,6 +1182,8 @@
         .td-pos { color: var(--emerald); font-weight: 600; }
         .td-neg { color: var(--crimson); font-weight: 600; }
         .td-name { color: var(--navy); }
+        .export-btn { margin-left: auto; padding: 8px 18px; background: var(--emerald); color: #fff; border: none; border-radius: var(--radius-sm); font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap; flex-shrink: 0; }
+        .export-btn:hover { background: var(--emerald-light); }
 
         /* Bond interest schedule */
         .bond-payout-table { margin-top: 24px; }
@@ -1642,26 +1644,16 @@
         <h2>Overall Performance (All Users Combined)</h2>
         <div class="sh-line"></div>
     </div>
-    <div class="chart-grid">
-        <div class="chart-card">
-            <div class="chart-card-title">Total Yearly Return (₹)</div>
-            <div class="chart-canvas-wrap"><canvas id="overallReturnChart"></canvas></div>
-        </div>
-        <div class="chart-card">
-            <div class="chart-card-title">Average Yearly Return (%)</div>
-            <div class="chart-canvas-wrap"><canvas id="overallPercentageChart"></canvas></div>
-        </div>
-    </div>
     <div class="chart-grid full">
         <div class="chart-card">
             <div class="chart-card-title">Cumulative Return — All Users Comparison</div>
-            <div class="chart-canvas-wrap"><canvas id="cumulativeAllUsersChart"></canvas></div>
+            <div class="chart-canvas-wrap" style="height:480px"><canvas id="cumulativeAllUsersChart"></canvas></div>
         </div>
     </div>
     <div class="chart-grid full">
         <div class="chart-card">
             <div class="chart-card-title">Monthly % Return — All Users Compared</div>
-            <div class="chart-canvas-wrap"><canvas id="overallMonthlyPercentageChart"></canvas></div>
+            <div class="chart-canvas-wrap" style="height:480px"><canvas id="overallMonthlyPercentageChart"></canvas></div>
         </div>
     </div>
 
@@ -1676,6 +1668,9 @@
         <div class="sh-icon">💼</div>
         <h2>Portfolio Holdings — Ajit Gautam</h2>
         <div class="sh-line"></div>
+        <button onclick="exportHoldingsToExcel()" class="export-btn" title="Export all holdings to Excel">
+            ⬇ Export to Excel
+        </button>
     </div>
 
     <!-- Summary strip -->
@@ -1701,7 +1696,7 @@
                     <th>Chg %</th>
                     <th>Coupon Rate</th>
                     <th>Monthly Interest</th>
-                    <th>Next Payout</th>
+                    <th>Actual Payout Amount</th>
                 </tr></thead>
                 <tbody id="bondsTbody"></tbody>
                 <tfoot><tr id="bondsFoot"></tr></tfoot>
@@ -1717,13 +1712,11 @@
             <div class="holdings-table-wrap">
                 <table class="holdings-table" id="bondPayoutTable">
                     <thead><tr>
+                        <th>Payout Date</th>
                         <th>Bond Name</th>
-                        <th>Face Value Held (₹)</th>
+                        <th>Payout Amount (₹)</th>
                         <th>Annual Interest (₹)</th>
-                        <th>Per Payout (₹)</th>
                         <th>Frequency</th>
-                        <th>Payout Months</th>
-                        <th>Next Payout Date</th>
                     </tr></thead>
                     <tbody id="bondPayoutTbody"></tbody>
                 </table>
@@ -1957,7 +1950,7 @@ const initialMeenuTyagiData = [
 const initialGangaData = [];  // Ganga data to be added by user
 
 // ── Chart Instances ──
-let percentageChart, amountChart, cumulativeUserChart, overallReturnChart, overallPercentageChart, cumulativeAllUsersChart, overallMonthlyPercentageChart;
+let percentageChart, amountChart, cumulativeUserChart, cumulativeAllUsersChart, overallMonthlyPercentageChart;
 Chart.register(ChartDataLabels);
 
 
@@ -2946,33 +2939,6 @@ function updateOverallYearlySummary() {
 }
 
 function updateOverallCharts() {
-    if (overallReturnChart) overallReturnChart.destroy();
-    if (overallPercentageChart) overallPercentageChart.destroy();
-    const oy = calcOverallYearly();
-    const years = Object.keys(oy).sort();
-    const flatColor = v => v >= 0 ? 'rgba(52,199,120,0.88)' : 'rgba(239,68,68,0.88)';
-    const retData = years.map(y => oy[y].total);
-    const pctData = years.map(y => oy[y].avgPct);
-
-    const retFacesOv = retData.map(flatColor);
-    overallReturnChart = new Chart(document.getElementById('overallReturnChart'), {
-        type: 'bar',
-        data: { labels: years, datasets: [{ label: 'Total Return (₹)', data: retData, backgroundColor: retFacesOv, borderRadius: 6, borderWidth: 0, borderSkipped: false }] },
-        options: {
-            ...baseChartConfig,
-            animation: { onComplete: function() { const c=this; const ds=c.data.datasets[0]; ds.backgroundColor=mkGradColors(c,retData); c.update('none'); } }
-        }
-    });
-    const pctFacesOv = pctData.map(flatColor);
-    overallPercentageChart = new Chart(document.getElementById('overallPercentageChart'), {
-        type: 'bar',
-        data: { labels: years, datasets: [{ label: 'Avg % Return', data: pctData, backgroundColor: pctFacesOv, borderRadius: 6, borderWidth: 0, borderSkipped: false }] },
-        options: {
-            ...baseChartConfig,
-            animation: { onComplete: function() { const c=this; const ds=c.data.datasets[0]; ds.backgroundColor=mkGradColors(c,pctData); c.update('none'); } },
-            scales: { ...baseChartConfig.scales, y: { ...baseChartConfig.scales.y, ticks: _mkYTicks(v => v.toFixed(1)+'%'), border:{display:false} } }
-        }
-    });
 }
 
 function updateCumulativeAllUsersChart() {
@@ -2993,14 +2959,16 @@ function updateCumulativeAllUsersChart() {
         const map = new Map(ud.map(i => [i.month, i.monthlyReturn]));
         const color = getNextChartColor();
         const cumData = allMonths.map(m => { if(map.has(m)){cum+=map.get(m);return cum;} return null; });
-        const gradFill = ctx2.createLinearGradient(0, 0, 0, 300);
+        const gradFill = ctx2.createLinearGradient(0, 0, 0, 480);
         gradFill.addColorStop(0, color + '28');
         gradFill.addColorStop(1, color + '02');
-        return { label: username, data: cumData, borderColor: color, segment: { borderColor: ctx => ctx.p1.parsed.y < 0 ? '#e74c3c' : color }, borderWidth: 2.5, backgroundColor: gradFill, fill: true, tension: 0.38, pointRadius: function(ctx) { return _isMobileChart(ctx.chart) ? 1.5 : 4; }, pointHoverRadius: 8, pointBackgroundColor: cumData.map(v => v === null ? color : (v < 0 ? '#e74c3c' : color)), pointBorderColor: '#fff', pointBorderWidth: 2, spanGaps: true };
+        return { label: username, data: cumData, borderColor: color, segment: { borderColor: ctx => ctx.p1.parsed.y < 0 ? '#e74c3c' : color }, borderWidth: 3, backgroundColor: gradFill, fill: true, tension: 0.38, pointRadius: function(ctx) { return _isMobileChart(ctx.chart) ? 2 : 5; }, pointHoverRadius: 9, pointBackgroundColor: cumData.map(v => v === null ? color : (v < 0 ? '#e74c3c' : color)), pointBorderColor: '#fff', pointBorderWidth: 2, spanGaps: true,
+            datalabels: { display: ctx => !_isMobileChart(ctx.chart) && ctx.dataIndex % 2 === 0 && ctx.dataset.data[ctx.dataIndex] !== null, anchor: 'end', align: 'top', offset: 4, color, font: { size: 10, weight: '600' }, formatter: v => { const a=Math.abs(v); if(a>=10000000) return (v<0?'-':'')+'₹'+(a/10000000).toFixed(1)+'Cr'; if(a>=100000) return (v<0?'-':'')+'₹'+(a/100000).toFixed(1)+'L'; return (v<0?'-':'')+'₹'+a.toLocaleString('en-IN',{maximumFractionDigits:0}); } }
+        };
     });
     cumulativeAllUsersChart = new Chart(canvas, {
         type: 'line', data: { labels: allMonths, datasets },
-        options: { ...baseChartConfig, scales: { ...baseChartConfig.scales, y: { ...baseChartConfig.scales.y, ticks: _mkYTicks(v => { const a=Math.abs(v); if(a>=10000000)return (v<0?'-':'')+'₹'+(a/10000000).toFixed(1)+'Cr'; if(a>=100000)return (v<0?'-':'')+'₹'+(a/100000).toFixed(1)+'L'; return v.toLocaleString('en-IN'); }), border:{display:false} } } }
+        options: { ...baseChartConfig, layout: { padding: { top: 32, right: 20, bottom: 8, left: 8 } }, plugins: { ...baseChartConfig.plugins, datalabels: { ...baseChartConfig.plugins.datalabels, display: ctx => !_isMobileChart(ctx.chart) && ctx.dataIndex % 2 === 0 && ctx.dataset.data[ctx.dataIndex] !== null } }, scales: { ...baseChartConfig.scales, x: { ...baseChartConfig.scales.x, ticks: { color:'#8896a8', font: { size: 11 }, maxRotation: 45 } }, y: { ...baseChartConfig.scales.y, ticks: _mkYTicks(v => { const a=Math.abs(v); if(a>=10000000)return (v<0?'-':'')+'₹'+(a/10000000).toFixed(1)+'Cr'; if(a>=100000)return (v<0?'-':'')+'₹'+(a/100000).toFixed(1)+'L'; return v.toLocaleString('en-IN'); }), border:{display:false} } } }
     });
 }
 
@@ -3021,14 +2989,14 @@ function updateMonthlyPercentageAllUsersChart() {
         const map = new Map(ud.map(i => [i.month, parseFloat(i.percentage||0)]));
         const color = getNextChartColor();
         const pctData = allMonths.map(m => map.has(m) ? map.get(m) : null);
-        const gradFill = ctx2.createLinearGradient(0, 0, 0, 300);
+        const gradFill = ctx2.createLinearGradient(0, 0, 0, 480);
         gradFill.addColorStop(0, color + '21');
         gradFill.addColorStop(1, color + '02');
-        return { label: username, data: pctData, borderColor: color, borderWidth: 2.5, backgroundColor: gradFill, fill: true, tension: 0.38, pointRadius: function(ctx) { return _isMobileChart(ctx.chart) ? 1.5 : 4; }, pointHoverRadius: 7, pointBackgroundColor: pctData.map(v => v === null ? color : (v < 0 ? '#e74c3c' : color)), pointBorderColor: '#fff', pointBorderWidth: 2, spanGaps: true };
+        return { label: username, data: pctData, borderColor: color, borderWidth: 3, backgroundColor: gradFill, fill: true, tension: 0.38, pointRadius: function(ctx) { return _isMobileChart(ctx.chart) ? 2 : 5; }, pointHoverRadius: 9, pointBackgroundColor: pctData.map(v => v === null ? color : (v < 0 ? '#e74c3c' : color)), pointBorderColor: '#fff', pointBorderWidth: 2, spanGaps: true };
     });
     overallMonthlyPercentageChart = new Chart(canvas, {
         type: 'line', data: { labels: allMonths, datasets },
-        options: { ...baseChartConfig, scales: { ...baseChartConfig.scales, y: { ...baseChartConfig.scales.y, ticks: _mkYTicks(v => v.toFixed(1)+'%'), border:{display:false} } } }
+        options: { ...baseChartConfig, layout: { padding: { top: 32, right: 20, bottom: 8, left: 8 } }, plugins: { ...baseChartConfig.plugins, datalabels: { ...baseChartConfig.plugins.datalabels, display: ctx => !_isMobileChart(ctx.chart) && ctx.dataset.data[ctx.dataIndex] !== null } }, scales: { ...baseChartConfig.scales, x: { ...baseChartConfig.scales.x, ticks: { color:'#8896a8', font: { size: 11 }, maxRotation: 45 } }, y: { ...baseChartConfig.scales.y, ticks: _mkYTicks(v => v.toFixed(1)+'%'), border:{display:false} } } }
     });
 }
 
@@ -3471,14 +3439,16 @@ document.addEventListener('focusin', function(e) {
 
 // ── HOLDINGS DATA ──
 const HOLDINGS_BONDS = [
-    { name:'633GS2035', qty:7500,  avgCost:101.48, ltp:101,    invested:761062.5,  curVal:757500,    pnl:-3562.5,   chgPct:-0.47, coupon:6.33, payMonths:[3,9] },
-    { name:'668GS2033', qty:100,   avgCost:100.05, ltp:100,    invested:10005,     curVal:10000,     pnl:-5,        chgPct:-0.05, coupon:6.68, payMonths:[3,9] },
-    { name:'709GOI54',  qty:55034, avgCost:102.34, ltp:95.8,   invested:5632410.98,curVal:5272257.2, pnl:-360153.78,chgPct:-6.39, coupon:7.09, payMonths:[4,10] },
-    { name:'709GOI74',  qty:94870, avgCost:98.08,  ltp:95.75,  invested:9304557.78,curVal:9083802.5, pnl:-220755.28,chgPct:-2.37, coupon:7.09, payMonths:[4,10] },
-    { name:'717GS2030', qty:2000,  avgCost:102.1,  ltp:104.25, invested:204200,    curVal:208500,    pnl:4300,      chgPct:2.11,  coupon:7.17, payMonths:[1,7] },
-    { name:'734GS2064', qty:6350,  avgCost:97.08,  ltp:99.79,  invested:616473.49, curVal:633666.5,  pnl:17193.01,  chgPct:2.79,  coupon:7.34, payMonths:[1,7] },
-    { name:'73GS2053',  qty:1000,  avgCost:102.51, ltp:99.6,   invested:102512,    curVal:99600,     pnl:-2912,     chgPct:-2.84, coupon:7.30, payMonths:[6,12] },
-    { name:'92GS2030',  qty:11876, avgCost:115.65, ltp:113.3,  invested:1373479.79,curVal:1345550.8, pnl:-27928.99, chgPct:-2.03, coupon:9.20, payMonths:[3,9] },
+    { name:'734GS2064',   qty:6350,  avgCost:97.08,  ltp:99.79,  invested:616473.49, curVal:633666.5,  pnl:17193.01,  chgPct:2.79,  coupon:7.34, payMonths:[1,7],     payDay:1  },
+    { name:'IRBINVIT-IV', qty:7600,  avgCost:61.10,  ltp:64.19,  invested:464360,    curVal:487844,    pnl:23484,     chgPct:5.06,  coupon:10,   payMonths:[2,5,8,11],payDay:1,  payFreq:4 },
+    { name:'PGINVIT-IV',  qty:2500,  avgCost:93.04,  ltp:100.01, invested:232600,    curVal:250025,    pnl:17425,     chgPct:7.49,  coupon:10,   payMonths:[2,5,8,11],payDay:1,  payFreq:4 },
+    { name:'709GOI54',    qty:55034, avgCost:102.34, ltp:95.8,   invested:5632410.98,curVal:5272257.2, pnl:-360153.78,chgPct:-6.39, coupon:7.09, payMonths:[2,8],     payDay:5  },
+    { name:'668GS2033',   qty:100,   avgCost:100.05, ltp:100,    invested:10005,     curVal:10000,     pnl:-5,        chgPct:-0.05, coupon:6.68, payMonths:[3,9],     payDay:1  },
+    { name:'92GS2030',    qty:11876, avgCost:115.65, ltp:113.3,  invested:1373479.79,curVal:1345550.8, pnl:-27928.99, chgPct:-2.03, coupon:9.20, payMonths:[3,9],     payDay:30 },
+    { name:'717GS2030',   qty:2000,  avgCost:102.1,  ltp:104.25, invested:204200,    curVal:208500,    pnl:4300,      chgPct:2.11,  coupon:7.17, payMonths:[4,10],    payDay:17 },
+    { name:'633GS2035',   qty:7500,  avgCost:101.48, ltp:101,    invested:761062.5,  curVal:757500,    pnl:-3562.5,   chgPct:-0.47, coupon:6.33, payMonths:[5,11],    payDay:5  },
+    { name:'709GOI74',    qty:94870, avgCost:98.08,  ltp:95.75,  invested:9304557.78,curVal:9083802.5, pnl:-220755.28,chgPct:-2.37, coupon:7.09, payMonths:[5,11],    payDay:25 },
+    { name:'73GS2053',    qty:1000,  avgCost:102.51, ltp:99.6,   invested:102512,    curVal:99600,     pnl:-2912,     chgPct:-2.84, coupon:7.30, payMonths:[6,12],    payDay:19 },
 ];
 const HOLDINGS_GOLD = [
     { name:'GOLDETF', qty:1050, avgCost:141.62, ltp:153.76, invested:148702.41, curVal:161448, pnl:12745.59, chgPct:8.57 },
@@ -3490,8 +3460,6 @@ const HOLDINGS_EQUITY = [
     { name:'DRREDDY',    qty:10,   avgCost:1261.28, ltp:1178,   invested:12612.8,   curVal:11780,    pnl:-832.8,    chgPct:-6.60 },
     { name:'HDFCBANK',   qty:780,  avgCost:755.56,  ltp:720,    invested:589337.25, curVal:561600,   pnl:-27737.25, chgPct:-4.71 },
     { name:'HDFCLIFE',   qty:40,   avgCost:647.34,  ltp:548,    invested:25893.5,   curVal:21920,    pnl:-3973.5,   chgPct:-15.35 },
-    { name:'IRBINVIT-IV',qty:7600, avgCost:61.10,   ltp:64.19,  invested:464360,    curVal:487844,   pnl:23484,     chgPct:5.06 },
-    { name:'PGINVIT-IV', qty:2500, avgCost:93.04,   ltp:100.01, invested:232600,    curVal:250025,   pnl:17425,     chgPct:7.49 },
     { name:'SBIN',       qty:30,   avgCost:987.20,  ltp:1046.05,invested:29616,     curVal:31381.5,  pnl:1765.5,    chgPct:5.96 },
     { name:'TCS',        qty:150,  avgCost:3214.70, ltp:2344,   invested:482205.35, curVal:351600,   pnl:-130605.35,chgPct:-27.09 },
     { name:'TITAN',      qty:10,   avgCost:4248.80, ltp:5169.2, invested:42488,     curVal:51692,    pnl:9204,      chgPct:21.66 },
@@ -3512,17 +3480,17 @@ const HOLDINGS_MF = [
 // Bond coupon payout month names
 const MONTH_NAMES = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 
-function nextPayoutDate(payMonths) {
+function nextPayoutDate(payMonths, payDay) {
+    const day = payDay || 1;
     const now = new Date();
-    const curMonth = now.getMonth() + 1; // 1-based
+    const curMonth = now.getMonth() + 1;
     const curDay = now.getDate();
-    // Bonds typically pay on the 1st of the payout month
-    for (const m of payMonths.sort((a,b)=>a-b)) {
-        if (m > curMonth || (m === curMonth && curDay < 1)) {
-            return MONTH_NAMES[m-1] + ' 01, ' + now.getFullYear();
+    for (const m of [...payMonths].sort((a,b)=>a-b)) {
+        if (m > curMonth || (m === curMonth && curDay <= day)) {
+            return MONTH_NAMES[m-1] + ' ' + String(day).padStart(2,'0') + ', ' + now.getFullYear();
         }
     }
-    return MONTH_NAMES[payMonths[0]-1] + ' 01, ' + (now.getFullYear()+1);
+    return MONTH_NAMES[payMonths[0]-1] + ' ' + String(day).padStart(2,'0') + ', ' + (now.getFullYear()+1);
 }
 
 function fINR(v) {
@@ -3546,6 +3514,97 @@ function footCell(val, cls='') {
     return `<td class="${cls}">${val}</td>`;
 }
 
+function exportHoldingsToExcel() {
+    const wb = XLSX.utils.book_new();
+
+    // ── Bonds sheet ──
+    const bondRows = HOLDINGS_BONDS.map(r => {
+        const annual = r.payFreq === 4 ? r.coupon/100*r.invested : r.coupon/100*r.qty*100;
+        return {
+            'Bond Name':         r.name,
+            'Qty':               r.qty,
+            'Avg Cost (₹)':     r.avgCost,
+            'LTP (₹)':          r.ltp,
+            'Invested (₹)':     r.invested,
+            'Cur. Value (₹)':   r.curVal,
+            'P&L (₹)':          r.pnl,
+            'Chg %':            r.chgPct,
+            'Coupon / Yield %': r.coupon,
+            'Annual Interest (₹)': +annual.toFixed(2),
+            'Monthly Interest (₹)': +(annual/12).toFixed(2),
+            'Actual Payout Amount (₹)': +((annual/(r.payFreq||2)).toFixed(2)),
+            'Payout Frequency': r.payFreq === 4 ? 'Quarterly' : 'Semi-annual',
+            'Payout Months':    r.payMonths.map(m => MONTH_NAMES[m-1]).join(', '),
+            'Next Payout':      nextPayoutDate(r.payMonths, r.payDay),
+        };
+    });
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(bondRows), 'Bonds');
+
+    // ── Bond Payout Schedule sheet — one row per event, sorted Jan–Dec ──
+    const xlPayoutEvents = [];
+    HOLDINGS_BONDS.forEach(r => {
+        const freq = r.payFreq || 2;
+        const annual = freq === 4 ? r.coupon/100*r.invested : r.coupon/100*r.qty*100;
+        const perPayout = annual / freq;
+        const day = r.payDay || 1;
+        r.payMonths.forEach(m => {
+            xlPayoutEvents.push({ month: m, day, name: r.name, perPayout, annual, freq });
+        });
+    });
+    xlPayoutEvents.sort((a,b) => a.month !== b.month ? a.month - b.month : a.day - b.day);
+    const payoutRows = xlPayoutEvents.map(e => ({
+        'Payout Date':         MONTH_NAMES[e.month-1] + ' ' + String(e.day).padStart(2,'0'),
+        'Bond Name':           e.name,
+        'Payout Amount (₹)':  +e.perPayout.toFixed(2),
+        'Annual Interest (₹)': +e.annual.toFixed(2),
+        'Frequency':           e.freq === 4 ? 'Quarterly' : 'Semi-annual',
+    }));
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(payoutRows), 'Bond Payout Schedule');
+
+    // ── Gold ETF sheet ──
+    const goldRows = HOLDINGS_GOLD.map(r => ({
+        'Instrument':      r.name,
+        'Qty':             r.qty,
+        'Avg Cost (₹)':   r.avgCost,
+        'LTP (₹)':        r.ltp,
+        'Invested (₹)':   r.invested,
+        'Cur. Value (₹)': r.curVal,
+        'P&L (₹)':        r.pnl,
+        'Chg %':          r.chgPct,
+    }));
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(goldRows), 'Gold ETF');
+
+    // ── Equity sheet ──
+    const equityRows = HOLDINGS_EQUITY.map(r => ({
+        'Instrument':      r.name,
+        'Qty':             r.qty,
+        'Avg Cost (₹)':   r.avgCost,
+        'LTP (₹)':        r.ltp,
+        'Invested (₹)':   r.invested,
+        'Cur. Value (₹)': r.curVal,
+        'P&L (₹)':        r.pnl,
+        'Chg %':          r.chgPct,
+    }));
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(equityRows), 'Equity');
+
+    // ── Mutual Funds sheet ──
+    const mfRows = HOLDINGS_MF.map(r => ({
+        'Fund Name':       r.name,
+        'Units':           r.units,
+        'Avg NAV (₹)':    r.avgNav,
+        'Cur. NAV (₹)':   r.curNav,
+        'Invested (₹)':   r.invested,
+        'Cur. Value (₹)': r.curVal,
+        'P&L (₹)':        r.pnl,
+        'Chg %':          r.chgPct,
+    }));
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(mfRows), 'Mutual Funds');
+
+    const today = new Date();
+    const dateStr = today.getFullYear() + '-' + String(today.getMonth()+1).padStart(2,'0') + '-' + String(today.getDate()).padStart(2,'0');
+    XLSX.writeFile(wb, 'Gautam_Holdings_' + dateStr + '.xlsx');
+}
+
 function renderHoldings() {
     // ── Bonds ──
     const bTbody = document.getElementById('bondsTbody');
@@ -3559,9 +3618,9 @@ function renderHoldings() {
         r => `<td>${fINR(r.curVal)}</td>`,
         r => `<td class="${pnlClass(r.pnl)}">${pnlSign(r.pnl)}${fINR(r.pnl)}</td>`,
         r => `<td class="${pnlClass(r.chgPct)}">${pnlSign(r.chgPct)}${r.chgPct.toFixed(2)}%</td>`,
-        r => `<td style="color:#0891b2;font-weight:700">${r.coupon.toFixed(2)}%</td>`,
-        r => { const mo = r.coupon/100 * r.qty * 100 / 12; return `<td style="color:#0891b2;font-weight:700">${fINR2(mo)}</td>`; },
-        r => `<td style="color:#0891b2">${nextPayoutDate(r.payMonths)}</td>`,
+        r => `<td style="color:#0891b2;font-weight:700">${r.coupon.toFixed(2)}%${r.payFreq===4?' (InvIT)':''}</td>`,
+        r => { const annual = r.payFreq===4 ? r.coupon/100*r.invested : r.coupon/100*r.qty*100; const mo = annual/12; return `<td style="color:#0891b2;font-weight:700">${fINR2(mo)}</td>`; },
+        r => { const freq = r.payFreq||2; const annual = freq===4 ? r.coupon/100*r.invested : r.coupon/100*r.qty*100; const label = freq===4?'Qtrly':'Semi-ann'; return `<td style="color:#059669;font-weight:700">${fINR2(annual/freq)} <span style="font-size:10px;opacity:0.7">${label}</span></td>`; },
     ]);
     const bInv = sumField(HOLDINGS_BONDS,'invested'), bVal = sumField(HOLDINGS_BONDS,'curVal'), bPnl = sumField(HOLDINGS_BONDS,'pnl');
     bFoot.innerHTML = `<td><strong>TOTAL</strong></td><td></td><td></td><td></td>
@@ -3569,33 +3628,44 @@ function renderHoldings() {
         <td><strong>${fINR(bVal)}</strong></td>
         <td class="${pnlClass(bPnl)}"><strong>${pnlSign(bPnl)}${fINR(bPnl)}</strong></td>
         <td></td>
-        <td style="color:#0891b2;font-weight:700">${(HOLDINGS_BONDS.reduce((s,r)=>s+r.coupon*r.qty*100,0)/bInv*100).toFixed(2)}% wtd avg</td>
-        <td style="color:#0891b2;font-weight:700">${fINR2(HOLDINGS_BONDS.reduce((s,r)=>s+r.coupon/100*r.qty*100/12,0))}/mo</td>
+        <td style="color:#0891b2;font-weight:700">${(HOLDINGS_BONDS.reduce((s,r)=>s+(r.payFreq===4?r.coupon/100*r.invested:r.coupon/100*r.qty*100),0)/bInv*100).toFixed(2)}% wtd avg</td>
+        <td style="color:#0891b2;font-weight:700">${fINR2(HOLDINGS_BONDS.reduce((s,r)=>s+(r.payFreq===4?r.coupon/100*r.invested:r.coupon/100*r.qty*100)/12,0))}/mo</td>
+        <td style="color:#059669;font-weight:700">${fINR2(HOLDINGS_BONDS.reduce((s,r)=>{const freq=r.payFreq||2;const annual=freq===4?r.coupon/100*r.invested:r.coupon/100*r.qty*100;return s+annual/freq;},0))}</td>
         <td></td>`;
     document.getElementById('bondsBadge').textContent = HOLDINGS_BONDS.length + ' bonds · ' + fINR(bVal) + ' invested';
 
-    // ── Bond payout schedule ──
+    // ── Bond payout schedule — one row per payout event, sorted Jan–Dec ──
     const bpTbody = document.getElementById('bondPayoutTbody');
-    bpTbody.innerHTML = HOLDINGS_BONDS.map(r => {
-        const faceHeld = r.qty * 100;
-        const annual = r.coupon / 100 * faceHeld;
-        const perPayout = annual / 2;
-        const payoutMonthStr = r.payMonths.map(m => MONTH_NAMES[m-1]).join(' & ');
-        return `<tr>
-            <td class="td-name">${r.name}</td>
-            <td>${fINR(faceHeld)}</td>
-            <td style="color:#0891b2;font-weight:700">${fINR2(annual)}</td>
-            <td style="color:#0891b2;font-weight:700">${fINR2(perPayout)}</td>
-            <td>Semi-annual</td>
-            <td>${payoutMonthStr}</td>
-            <td style="color:#0891b2">${nextPayoutDate(r.payMonths)}</td>
+    const payoutEvents = [];
+    HOLDINGS_BONDS.forEach(r => {
+        const freq = r.payFreq || 2;
+        const annual = freq === 4 ? r.coupon/100*r.invested : r.coupon/100*r.qty*100;
+        const perPayout = annual / freq;
+        const day = r.payDay || 1;
+        r.payMonths.forEach(m => {
+            payoutEvents.push({ month: m, day, name: r.name, perPayout, annual, freq });
+        });
+    });
+    payoutEvents.sort((a,b) => a.month !== b.month ? a.month - b.month : a.day - b.day);
+    const totalAnnual = HOLDINGS_BONDS.reduce((s,r)=>s+(r.payFreq===4?r.coupon/100*r.invested:r.coupon/100*r.qty*100),0);
+    bpTbody.innerHTML = payoutEvents.map(e => {
+        const dateStr = MONTH_NAMES[e.month-1] + ' ' + String(e.day).padStart(2,'0');
+        const freqLabel = e.freq === 4 ? 'Quarterly' : 'Semi-annual';
+        const now = new Date();
+        const isPast = (e.month < now.getMonth()+1) || (e.month === now.getMonth()+1 && e.day < now.getDate());
+        const highlight = !isPast ? 'background:#f0fdf4' : '';
+        return `<tr style="${highlight}">
+            <td style="color:#0891b2;font-weight:600">${dateStr}</td>
+            <td class="td-name">${e.name}</td>
+            <td style="color:#059669;font-weight:700">${fINR2(e.perPayout)}</td>
+            <td style="color:#0891b2">${fINR2(e.annual)}</td>
+            <td>${freqLabel}</td>
         </tr>`;
     }).join('') + `<tr style="background:#e0f2fe;font-weight:700">
-        <td>TOTAL ANNUAL INTEREST</td>
-        <td>${fINR(HOLDINGS_BONDS.reduce((s,r)=>s+r.qty*100,0))}</td>
-        <td style="color:#0891b2">${fINR2(HOLDINGS_BONDS.reduce((s,r)=>s+r.coupon/100*r.qty*100,0))}</td>
-        <td style="color:#0891b2">${fINR2(HOLDINGS_BONDS.reduce((s,r)=>s+r.coupon/100*r.qty*100/2,0))}</td>
-        <td colspan="3"></td>
+        <td colspan="2">TOTAL ANNUAL INTEREST</td>
+        <td>—</td>
+        <td style="color:#0891b2">${fINR2(totalAnnual)}</td>
+        <td></td>
     </tr>`;
 
     // ── Gold ──
@@ -3650,14 +3720,15 @@ function renderHoldings() {
     const totalInv = bInv+gInv+eInv+mInv;
     const totalVal = bVal+gVal+eVal+mVal;
     const totalPnl = totalVal - totalInv;
-    const monthlyBondInt = HOLDINGS_BONDS.reduce((s,r)=>s+r.coupon/100*r.qty*100/12,0);
+    const monthlyBondInt = HOLDINGS_BONDS.reduce((s,r)=>s+(r.payFreq===4?r.coupon/100*r.invested:r.coupon/100*r.qty*100)/12,0);
+    const pct = v => totalInv > 0 ? (v/totalInv*100).toFixed(1)+'%' : '—';
     document.getElementById('holdingsSummary').innerHTML = `
-        <div class="h-stat bonds"><div class="hs-label">Bonds</div><div class="hs-val">${fINR(bVal)}</div><div class="hs-sub ${pnlClass(bPnl)}">${pnlSign(bPnl)}${fINR(bPnl)} P&amp;L</div></div>
-        <div class="h-stat gold"><div class="hs-label">Gold ETF</div><div class="hs-val">${fINR(gVal)}</div><div class="hs-sub ${pnlClass(gPnl)}">${pnlSign(gPnl)}${fINR(gPnl)} P&amp;L</div></div>
-        <div class="h-stat equity"><div class="hs-label">Equity</div><div class="hs-val">${fINR(eVal)}</div><div class="hs-sub ${pnlClass(ePnl)}">${pnlSign(ePnl)}${fINR(ePnl)} P&amp;L</div></div>
-        <div class="h-stat mf"><div class="hs-label">Mutual Funds</div><div class="hs-val">${fINR(mVal)}</div><div class="hs-sub ${pnlClass(mPnl)}">${pnlSign(mPnl)}${fINR(mPnl)} P&amp;L</div></div>
+        <div class="h-stat bonds"><div class="hs-label">Bonds</div><div class="hs-val">${fINR(bVal)} <span style="font-size:13px;font-weight:600;color:#64748b">${pct(bInv)}</span></div><div class="hs-sub ${pnlClass(bPnl)}">${pnlSign(bPnl)}${fINR(bPnl)} P&amp;L</div></div>
+        <div class="h-stat gold"><div class="hs-label">Gold ETF</div><div class="hs-val">${fINR(gVal)} <span style="font-size:13px;font-weight:600;color:#64748b">${pct(gInv)}</span></div><div class="hs-sub ${pnlClass(gPnl)}">${pnlSign(gPnl)}${fINR(gPnl)} P&amp;L</div></div>
+        <div class="h-stat equity"><div class="hs-label">Equity</div><div class="hs-val">${fINR(eVal)} <span style="font-size:13px;font-weight:600;color:#64748b">${pct(eInv)}</span></div><div class="hs-sub ${pnlClass(ePnl)}">${pnlSign(ePnl)}${fINR(ePnl)} P&amp;L</div></div>
+        <div class="h-stat mf"><div class="hs-label">Mutual Funds</div><div class="hs-val">${fINR(mVal)} <span style="font-size:13px;font-weight:600;color:#64748b">${pct(mInv)}</span></div><div class="hs-sub ${pnlClass(mPnl)}">${pnlSign(mPnl)}${fINR(mPnl)} P&amp;L</div></div>
         <div class="h-stat" style="border-left-color:#0891b2"><div class="hs-label">Monthly Bond Interest</div><div class="hs-val" style="color:#0891b2">${fINR2(monthlyBondInt)}</div><div class="hs-sub" style="color:#0891b2">Semi-annual payouts</div></div>
-        <div class="h-stat total"><div class="hs-label">Total Portfolio</div><div class="hs-val">${fINR(totalVal)}</div><div class="hs-sub ${pnlClass(totalPnl)}">${pnlSign(totalPnl)}${fINR(totalPnl)} overall P&amp;L</div></div>
+        <div class="h-stat total"><div class="hs-label">Total Portfolio</div><div class="hs-val">${fINR(totalVal)} <span style="font-size:13px;font-weight:600;color:#64748b">100%</span></div><div class="hs-sub ${pnlClass(totalPnl)}">${pnlSign(totalPnl)}${fINR(totalPnl)} overall P&amp;L</div></div>
     `;
 }
 
