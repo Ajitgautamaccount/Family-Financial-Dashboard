@@ -2615,7 +2615,9 @@ function updateKPIStrip() {
 
 // ── Table ──
 function updateTable() {
-    document.querySelector('#dataTable tbody').innerHTML = currentFinancialData.map((item, i) => {
+    const reversed = [...currentFinancialData].reverse();
+    document.querySelector('#dataTable tbody').innerHTML = reversed.map((item) => {
+        const origIdx = currentFinancialData.indexOf(item);
         const inp = (val, field) => `<input type="number" value="${val}" onchange="updateEntry('${item.month}',this,'${field}')">`;
         return `<tr>
             <td>${item.month}</td>
@@ -2624,7 +2626,7 @@ function updateTable() {
             <td>${inp(item.commodityReturn||0,'commodityReturn')}</td>
             <td>${inp(item.bondInterest,'bondInterest')}</td>
             <td>${inp(item.deposit,'deposit')}</td>
-            <td>${i===0 ? inp(item.capitalUsed,'capitalUsed') : fc(item.capitalUsed||0)}</td>
+            <td>${origIdx===0 ? inp(item.capitalUsed,'capitalUsed') : fc(item.capitalUsed||0)}</td>
             <td>${fc(item.equityFo||0)}</td>
             <td>${fc(item.monthlyReturn||0)}</td>
             <td>${fp(item.percentage)}</td>
