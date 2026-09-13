@@ -2573,28 +2573,6 @@ async function initializeUserManagement() {
     if (!allUserData['Meenu Tyagi'] || !allUserData['Meenu Tyagi'].length) allUserData['Meenu Tyagi'] = [...initialMeenuTyagiData];
     if (!allUserData['Ganga']) allUserData['Ganga'] = [...initialGangaData];
 
-    // One-time fix: remove fake Apr-26 to Sep-26 entries that were accidentally added
-    if (!localStorage.getItem('gp_data_restore_v2')) {
-        const validMonths = {
-            'Ajit Gautam': new Set(initialAjitData.map(e => e.month)),
-            'Prem Singh': new Set(initialPremSinghData.map(e => e.month)),
-            'Meenu Tyagi': new Set(initialMeenuTyagiData.map(e => e.month))
-        };
-        let changed = false;
-        Object.entries(validMonths).forEach(([name, months]) => {
-            const data = allUserData[name];
-            if (data) {
-                const filtered = data.filter(e => months.has(e.month));
-                if (filtered.length !== data.length) {
-                    allUserData[name] = filtered;
-                    changed = true;
-                }
-            }
-        });
-        if (changed) saveAllUserData();
-        localStorage.setItem('gp_data_restore_v2', '1');
-    }
-
     setupRealtimeSync();
     rebuildRadios();
 
