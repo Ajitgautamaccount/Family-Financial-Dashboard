@@ -1224,6 +1224,146 @@
             .holdings-table { font-size: 12px; }
             .holdings-table th, .holdings-table td { padding: 9px 10px; }
         }
+
+        /* ── TAX PLANNER PAGE ── */
+        .tax-fy-select {
+            padding: 8px 14px; border: 1.5px solid var(--border);
+            border-radius: var(--radius-sm); font-family: 'DM Sans', sans-serif;
+            font-size: 13px; font-weight: 600; background: var(--bg-card);
+            color: var(--text); cursor: pointer; margin-left: auto;
+        }
+        .tax-member-card {
+            background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: var(--radius); box-shadow: var(--shadow-sm);
+            margin-bottom: 24px; overflow: hidden;
+        }
+        .tax-member-header {
+            padding: 16px 24px; display: flex; align-items: center; gap: 14px;
+            background: linear-gradient(135deg, var(--navy), var(--navy-mid)); color: #fff;
+        }
+        .tax-member-header .tm-avatar {
+            width: 38px; height: 38px; border-radius: 50%; background: rgba(255,255,255,.15);
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700; font-size: 14px; letter-spacing: .03em;
+        }
+        .tax-member-header h3 {
+            font-family: 'Playfair Display', serif; font-size: 17px; font-weight: 600; margin: 0;
+        }
+        .tax-member-header .tm-badge {
+            margin-left: auto; font-size: 10px; font-weight: 700; padding: 3px 10px;
+            border-radius: 999px; background: rgba(255,255,255,.18); letter-spacing: .05em;
+        }
+        .tax-member-body { padding: 20px 24px; }
+        .tax-config-row {
+            display: flex; flex-wrap: wrap; gap: 12px; align-items: center;
+            margin-bottom: 14px; padding: 12px 16px; background: var(--off-white);
+            border-radius: var(--radius-sm); border: 1px solid var(--border);
+        }
+        .tax-config-row label {
+            font-size: 11.5px; font-weight: 600; color: var(--text-mid); min-width: 110px;
+        }
+        .tax-config-row input[type="number"] {
+            width: 130px; padding: 7px 10px; border: 1.5px solid var(--border);
+            border-radius: var(--radius-sm); font-size: 13px; font-weight: 600;
+            font-family: 'DM Sans', sans-serif; background: #fff; color: var(--text);
+        }
+        .tax-config-row .tc-hint { font-size: 10.5px; color: var(--text-muted); }
+        .tax-income-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(145px, 1fr));
+            gap: 10px; margin-bottom: 18px;
+        }
+        .tax-income-item {
+            background: var(--off-white); border: 1px solid var(--border);
+            border-radius: var(--radius-sm); padding: 12px 14px;
+        }
+        .tax-income-item .ti-label {
+            font-size: 10px; color: var(--text-muted); text-transform: uppercase;
+            letter-spacing: .06em; font-weight: 600; margin-bottom: 3px;
+        }
+        .tax-income-item .ti-value {
+            font-family: 'Playfair Display', serif; font-size: 16px; font-weight: 700;
+            color: var(--navy);
+        }
+        .tax-income-item .ti-value.neg { color: var(--crimson); }
+        .tax-regime-comparison {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 14px;
+        }
+        .tax-regime-box {
+            border: 1.5px solid var(--border); border-radius: var(--radius);
+            padding: 16px 18px; position: relative; background: #fff;
+        }
+        .tax-regime-box.recommended { border-color: var(--emerald); background: #f0fdf4; }
+        .tax-regime-box .regime-badge {
+            position: absolute; top: -10px; right: 14px;
+            background: var(--emerald); color: #fff; font-size: 9.5px; font-weight: 700;
+            padding: 2px 10px; border-radius: 10px; text-transform: uppercase; letter-spacing: .06em;
+        }
+        .tax-regime-box h4 {
+            font-size: 13px; font-weight: 700; color: var(--navy); margin: 0 0 10px;
+        }
+        .tax-regime-row {
+            display: flex; justify-content: space-between; padding: 4px 0; font-size: 12.5px;
+            border-bottom: 1px dashed var(--border); color: var(--text-mid);
+        }
+        .tax-regime-row:last-child { border-bottom: none; }
+        .tax-regime-row .trr-val { font-weight: 600; color: var(--text); }
+        .tax-total-row {
+            font-weight: 700; font-size: 15px; color: var(--navy); padding-top: 8px;
+            border-top: 2px solid var(--border); margin-top: 6px;
+            display: flex; justify-content: space-between;
+        }
+        .tax-savings-badge {
+            display: inline-block; padding: 4px 14px; border-radius: 20px;
+            font-size: 11.5px; font-weight: 700; background: #dcfce7;
+            color: #16a34a; margin-top: 8px;
+        }
+        .tax-family-summary {
+            background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: var(--radius); box-shadow: var(--shadow-sm);
+            padding: 20px 24px; margin-bottom: 28px;
+        }
+        .tax-family-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+        }
+        .tax-family-member-stat {
+            padding: 12px 16px; background: var(--off-white); border-radius: var(--radius-sm);
+            border: 1px solid var(--border);
+        }
+        .tax-family-member-stat .tfs-name { font-size: 12px; font-weight: 700; color: var(--navy); margin-bottom: 4px; }
+        .tax-family-member-stat .tfs-val { font-size: 16px; font-weight: 700; color: var(--text); }
+        .tax-family-total {
+            margin-top: 14px; padding: 14px 18px; background: var(--navy);
+            border-radius: var(--radius-sm); color: #fff; display: flex;
+            justify-content: space-between; align-items: center;
+            font-size: 15px; font-weight: 700;
+        }
+        .tax-family-total .tft-val { color: var(--gold-light); font-size: 18px; }
+        .tax-tip-card {
+            background: var(--bg-card); border: 1px solid var(--border);
+            border-left: 4px solid var(--gold); border-radius: var(--radius-sm);
+            padding: 14px 18px; margin-bottom: 10px;
+        }
+        .tax-tip-card.tip-individual { border-left-color: #2563eb; }
+        .tax-tip-card.tip-family { border-left-color: #7c3aed; }
+        .tax-tip-card.tip-urgent { border-left-color: var(--crimson); }
+        .tax-tip-card h4 { font-size: 13.5px; font-weight: 700; color: var(--navy); margin: 0 0 5px; }
+        .tax-tip-card p { font-size: 12.5px; color: var(--text-mid); line-height: 1.5; margin: 0; }
+        .tax-tip-card .tip-savings {
+            font-size: 11.5px; font-weight: 700; color: #16a34a; margin-top: 5px;
+        }
+        .tax-tip-card .tip-for {
+            font-size: 10px; font-weight: 600; color: var(--text-muted);
+            text-transform: uppercase; letter-spacing: .06em; margin-bottom: 4px;
+        }
+        .tax-chart-wrap { margin-bottom: 28px; }
+        .tax-chart-wrap canvas { max-height: 350px; }
+        @media (max-width: 700px) {
+            .tax-regime-comparison { grid-template-columns: 1fr; }
+            .tax-income-grid { grid-template-columns: repeat(2, 1fr); }
+            .tax-member-body { padding: 16px; }
+            .tax-config-row { padding: 10px 12px; }
+        }
     </style>
 </head>
 <body>
@@ -1338,6 +1478,9 @@
         </button>
         <button class="page-nav-btn" onclick="showPage('holdings')" id="navHoldings">
             <svg class="icon" aria-hidden="true"><use href="#icon-trend-up"/></svg> Holdings
+        </button>
+        <button class="page-nav-btn" onclick="showPage('taxPlanner')" id="navTaxPlanner">
+            <svg class="icon" aria-hidden="true"><use href="#icon-bar-chart"/></svg> Tax Planner
         </button>
     </div>
 </nav>
@@ -1786,6 +1929,47 @@
 
     <div class="footer" style="margin-top:48px">Gautam Family Financial Dashboard &copy; 2026 · Developed by <strong class="blinking">Ajit Gautam</strong></div>
 </div><!-- /holdingsPage -->
+
+<!-- ── TAX PLANNER PAGE ── -->
+<div class="container" id="taxPlannerPage" style="display:none">
+    <div class="section-heading" style="margin-top:24px">
+        <div class="sh-icon" style="background:#fef3c7">&#128202;</div>
+        <h2>Tax Planner</h2>
+        <div class="sh-line"></div>
+        <select id="taxFYSelector" class="tax-fy-select" onchange="renderTaxPlanner()"></select>
+    </div>
+    <div id="taxMemberCards"></div>
+
+    <div class="section-heading">
+        <div class="sh-icon" style="background:#eff6ff">&#127968;</div>
+        <h2>Family 1 — Tax Summary</h2>
+        <div class="sh-line"></div>
+    </div>
+    <div id="taxFamily1Summary"></div>
+
+    <div class="section-heading">
+        <div class="sh-icon" style="background:#f5f3ff">&#127968;</div>
+        <h2>Family 2 — Tax Summary</h2>
+        <div class="sh-line"></div>
+    </div>
+    <div id="taxFamily2Summary"></div>
+
+    <div class="section-heading">
+        <div class="sh-icon" style="background:#e0f2fe">&#128200;</div>
+        <h2>Tax Comparison — All Members</h2>
+        <div class="sh-line"></div>
+    </div>
+    <div class="tax-chart-wrap"><canvas id="taxBreakdownChart" height="300"></canvas></div>
+
+    <div class="section-heading">
+        <div class="sh-icon" style="background:#dcfce7">&#128161;</div>
+        <h2>Tax-Saving Recommendations</h2>
+        <div class="sh-line"></div>
+    </div>
+    <div id="taxTipsContainer"></div>
+
+    <div class="footer" style="margin-top:48px">Gautam Family Financial Dashboard &copy; 2026 · Developed by <strong class="blinking">Ajit Gautam</strong></div>
+</div><!-- /taxPlannerPage -->
 
 </div><!-- /mainContent -->
 
@@ -3208,6 +3392,8 @@ function updateAll() {
     updateOverallCharts();
     updateCumulativeAllUsersChart();
     updateMonthlyPercentageAllUsersChart();
+    const tp = document.getElementById('taxPlannerPage');
+    if (tp && tp.style.display !== 'none') renderTaxPlanner();
 }
 
 // ── Toast Notifications ──
@@ -3750,24 +3936,389 @@ function renderHoldings() {
     `;
 }
 
+// ── TAX PLANNER ──
+
+const TAX_USER_DEFAULTS = {
+    'Ajit Gautam':  { fixedType: 'salary',  annual: 4000000, s80C: 0, s80D: 0, nps: 0 },
+    'Meenu Tyagi':  { fixedType: 'none',    annual: 0,       s80C: 0, s80D: 0, nps: 0 },
+    'Prem Singh':   { fixedType: 'pension', annual: 660000,  s80C: 0, s80D: 0, nps: 0 },
+    'Ganga':        { fixedType: 'none',    annual: 0,       s80C: 0, s80D: 0, nps: 0 }
+};
+
+function loadTaxConfig() {
+    try { return JSON.parse(localStorage.getItem('gp_tax_config_v1')) || {}; } catch { return {}; }
+}
+function saveTaxConfig(cfg) { localStorage.setItem('gp_tax_config_v1', JSON.stringify(cfg)); }
+function getTaxCfg(user) {
+    const saved = loadTaxConfig();
+    return Object.assign({}, TAX_USER_DEFAULTS[user] || { fixedType: 'none', annual: 0, s80C: 0, s80D: 0, nps: 0 }, saved[user] || {});
+}
+function setTaxCfg(user, field, val) {
+    const cfg = loadTaxConfig();
+    if (!cfg[user]) cfg[user] = {};
+    cfg[user][field] = Number(val) || 0;
+    saveTaxConfig(cfg);
+}
+
+const MONTH_MAP = { 'Jan':0,'Feb':1,'Mar':2,'Apr':3,'May':4,'Jun':5,'Jul':6,'Aug':7,'Sep':8,'Oct':9,'Nov':10,'Dec':11 };
+
+function getFinancialYear(monthStr) {
+    const parts = monthStr.split('-');
+    const mi = MONTH_MAP[parts[0]];
+    const yr = 2000 + parseInt(parts[1]);
+    if (mi >= 3) return yr + '-' + String(yr + 1).slice(2);
+    return (yr - 1) + '-' + String(yr).slice(2);
+}
+
+function getAvailableFYs() {
+    const fys = new Set();
+    Object.values(allUserData).forEach(arr => arr.forEach(e => fys.add(getFinancialYear(e.month))));
+    return [...fys].sort();
+}
+
+function aggregateIncomeByFY(username, fy) {
+    const data = allUserData[username] || [];
+    let equity = 0, fo = 0, bond = 0, commodity = 0;
+    data.forEach(e => {
+        if (getFinancialYear(e.month) !== fy) return;
+        equity += e.equityReturn || 0;
+        fo += e.foReturn || 0;
+        bond += e.bondInterest || 0;
+        commodity += e.commodityReturn || 0;
+    });
+    return { equity, fo, bond, commodity, total: equity + fo + bond + commodity };
+}
+
+function calcNewRegimeTax(totalIncome) {
+    const std = 75000;
+    let taxable = Math.max(0, totalIncome - std);
+    const slabs = [
+        [400000, 0], [800000, 0.05], [1200000, 0.10],
+        [1600000, 0.15], [2000000, 0.20], [2400000, 0.25], [Infinity, 0.30]
+    ];
+    let tax = 0, prev = 0, breakdown = [];
+    for (const [upto, rate] of slabs) {
+        if (taxable <= 0) break;
+        const width = upto - prev;
+        const amt = Math.min(taxable, width);
+        const t = amt * rate;
+        if (t > 0) breakdown.push({ slab: `${fLakh(prev)}–${upto===Infinity?'Above':fLakh(upto)}`, rate: (rate*100)+'%', tax: t });
+        tax += t;
+        taxable -= amt;
+        prev = upto;
+    }
+    if ((totalIncome - std) <= 1200000) {
+        tax = 0;
+        breakdown = [{ slab: 'Rebate u/s 87A', rate: '', tax: 0 }];
+    } else {
+        const excess = (totalIncome - std) - 1200000;
+        if (tax > excess) { tax = excess; breakdown.push({ slab: 'Marginal Relief', rate: '', tax: -(tax - excess) }); }
+    }
+    return { taxableIncome: Math.max(0, totalIncome - std), slabTax: Math.max(0, tax), breakdown, stdDeduction: std };
+}
+
+function calcOldRegimeTax(totalIncome, ded) {
+    const std = 50000;
+    const d80C = Math.min(ded.s80C || 0, 150000);
+    const d80D = Math.min(ded.s80D || 0, 50000);
+    const dNPS = Math.min(ded.nps || 0, 50000);
+    const totalDed = std + d80C + d80D + dNPS;
+    let taxable = Math.max(0, totalIncome - totalDed);
+    const slabs = [[250000, 0], [500000, 0.05], [1000000, 0.20], [Infinity, 0.30]];
+    let tax = 0, prev = 0, breakdown = [];
+    for (const [upto, rate] of slabs) {
+        if (taxable <= 0) break;
+        const width = upto - prev;
+        const amt = Math.min(taxable, width);
+        const t = amt * rate;
+        if (t > 0) breakdown.push({ slab: `${fLakh(prev)}–${upto===Infinity?'Above':fLakh(upto)}`, rate: (rate*100)+'%', tax: t });
+        tax += t;
+        taxable -= amt;
+        prev = upto;
+    }
+    if (Math.max(0, totalIncome - totalDed) <= 500000) {
+        tax = 0;
+        breakdown = [{ slab: 'Rebate u/s 87A (Old)', rate: '', tax: 0 }];
+    }
+    return { taxableIncome: Math.max(0, totalIncome - totalDed), slabTax: Math.max(0, tax), breakdown, deductions: { std, d80C, d80D, dNPS, total: totalDed } };
+}
+
+function fLakh(v) {
+    if (v >= 100000) return (v / 100000).toFixed(v % 100000 === 0 ? 0 : 1) + 'L';
+    return v.toLocaleString('en-IN');
+}
+
+function computeFullTax(username, fy) {
+    const cfg = getTaxCfg(username);
+    const inv = aggregateIncomeByFY(username, fy);
+    const fixedIncome = cfg.annual || 0;
+
+    const stcg = Math.max(0, inv.equity);
+    const stcgTax = stcg * 0.20;
+    const equityLoss = inv.equity < 0 ? inv.equity : 0;
+
+    const slabIncome = fixedIncome + inv.fo + inv.bond + inv.commodity;
+
+    const newR = calcNewRegimeTax(slabIncome);
+    const oldR = calcOldRegimeTax(slabIncome, cfg);
+
+    const newTotal = newR.slabTax + stcgTax;
+    const newCess = newTotal * 0.04;
+    const newFinal = newTotal + newCess;
+
+    const oldTotal = oldR.slabTax + stcgTax;
+    const oldCess = oldTotal * 0.04;
+    const oldFinal = oldTotal + oldCess;
+
+    const recommended = newFinal <= oldFinal ? 'new' : 'old';
+    const savings = Math.abs(newFinal - oldFinal);
+
+    return {
+        username, fy, cfg, inv, fixedIncome,
+        grossIncome: fixedIncome + inv.total,
+        stcg, stcgTax, equityLoss,
+        newRegime: { ...newR, stcgTax, cess: newCess, totalTax: newFinal },
+        oldRegime: { ...oldR, stcgTax, cess: oldCess, totalTax: oldFinal },
+        recommended, savings
+    };
+}
+
+let taxBreakdownChart = null;
+
+function renderTaxPlanner() {
+    const sel = document.getElementById('taxFYSelector');
+    const fys = getAvailableFYs();
+    if (!sel.options.length || sel.dataset.built !== fys.join(',')) {
+        const cur = sel.value;
+        sel.innerHTML = fys.map(f => `<option value="${f}">${f}</option>`).join('');
+        if (fys.length) sel.value = cur && fys.includes(cur) ? cur : fys[fys.length - 1];
+        sel.dataset.built = fys.join(',');
+    }
+    const fy = sel.value;
+    if (!fy) return;
+
+    const users = Object.keys(allUserData);
+    const results = users.map(u => computeFullTax(u, fy));
+
+    document.getElementById('taxMemberCards').innerHTML = results.map(r => renderTaxMemberCard(r)).join('');
+
+    const fam1 = results.filter(r => getFamilyForUser(r.username) === 1);
+    const fam2 = results.filter(r => getFamilyForUser(r.username) === 2);
+    document.getElementById('taxFamily1Summary').innerHTML = renderTaxFamilySummary(fam1, 1);
+    document.getElementById('taxFamily2Summary').innerHTML = renderTaxFamilySummary(fam2, 2);
+
+    renderTaxBreakdownChartFn(results);
+    renderTaxTips(results);
+}
+
+function renderTaxMemberCard(r) {
+    const initials = r.username.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+    const fam = getFamilyForUser(r.username);
+    const incomeLabel = r.cfg.fixedType === 'salary' ? 'Salary (CTC)' : r.cfg.fixedType === 'pension' ? 'Pension' : 'Fixed Income';
+
+    const fc = v => (v < 0 ? '-' : '') + '₹' + Math.abs(v).toLocaleString('en-IN', { maximumFractionDigits: 0 });
+    const configId = r.username.replace(/\s/g, '_');
+
+    function regimeBox(label, reg, isRec) {
+        const rows = reg.breakdown.map(b =>
+            `<div class="tax-regime-row"><span>${b.slab} ${b.rate}</span><span class="trr-val">${fc(b.tax)}</span></div>`
+        ).join('');
+        return `<div class="tax-regime-box${isRec ? ' recommended' : ''}">
+            ${isRec ? '<div class="regime-badge">Recommended</div>' : ''}
+            <h4>${label}</h4>
+            ${label.includes('Old') ? `<div class="tax-regime-row"><span>Deductions (80C+80D+NPS+Std)</span><span class="trr-val">${fc(reg.deductions.total)}</span></div>` : `<div class="tax-regime-row"><span>Std Deduction</span><span class="trr-val">${fc(reg.stdDeduction)}</span></div>`}
+            <div class="tax-regime-row"><span>Taxable Income</span><span class="trr-val">${fc(reg.taxableIncome)}</span></div>
+            ${rows}
+            <div class="tax-regime-row"><span>STCG Tax @20%</span><span class="trr-val">${fc(reg.stcgTax)}</span></div>
+            <div class="tax-regime-row"><span>Cess @4%</span><span class="trr-val">${fc(reg.cess)}</span></div>
+            <div class="tax-total-row"><span>Total Tax</span><span>${fc(reg.totalTax)}</span></div>
+        </div>`;
+    }
+
+    return `<div class="tax-member-card">
+        <div class="tax-member-header">
+            <div class="tm-avatar">${initials}</div>
+            <h3>${r.username}</h3>
+            <div class="tm-badge">Family ${fam || '?'} · FY ${r.fy}</div>
+        </div>
+        <div class="tax-member-body">
+            <div class="tax-config-row">
+                <label>${incomeLabel} (Annual ₹)</label>
+                <input type="number" value="${r.cfg.annual}" onchange="onTaxCfgChange('${r.username}','annual',this.value)">
+                <label>80C ₹</label>
+                <input type="number" value="${r.cfg.s80C}" onchange="onTaxCfgChange('${r.username}','s80C',this.value)" placeholder="0">
+                <label>80D ₹</label>
+                <input type="number" value="${r.cfg.s80D}" onchange="onTaxCfgChange('${r.username}','s80D',this.value)" placeholder="0">
+                <label>NPS ₹</label>
+                <input type="number" value="${r.cfg.nps}" onchange="onTaxCfgChange('${r.username}','nps',this.value)" placeholder="0">
+            </div>
+            <div class="tax-income-grid">
+                <div class="tax-income-item"><div class="ti-label">${incomeLabel}</div><div class="ti-value">${fc(r.fixedIncome)}</div></div>
+                <div class="tax-income-item"><div class="ti-label">Equity STCG</div><div class="ti-value${r.inv.equity < 0 ? ' neg' : ''}">${fc(r.inv.equity)}</div></div>
+                <div class="tax-income-item"><div class="ti-label">F&O Income</div><div class="ti-value${r.inv.fo < 0 ? ' neg' : ''}">${fc(r.inv.fo)}</div></div>
+                <div class="tax-income-item"><div class="ti-label">Bond Interest</div><div class="ti-value">${fc(r.inv.bond)}</div></div>
+                <div class="tax-income-item"><div class="ti-label">Commodity</div><div class="ti-value${r.inv.commodity < 0 ? ' neg' : ''}">${fc(r.inv.commodity)}</div></div>
+                <div class="tax-income-item" style="border-color:var(--navy)"><div class="ti-label">Gross Total</div><div class="ti-value">${fc(r.grossIncome)}</div></div>
+            </div>
+            <div class="tax-regime-comparison">
+                ${regimeBox('New Regime (Default)', r.newRegime, r.recommended === 'new')}
+                ${regimeBox('Old Regime', r.oldRegime, r.recommended === 'old')}
+            </div>
+            ${r.savings > 0 ? `<div class="tax-savings-badge">Save ${fc(r.savings)} with ${r.recommended === 'new' ? 'New' : 'Old'} Regime</div>` : ''}
+        </div>
+    </div>`;
+}
+
+function renderTaxFamilySummary(members, famNum) {
+    if (!members.length) return '<div class="tax-family-summary" style="color:var(--text-muted);font-size:13px;">No members</div>';
+    const fc = v => '₹' + Math.abs(v).toLocaleString('en-IN', { maximumFractionDigits: 0 });
+    const total = members.reduce((s, m) => s + (m.recommended === 'new' ? m.newRegime.totalTax : m.oldRegime.totalTax), 0);
+    return `<div class="tax-family-summary">
+        <div class="tax-family-grid">
+            ${members.map(m => {
+                const best = m.recommended === 'new' ? m.newRegime : m.oldRegime;
+                return `<div class="tax-family-member-stat">
+                    <div class="tfs-name">${m.username} (${m.recommended === 'new' ? 'New' : 'Old'} Regime)</div>
+                    <div class="tfs-val">${fc(best.totalTax)}</div>
+                </div>`;
+            }).join('')}
+        </div>
+        <div class="tax-family-total"><span>Family ${famNum} Total Tax (Best Regime)</span><span class="tft-val">${fc(total)}</span></div>
+    </div>`;
+}
+
+function renderTaxBreakdownChartFn(results) {
+    const ctx = document.getElementById('taxBreakdownChart');
+    if (!ctx) return;
+    if (taxBreakdownChart) taxBreakdownChart.destroy();
+    const labels = results.map(r => r.username.split(' ')[0]);
+    taxBreakdownChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels,
+            datasets: [
+                { label: 'New Regime', data: results.map(r => Math.round(r.newRegime.totalTax)), backgroundColor: '#2563eb', borderRadius: 4 },
+                { label: 'Old Regime', data: results.map(r => Math.round(r.oldRegime.totalTax)), backgroundColor: '#7c3aed', borderRadius: 4 }
+            ]
+        },
+        options: {
+            responsive: true, maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'top', labels: { font: { family: "'DM Sans',sans-serif", size: 12, weight: 600 } } },
+                datalabels: {
+                    anchor: 'end', align: 'top', font: { size: 11, weight: 700, family: "'DM Sans',sans-serif" },
+                    formatter: v => v >= 100000 ? (v/100000).toFixed(1) + 'L' : v >= 1000 ? (v/1000).toFixed(0) + 'K' : v,
+                    color: '#1a2744'
+                }
+            },
+            scales: {
+                y: { beginAtZero: true, ticks: { callback: v => v >= 100000 ? (v/100000).toFixed(0) + 'L' : v >= 1000 ? (v/1000).toFixed(0) + 'K' : v } }
+            }
+        }
+    });
+}
+
+function renderTaxTips(results) {
+    const tips = [];
+    const fc = v => '₹' + Math.abs(v).toLocaleString('en-IN', { maximumFractionDigits: 0 });
+
+    results.forEach(r => {
+        if (r.savings > 100) {
+            tips.push({ for: r.username, type: 'individual', title: `Switch to ${r.recommended === 'new' ? 'New' : 'Old'} Regime`,
+                desc: `${r.username} can save ${fc(r.savings)} by choosing the ${r.recommended === 'new' ? 'New' : 'Old'} Tax Regime for FY ${r.fy}.`,
+                saving: r.savings, urgent: r.savings > 50000 });
+        }
+
+        if (r.recommended === 'old' || r.oldRegime.totalTax < r.newRegime.totalTax) {
+            const gap80C = 150000 - (r.cfg.s80C || 0);
+            if (gap80C > 0) {
+                const marginal = r.oldRegime.taxableIncome > 1000000 ? 0.30 : r.oldRegime.taxableIncome > 500000 ? 0.20 : 0.05;
+                tips.push({ for: r.username, type: 'individual', title: 'Maximize Section 80C',
+                    desc: `Invest ${fc(gap80C)} more in PPF, ELSS, or Life Insurance to claim full 1.5L deduction under Old Regime.`,
+                    saving: Math.round(gap80C * marginal * 1.04) });
+            }
+        }
+
+        if ((r.cfg.s80D || 0) < 25000 && r.grossIncome > 500000) {
+            tips.push({ for: r.username, type: 'individual', title: 'Health Insurance (80D)',
+                desc: `Get a health insurance policy. Claim up to ₹25,000 (₹50,000 for senior citizens) deduction under Section 80D.`,
+                saving: Math.round(25000 * 0.20 * 1.04) });
+        }
+
+        if ((r.cfg.nps || 0) < 50000 && r.grossIncome > 1000000) {
+            tips.push({ for: r.username, type: 'individual', title: 'NPS — Section 80CCD(1B)',
+                desc: `Invest up to ₹50,000 in NPS for an additional deduction under Old Regime, beyond the 80C limit.`,
+                saving: Math.round(50000 * 0.30 * 1.04) });
+        }
+
+        if (r.stcg > 125000) {
+            tips.push({ for: r.username, type: 'individual', title: 'Convert STCG to LTCG',
+                desc: `${r.username} has ${fc(r.stcg)} in short-term equity gains taxed at 20%. Holding stocks over 12 months converts to LTCG at 12.5% with ₹1.25L exemption.`,
+                saving: Math.round(r.stcg * 0.075) });
+        }
+
+        if (r.inv.fo < 0) {
+            tips.push({ for: r.username, type: 'individual', title: 'F&O Loss — Carry Forward',
+                desc: `F&O loss of ${fc(Math.abs(r.inv.fo))} can be carried forward for 8 years and set off against future F&O/business income. File ITR before due date to claim.`,
+                saving: 0 });
+        }
+
+        if (r.cfg.fixedType === 'pension' && r.fixedIncome > 0) {
+            tips.push({ for: r.username, type: 'individual', title: 'Pension — Standard Deduction',
+                desc: `Pension income qualifies for ₹50,000 standard deduction (Old) or ₹75,000 (New Regime). Already applied in calculations.`,
+                saving: 0 });
+        }
+    });
+
+    const highEarners = results.filter(r => r.grossIncome > 1000000);
+    const lowEarners = results.filter(r => r.grossIncome < 500000);
+    if (highEarners.length && lowEarners.length) {
+        tips.push({ for: 'Family', type: 'family', title: 'Income Splitting via Bonds',
+            desc: `Route bond/FD investments to ${lowEarners.map(l => l.username).join(', ')} (lower income) to keep their interest income in a lower tax bracket instead of adding to ${highEarners.map(h => h.username).join(', ')}'s taxable income.`,
+            saving: 0 });
+    }
+
+    const advanceTax = results.filter(r => (r.recommended === 'new' ? r.newRegime.totalTax : r.oldRegime.totalTax) > 10000);
+    if (advanceTax.length) {
+        tips.push({ for: 'Family', type: 'family', title: 'Advance Tax Reminder', urgent: true,
+            desc: `${advanceTax.map(r=>r.username).join(', ')} — estimated tax exceeds ₹10,000. Pay advance tax quarterly: 15% by Jun 15, 45% by Sep 15, 75% by Dec 15, 100% by Mar 15.`,
+            saving: 0 });
+    }
+
+    tips.push({ for: 'Family', type: 'family', title: 'Family Floater Health Policy',
+        desc: 'A single family floater health insurance covers all members. The premium payer claims 80D deduction. Senior citizen members get enhanced ₹50,000 limit.',
+        saving: 0 });
+
+    tips.push({ for: 'Family', type: 'family', title: 'HUF (Hindu Undivided Family)',
+        desc: 'Consider forming an HUF to split income across an additional PAN. HUF gets its own basic exemption (₹2.5L old / ₹4L new regime) and can hold investments separately.',
+        saving: 0 });
+
+    const container = document.getElementById('taxTipsContainer');
+    container.innerHTML = tips.map(t => `<div class="tax-tip-card${t.type === 'family' ? ' tip-family' : ' tip-individual'}${t.urgent ? ' tip-urgent' : ''}">
+        <div class="tip-for">${t.for}</div>
+        <h4>${t.title}</h4>
+        <p>${t.desc}</p>
+        ${t.saving > 0 ? `<div class="tip-savings">Potential saving: ${fc(t.saving)}</div>` : ''}
+    </div>`).join('');
+}
+
+function onTaxCfgChange(username, field, val) {
+    setTaxCfg(username, field, val);
+    renderTaxPlanner();
+}
+
 // ── PAGE SWITCHING ──
 function showPage(page) {
-    const dash = document.getElementById('dashboardPage');
-    const hold = document.getElementById('holdingsPage');
-    const navD = document.getElementById('navDashboard');
-    const navH = document.getElementById('navHoldings');
-    if (page === 'holdings') {
-        dash.style.display = 'none';
-        hold.style.display = '';
-        navD.classList.remove('active');
-        navH.classList.add('active');
-        renderHoldings();
-    } else {
-        hold.style.display = 'none';
-        dash.style.display = '';
-        navD.classList.add('active');
-        navH.classList.remove('active');
-    }
+    const pages = { dashboard: 'dashboardPage', holdings: 'holdingsPage', taxPlanner: 'taxPlannerPage' };
+    const navs = { dashboard: 'navDashboard', holdings: 'navHoldings', taxPlanner: 'navTaxPlanner' };
+    Object.keys(pages).forEach(p => {
+        const el = document.getElementById(pages[p]);
+        const nav = document.getElementById(navs[p]);
+        if (el) el.style.display = p === page ? '' : 'none';
+        if (nav) nav.classList.toggle('active', p === page);
+    });
+    if (page === 'holdings') renderHoldings();
+    if (page === 'taxPlanner') renderTaxPlanner();
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
