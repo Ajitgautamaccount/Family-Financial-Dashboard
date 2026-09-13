@@ -2519,12 +2519,13 @@ async function createBackup(trigger) {
 
 async function loadBackups() {
     try {
-        const snapshot = await db.collection(FS_BACKUP_COLLECTION).orderBy('timestamp', 'desc').get();
+        const snapshot = await db.collection(FS_BACKUP_COLLECTION).get();
         const backups = [];
         snapshot.forEach(doc => {
             const d = doc.data();
             backups.push({ id: doc.id, timestamp: d.timestamp, trigger: d.trigger, data: d.data });
         });
+        backups.sort((a, b) => (b.timestamp || '').localeCompare(a.timestamp || ''));
         return backups;
     } catch(e) {
         console.error('Load backups error:', e);
@@ -2568,17 +2569,17 @@ async function checkAutoBackup() {
     const monthKey = now.toISOString().slice(0, 7);
     if (localStorage.getItem('gp_last_auto_backup') === monthKey) return;
     try {
-        const snapshot = await db.collection(FS_BACKUP_COLLECTION)
-            .where('trigger', '==', 'auto')
-            .orderBy('timestamp', 'desc')
-            .limit(1)
-            .get();
-        if (!snapshot.empty) {
-            const lastTs = snapshot.docs[0].data().timestamp;
-            if (lastTs && lastTs.slice(0, 7) === monthKey) {
-                localStorage.setItem('gp_last_auto_backup', monthKey);
-                return;
+        const snapshot = await db.collection(FS_BACKUP_COLLECTION).get();
+        let hasThisMonth = false;
+        snapshot.forEach(doc => {
+            const d = doc.data();
+            if (d.trigger === 'auto' && d.timestamp && d.timestamp.slice(0, 7) === monthKey) {
+                hasThisMonth = true;
             }
+        });
+        if (hasThisMonth) {
+            localStorage.setItem('gp_last_auto_backup', monthKey);
+            return;
         }
         await createBackup('auto');
     } catch(e) {
