@@ -2769,17 +2769,23 @@ function sortData(arr) {
 }
 
 // ── Metrics ──
-function calculateMetrics() {
-    currentFinancialData.forEach((item, i) => {
+function _computeMetricsForArray(arr) {
+    arr.forEach((item, i) => {
         item.equityFo = (item.equityReturn||0) + (item.foReturn||0);
         item.monthlyReturn = item.equityFo + (item.bondInterest||0) + (item.commodityReturn||0);
         if (i === 0) {
             item.capitalUsed = parseFloat(item.capitalUsed) || 0;
         } else {
-            const prev = currentFinancialData[i-1];
+            const prev = arr[i-1];
             item.capitalUsed = Math.max(0, (prev.capitalUsed||0) + (prev.monthlyReturn||0) + (prev.deposit||0) - (prev.bondInterest||0));
         }
         item.percentage = item.capitalUsed > 0 ? ((item.monthlyReturn / item.capitalUsed) * 100).toFixed(2) : '0.00';
+    });
+}
+function calculateMetrics() {
+    _computeMetricsForArray(currentFinancialData);
+    Object.keys(allUserData).forEach(name => {
+        if (allUserData[name] !== currentFinancialData) _computeMetricsForArray(allUserData[name]);
     });
 }
 
