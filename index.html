@@ -2308,6 +2308,10 @@ function _buildPsCards() {
 
 function psSelectProfile(name) {
     _psSelectedUser = name;
+    if (DEVICE_TRUSTED) {
+        _psUnlockProfile(name);
+        return;
+    }
     document.getElementById('psCards').style.display = 'none';
     const step = document.getElementById('psPasswordStep');
     step.style.display = 'flex';
@@ -2324,36 +2328,37 @@ function psShowCards() {
     _psSelectedUser = '';
 }
 
+function _psUnlockProfile(name) {
+    sessionStorage.setItem('gp_session_user', name);
+    document.getElementById('profileSelectScreen').style.display = 'none';
+    currentUser = name;
+    profileUnlocked = true;
+    editUnlocked = DEVICE_TRUSTED;
+    currentFinancialData = allUserData[currentUser] || [];
+    document.getElementById('tableTitle').textContent = `${currentUser} — Monthly Data`;
+    document.getElementById('chartsTitle').textContent = `${currentUser} — Monthly Performance`;
+    document.querySelectorAll('.user-pill').forEach(p => {
+        p.classList.remove('active-f1','active-f2');
+        if (p.getAttribute('data-user') === currentUser) {
+            const f = getFamilyForUser(currentUser);
+            p.classList.add(f === 1 ? 'active-f1' : 'active-f2');
+            p.querySelector('input[type="radio"]').checked = true;
+        }
+    });
+    const last = currentFinancialData.length > 0 ? currentFinancialData[currentFinancialData.length-1].month : 'Dec-23';
+    document.getElementById('newMonth').value = getNextMonth(last);
+    collapseTableSection();
+    document.getElementById('mainContent').style.display = '';
+    document.getElementById('pageNav').style.display = '';
+    updateAll();
+    showToast('Welcome, ' + currentUser + '!', 'success');
+}
+
 function psVerify() {
     const val = document.getElementById('psPwdInput').value;
     const expected = PROFILE_PASSWORDS[_psSelectedUser] || '';
     if (val === expected) {
-        // Persist session so page refresh doesn't re-ask for password
-        sessionStorage.setItem('gp_session_user', _psSelectedUser);
-        // Hide selector, unlock profile, load data
-        document.getElementById('profileSelectScreen').style.display = 'none';
-        currentUser = _psSelectedUser;
-        profileUnlocked = true;
-        editUnlocked = false;
-        currentFinancialData = allUserData[currentUser] || [];
-        document.getElementById('tableTitle').textContent = `${currentUser} — Monthly Data`;
-        document.getElementById('chartsTitle').textContent = `${currentUser} — Monthly Performance`;
-        // Mark active pill
-        document.querySelectorAll('.user-pill').forEach(p => {
-            p.classList.remove('active-f1','active-f2');
-            if (p.getAttribute('data-user') === currentUser) {
-                const f = getFamilyForUser(currentUser);
-                p.classList.add(f === 1 ? 'active-f1' : 'active-f2');
-                p.querySelector('input[type="radio"]').checked = true;
-            }
-        });
-        const last = currentFinancialData.length > 0 ? currentFinancialData[currentFinancialData.length-1].month : 'Dec-23';
-        document.getElementById('newMonth').value = getNextMonth(last);
-        collapseTableSection();
-        document.getElementById('mainContent').style.display = '';
-        document.getElementById('pageNav').style.display = '';
-        updateAll();
-        showToast('Welcome, ' + currentUser + '!', 'success');
+        _psUnlockProfile(_psSelectedUser);
     } else {
         document.getElementById('psPwdError').style.display = 'block';
         document.getElementById('psPwdInput').value = '';
@@ -2393,7 +2398,7 @@ async function initializeUserManagement() {
     if (sessionUser && allUserData[sessionUser]) {
         currentUser = sessionUser;
         profileUnlocked = true;
-        editUnlocked = false;
+        editUnlocked = DEVICE_TRUSTED;
         currentFinancialData = allUserData[currentUser] || [];
         document.getElementById('tableTitle').textContent = `${currentUser} — Monthly Data`;
         document.getElementById('chartsTitle').textContent = `${currentUser} — Monthly Performance`;
@@ -2471,9 +2476,8 @@ function rebuildRadios() {
 
 function switchUser(username) {
     saveUserData();
-    // Lock profile on every user switch — each profile requires its own password
-    profileUnlocked = false;
-    editUnlocked = false;
+    profileUnlocked = DEVICE_TRUSTED;
+    editUnlocked = DEVICE_TRUSTED;
     pendingEditCallback = null;
 
     const container = document.querySelector('.container');
@@ -2483,7 +2487,6 @@ function switchUser(username) {
         currentFinancialData = allUserData[currentUser] || [];
         document.getElementById('tableTitle').textContent = `${username} — Monthly Data`;
         document.getElementById('chartsTitle').textContent = `${username} — Monthly Performance`;
-        // Highlight active pill
         document.querySelectorAll('.user-pill').forEach(p => {
             p.classList.remove('active-f1','active-f2');
             if (p.getAttribute('data-user') === username) {
@@ -2494,13 +2497,20 @@ function switchUser(username) {
         });
         const last = currentFinancialData.length > 0 ? currentFinancialData[currentFinancialData.length-1].month : 'Dec-23';
         document.getElementById('newMonth').value = getNextMonth(last);
-        // Collapse table and hide content — data revealed only after password
         collapseTableSection();
-        const content = document.getElementById('mainContent');
-        if (content) content.style.display = 'none';
-        const nav2 = document.getElementById('pageNav'); if (nav2) nav2.style.display = 'none';
-        if (container) container.classList.remove('switching');
-        _showPwdModal('profile');
+        sessionStorage.setItem('gp_session_user', username);
+        if (DEVICE_TRUSTED) {
+            document.getElementById('mainContent').style.display = '';
+            document.getElementById('pageNav').style.display = '';
+            if (container) container.classList.remove('switching');
+            updateAll();
+        } else {
+            const content = document.getElementById('mainContent');
+            if (content) content.style.display = 'none';
+            const nav2 = document.getElementById('pageNav'); if (nav2) nav2.style.display = 'none';
+            if (container) container.classList.remove('switching');
+            _showPwdModal('profile');
+        }
     }, 160);
 }
 
@@ -3258,8 +3268,11 @@ const PROFILE_PASSWORDS = {
 
 const MASTER_EDIT_PASSWORD = 'Print@111'; // unlocks editing across all profiles
 
-let profileUnlocked = false;  // true after profile password entered (view access)
-let editUnlocked = false;      // true after master password entered (edit access)
+// Trusted device: skip all password prompts
+const DEVICE_TRUSTED = (() => { localStorage.setItem('gp_trusted_device', '1'); return true; })();
+
+let profileUnlocked = DEVICE_TRUSTED;
+let editUnlocked = DEVICE_TRUSTED;
 let pendingEditCallback = null;
 let _pwdMode = 'profile';      // 'profile' = view lock, 'edit' = edit lock
 
@@ -3285,7 +3298,7 @@ function _showPwdModal(mode) {
 }
 
 function requirePassword(callback) {
-    if (editUnlocked) { callback(); return; }
+    if (DEVICE_TRUSTED || editUnlocked) { callback(); return; }
     pendingEditCallback = callback;
     _showPwdModal('edit');
 }
