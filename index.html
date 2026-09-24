@@ -3071,9 +3071,9 @@ function updateCharts() {
     percentageChart = new Chart(document.getElementById('percentageChart'), {
         type: 'bar',
         data: { labels, datasets: [{ label: '% Return', data: pctData, backgroundColor: pctFaces, borderRadius: 6, borderWidth: 0, borderSkipped: false }] },
+        plugins: [{ id:'pctGrad', beforeDraw(chart) { chart.data.datasets[0].backgroundColor = mkGradColors(chart, chart.data.datasets[0].data); } }],
         options: {
             ...baseChartConfig,
-            animation: { onComplete: function() { const c=this; const ds=c.data.datasets[0]; ds.backgroundColor=mkGradColors(c,pctData); c.update('none'); } },
             scales: { ...baseChartConfig.scales, y: { ...baseChartConfig.scales.y, ticks: _mkYTicks(v => v.toFixed(1)+'%'), border:{display:false} } }
         }
     });
@@ -3081,10 +3081,8 @@ function updateCharts() {
     amountChart = new Chart(document.getElementById('amountChart'), {
         type: 'bar',
         data: { labels, datasets: [{ label: 'Monthly Return (₹)', data: retData, backgroundColor: retFaces, borderRadius: 6, borderWidth: 0, borderSkipped: false }] },
-        options: {
-            ...baseChartConfig,
-            animation: { onComplete: function() { const c=this; const ds=c.data.datasets[0]; ds.backgroundColor=mkGradColors(c,retData); c.update('none'); } }
-        }
+        plugins: [{ id:'retGrad', beforeDraw(chart) { chart.data.datasets[0].backgroundColor = mkGradColors(chart, chart.data.datasets[0].data); } }],
+        options: { ...baseChartConfig }
     });
 }
 
@@ -3149,15 +3147,9 @@ function updateCumulativeUserChart() {
             pointBorderColor: '#fff',
             pointBorderWidth: 2
         }] },
+        plugins: [{ id:'cumGrad', beforeDraw(chart) { chart.data.datasets[0].backgroundColor = makeCumGradient(chart); } }],
         options: {
             ...baseChartConfig,
-            animation: {
-                onComplete: function() {
-                    const ds = this.data.datasets[0];
-                    ds.backgroundColor = makeCumGradient(this);
-                    this.update('none');
-                }
-            },
             scales: { ...baseChartConfig.scales, y: { ...baseChartConfig.scales.y, ticks: _mkYTicks(v => { const a=Math.abs(v); if(a>=10000000)return (v<0?'-':'')+'₹'+(a/10000000).toFixed(1)+'Cr'; if(a>=100000)return (v<0?'-':'')+'₹'+(a/100000).toFixed(1)+'L'; return v.toLocaleString('en-IN'); }), border:{display:false} } }
         }
     });
@@ -4569,6 +4561,9 @@ function showPage(page) {
         if (el) el.style.display = p === page ? '' : 'none';
         if (nav) nav.classList.toggle('active', p === page);
     });
+    if (page === 'dashboard') {
+        [percentageChart, amountChart, cumulativeUserChart, cumulativeAllUsersChart, overallMonthlyPercentageChart].forEach(c => { if (c) c.resize(); });
+    }
     if (page === 'holdings') renderHoldings();
     if (page === 'taxPlanner') renderTaxPlanner();
     if (page === 'backup') renderBackupPage();
