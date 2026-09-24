@@ -1560,8 +1560,16 @@
     <div class="panel fade-up-2">
         <div class="panel-title"><svg class="icon" aria-hidden="true"><use href="#icon-plus"/></svg> Add Monthly Data</div>
         <div class="panel-row">
-            <label class="sr-only" for="newMonth">Month</label>
-            <input type="text" id="newMonth" placeholder="Month" readonly>
+            <label class="sr-only" for="newMonthSelect">Month</label>
+            <select id="newMonthSelect" style="padding:9px 13px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-family:'DM Sans',sans-serif;font-size:13px;background:var(--bg);color:var(--text);width:110px;outline:none;">
+                <option value="Jan">Jan</option><option value="Feb">Feb</option><option value="Mar">Mar</option>
+                <option value="Apr">Apr</option><option value="May">May</option><option value="Jun">Jun</option>
+                <option value="Jul">Jul</option><option value="Aug">Aug</option><option value="Sep">Sep</option>
+                <option value="Oct">Oct</option><option value="Nov">Nov</option><option value="Dec">Dec</option>
+            </select>
+            <label class="sr-only" for="newYearSelect">Year</label>
+            <select id="newYearSelect" style="padding:9px 13px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-family:'DM Sans',sans-serif;font-size:13px;background:var(--bg);color:var(--text);width:90px;outline:none;">
+            </select>
             <label class="sr-only" for="newEquity">Equity Return</label>
             <input type="number" id="newEquity" placeholder="Equity Return">
             <label class="sr-only" for="newFO">F&amp;O Return</label>
@@ -2437,17 +2445,32 @@ const baseChartConfig = {
     }
 };
 
-// ── Storage (Firestore) ──
-// Save a single profile's data to Firestore
+// ── Storage (Firestore + localStorage cache) ──
+const LS_CACHE_KEY = 'financialDashboard_localCache';
+
+function saveToLocalCache() {
+    try { localStorage.setItem(LS_CACHE_KEY, JSON.stringify(allUserData)); } catch(e) {}
+}
+
+function loadFromLocalCache() {
+    try {
+        const raw = localStorage.getItem(LS_CACHE_KEY);
+        if (!raw) return null;
+        const parsed = JSON.parse(raw);
+        return (parsed && Object.keys(parsed).length) ? parsed : null;
+    } catch(e) { return null; }
+}
+
 function saveUserData() {
     if (!currentUser) return;
+    saveToLocalCache();
     const entries = allUserData[currentUser] || [];
     db.collection(FS_COLLECTION).doc(currentUser).set({ entries })
         .catch(e => console.error('Firestore save error:', e));
 }
 
-// Save ALL profiles at once (used after bulk operations)
 function saveAllUserData() {
+    saveToLocalCache();
     const batch = db.batch();
     Object.keys(allUserData).forEach(name => {
         const ref = db.collection(FS_COLLECTION).doc(name);
@@ -2456,15 +2479,21 @@ function saveAllUserData() {
     batch.commit().catch(e => console.error('Firestore batch save error:', e));
 }
 
-// Load all profiles from Firestore; falls back to seed data if empty
 async function loadAllUserDataFromFirestore() {
-    const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error('Firestore timeout')), 12000));
-    const query = db.collection(FS_COLLECTION).get();
-    const snapshot = await Promise.race([query, timeout]);
-    if (snapshot.empty) return null;
-    const result = {};
-    snapshot.forEach(doc => { result[doc.id] = doc.data().entries || []; });
-    return Object.keys(result).length ? result : null;
+    try {
+        const snapshot = await db.collection(FS_COLLECTION).get();
+        if (!snapshot.empty) {
+            const result = {};
+            snapshot.forEach(doc => { result[doc.id] = doc.data().entries || []; });
+            if (Object.keys(result).length) {
+                try { localStorage.setItem(LS_CACHE_KEY, JSON.stringify(result)); } catch(e2) {}
+                return result;
+            }
+        }
+    } catch(e) {
+        console.error('Firestore load error, falling back to local cache:', e);
+    }
+    return loadFromLocalCache();
 }
 
 // Real-time listener — auto-refreshes UI when any device changes Firestore data
@@ -2484,6 +2513,7 @@ function setupRealtimeSync() {
             }
         });
         if (changed && currentUser && profileUnlocked) {
+            saveToLocalCache();
             updateAll();
             showToast('Data synced from cloud', 'info');
         }
@@ -2687,8 +2717,7 @@ function _psUnlockProfile(name) {
             p.querySelector('input[type="radio"]').checked = true;
         }
     });
-    const last = currentFinancialData.length > 0 ? currentFinancialData[currentFinancialData.length-1].month : 'Dec-23';
-    document.getElementById('newMonth').value = getNextMonth(last);
+    initMonthYearDropdowns();
     collapseTableSection();
     document.getElementById('mainContent').style.display = '';
     document.getElementById('pageNav').style.display = '';
@@ -2712,8 +2741,7 @@ function psVerify() {
 async function initializeUserManagement() {
     // Show loading overlay while Firestore loads
     _showDbLoading(true);
-    let loaded = null;
-    try { loaded = await loadAllUserDataFromFirestore(); } catch(e) { console.error('Firestore load error:', e); }
+    let loaded = await loadAllUserDataFromFirestore();
     _showDbLoading(false);
 
     if (loaded) {
@@ -2749,8 +2777,7 @@ async function initializeUserManagement() {
                 p.querySelector('input[type="radio"]').checked = true;
             }
         });
-        const last = currentFinancialData.length > 0 ? currentFinancialData[currentFinancialData.length-1].month : 'Dec-23';
-        document.getElementById('newMonth').value = getNextMonth(last);
+        initMonthYearDropdowns();
         collapseTableSection();
         document.getElementById('profileSelectScreen').style.display = 'none';
         document.getElementById('mainContent').style.display = '';
@@ -2836,8 +2863,7 @@ function switchUser(username) {
                 p.querySelector('input[type="radio"]').checked = true;
             }
         });
-        const last = currentFinancialData.length > 0 ? currentFinancialData[currentFinancialData.length-1].month : 'Dec-23';
-        document.getElementById('newMonth').value = getNextMonth(last);
+        initMonthYearDropdowns();
         collapseTableSection();
         sessionStorage.setItem('gp_session_user', username);
         if (DEVICE_TRUSTED) {
@@ -2885,17 +2911,29 @@ function deleteUser() {
     });
 }
 
-function getNextMonth(str) {
-    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-    const [m, y] = str.split('-');
-    let mi = months.indexOf(m), yr = parseInt(y);
-    mi++; if (mi > 11) { mi = 0; yr++; }
-    return `${months[mi]}-${yr}`;
+
+function initMonthYearDropdowns() {
+    const now = new Date();
+    const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    document.getElementById('newMonthSelect').value = monthNames[now.getMonth()];
+    const yearSel = document.getElementById('newYearSelect');
+    yearSel.innerHTML = '';
+    const curYear = now.getFullYear();
+    for (let y = curYear - 2; y <= curYear + 2; y++) {
+        const yy = String(y).slice(-2);
+        const opt = document.createElement('option');
+        opt.value = yy;
+        opt.textContent = String(y);
+        yearSel.appendChild(opt);
+    }
+    yearSel.value = String(curYear).slice(-2);
 }
 
 function addNewMonth() {
     requirePassword(() => {
-        const month = document.getElementById('newMonth').value.trim();
+        const m = document.getElementById('newMonthSelect').value;
+        const y = document.getElementById('newYearSelect').value;
+        const month = m + '-' + y;
         if (!month) { showToast('Month cannot be empty.', 'warning'); return; }
         if (currentFinancialData.some(i => i.month === month)) {
             showToast(`Data for ${month} already exists.`, 'warning'); return;
@@ -2912,7 +2950,6 @@ function addNewMonth() {
         sortData(currentFinancialData);
         allUserData[currentUser] = currentFinancialData;
         persistFormValues();
-        document.getElementById('newMonth').value = getNextMonth(month);
         saveUserData(); scheduleUpdateAll();
         showToast(`${month} added successfully.`, 'success');
     });
@@ -3411,7 +3448,7 @@ function uploadExcel(event) {
                 month: String(month).trim(),
                 equityReturn: parseFloat(r[headers.indexOf('Equity Return')])||0,
                 foReturn: parseFloat(r[headers.indexOf('F&O Return')])||0,
-                commodityReturn: parseFloat(r[headers.indexOf('Commodity')])||0,
+                commodityReturn: parseFloat(r[headers.indexOf('Commodity Return') !== -1 ? headers.indexOf('Commodity Return') : headers.indexOf('Commodity')])||0,
                 bondInterest: parseFloat(r[headers.indexOf('Bond Interest')])||0,
                 deposit: parseFloat(r[headers.indexOf('Deposit')])||0,
                 capitalUsed: parseFloat(r[headers.indexOf('Capital Used')])||0
@@ -3425,6 +3462,7 @@ function uploadExcel(event) {
         showToast(`Imported ${entries.length} month${entries.length !== 1 ? 's' : ''} successfully.`, 'success', 'Import Complete');
     };
     reader.readAsBinaryString(file);
+    event.target.value = '';
     }); // end requirePassword
 }
 
@@ -4570,6 +4608,7 @@ function renderUpcomingPayouts() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+    initMonthYearDropdowns();
     initializeUserManagement();
     loadDevName();
     restoreFormValues();
