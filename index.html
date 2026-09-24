@@ -2533,41 +2533,72 @@ async function createBackup(trigger) {
         trigger: trigger,
         data: data
     };
+    let saved = false;
     try {
         await db.collection(FS_BACKUP_COLLECTION).add(doc);
+        saved = true;
+    } catch(e) {
+        console.error('Firestore backup error:', e);
+    }
+    if (!saved) {
+        try {
+            const localBackups = JSON.parse(localStorage.getItem('gp_backups') || '[]');
+            doc.id = 'local_' + Date.now();
+            localBackups.unshift(doc);
+            if (localBackups.length > 10) localBackups.length = 10;
+            localStorage.setItem('gp_backups', JSON.stringify(localBackups));
+            saved = true;
+        } catch(e2) {
+            console.error('Local backup error:', e2);
+        }
+    }
+    if (saved) {
         if (trigger === 'auto') {
             localStorage.setItem('gp_last_auto_backup', new Date().toISOString().slice(0, 7));
         }
         showToast(`${trigger === 'auto' ? 'Automatic' : 'Manual'} backup created successfully`, 'success');
         return true;
-    } catch(e) {
-        console.error('Backup error:', e);
-        showToast('Failed to create backup', 'error');
-        return false;
     }
+    showToast('Failed to create backup', 'error');
+    return false;
 }
 
 async function loadBackups() {
+    const backups = [];
     try {
         const snapshot = await db.collection(FS_BACKUP_COLLECTION).get();
-        const backups = [];
         snapshot.forEach(doc => {
             const d = doc.data();
             backups.push({ id: doc.id, timestamp: d.timestamp, trigger: d.trigger, data: d.data });
         });
-        backups.sort((a, b) => (b.timestamp || '').localeCompare(a.timestamp || ''));
-        return backups;
     } catch(e) {
-        console.error('Load backups error:', e);
-        return [];
+        console.error('Firestore load backups error:', e);
     }
+    try {
+        const localBackups = JSON.parse(localStorage.getItem('gp_backups') || '[]');
+        localBackups.forEach(b => {
+            if (!backups.some(fb => fb.id === b.id)) {
+                backups.push(b);
+            }
+        });
+    } catch(e2) {}
+    backups.sort((a, b) => (b.timestamp || '').localeCompare(a.timestamp || ''));
+    return backups;
 }
 
 async function restoreFromBackup(backupId) {
     try {
-        const doc = await db.collection(FS_BACKUP_COLLECTION).doc(backupId).get();
-        if (!doc.exists) { showToast('Backup not found', 'error'); return; }
-        const backupData = doc.data().data;
+        let backupData;
+        if (backupId.startsWith('local_')) {
+            const localBackups = JSON.parse(localStorage.getItem('gp_backups') || '[]');
+            const found = localBackups.find(b => b.id === backupId);
+            if (!found) { showToast('Backup not found', 'error'); return; }
+            backupData = found.data;
+        } else {
+            const doc = await db.collection(FS_BACKUP_COLLECTION).doc(backupId).get();
+            if (!doc.exists) { showToast('Backup not found', 'error'); return; }
+            backupData = doc.data().data;
+        }
         Object.keys(backupData).forEach(name => {
             allUserData[name] = backupData[name] || [];
         });
@@ -2584,7 +2615,12 @@ async function restoreFromBackup(backupId) {
 
 async function deleteBackup(backupId) {
     try {
-        await db.collection(FS_BACKUP_COLLECTION).doc(backupId).delete();
+        if (backupId.startsWith('local_')) {
+            const localBackups = JSON.parse(localStorage.getItem('gp_backups') || '[]');
+            localStorage.setItem('gp_backups', JSON.stringify(localBackups.filter(b => b.id !== backupId)));
+        } else {
+            await db.collection(FS_BACKUP_COLLECTION).doc(backupId).delete();
+        }
         showToast('Backup deleted', 'info');
         renderBackupPage();
     } catch(e) {
