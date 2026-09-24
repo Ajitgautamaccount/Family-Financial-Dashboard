@@ -3117,9 +3117,20 @@ function updateCharts() {
     amountChart = new Chart(document.getElementById('amountChart'), {
         type: 'bar',
         data: { labels, datasets: [{ label: 'Monthly Return (₹)', data: retData, backgroundColor: retFaces, borderRadius: 0, borderWidth: 0, borderSkipped: false, barPercentage: 0.85, categoryPercentage: 0.9 }] },
-        plugins: [{ id:'retGrad', beforeDraw(chart) { chart.data.datasets[0].backgroundColor = mkGradColors(chart, chart.data.datasets[0].data); } }],
+        plugins: [{ id:'retGrad', beforeDraw(chart) {
+            const ctx = chart.ctx, area = chart.chartArea;
+            if (!area) return;
+            chart.data.datasets[0].backgroundColor = chart._pctData.map((p, i) => {
+                const g = ctx.createLinearGradient(0, area.top, 0, area.bottom);
+                if (p > 0 && p < 2) { g.addColorStop(0,'rgba(250,204,21,0.95)'); g.addColorStop(1,'rgba(180,140,0,0.88)'); }
+                else if (retData[i] >= 0) { g.addColorStop(0,'rgba(52,199,120,0.95)'); g.addColorStop(1,'rgba(16,90,50,0.88)'); }
+                else { g.addColorStop(0,'rgba(239,68,68,0.95)'); g.addColorStop(1,'rgba(140,20,20,0.88)'); }
+                return g;
+            });
+        } }],
         options: { ...baseChartConfig, scales: { ...baseChartConfig.scales, x: { ...baseChartConfig.scales.x, ticks: { ...baseChartConfig.scales.x.ticks, autoSkip: false, maxRotation: 45, minRotation: 30 } } } }
     });
+    amountChart._pctData = pctData;
 }
 
 function updateCumulativeUserChart() {
