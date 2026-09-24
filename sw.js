@@ -1,4 +1,4 @@
-const CACHE = 'dharohar-v9';
+const CACHE = 'dharohar-v10';
 const SHELL = [
   '/Family-Financial-Dashboard/',
   '/Family-Financial-Dashboard/index.html',
@@ -26,9 +26,23 @@ self.addEventListener('activate', e => {
 self.addEventListener('fetch', e => {
   const url = new URL(e.request.url);
   // Let Firebase/Firestore requests always go to network
-  if (url.hostname.includes('firebase') || url.hostname.includes('google') && url.pathname.includes('firestore')) {
+  if (url.hostname.includes('firebase') || (url.hostname.includes('google') && url.pathname.includes('firestore'))) {
     return;
   }
+  // Network-first for HTML navigation (index.html) — always get fresh code
+  if (e.request.mode === 'navigate' || (e.request.headers.get('accept') || '').includes('text/html')) {
+    e.respondWith(
+      fetch(e.request).then(res => {
+        if (res && res.status === 200) {
+          const clone = res.clone();
+          caches.open(CACHE).then(c => c.put(e.request, clone));
+        }
+        return res;
+      }).catch(() => caches.match(e.request).then(c => c || caches.match('/Family-Financial-Dashboard/index.html')))
+    );
+    return;
+  }
+  // Cache-first for static assets (JS libs, fonts, CSS)
   e.respondWith(
     caches.match(e.request).then(cached => {
       if (cached) return cached;

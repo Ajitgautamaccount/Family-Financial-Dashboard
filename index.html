@@ -2465,7 +2465,7 @@ function saveUserData() {
     if (!currentUser) return;
     saveToLocalCache();
     const entries = allUserData[currentUser] || [];
-    db.collection(FS_COLLECTION).doc(currentUser).set({ entries })
+    return db.collection(FS_COLLECTION).doc(currentUser).set({ entries })
         .catch(e => console.error('Firestore save error:', e));
 }
 
@@ -2647,7 +2647,7 @@ function fp(v) {
 let _psSelectedUser = '';
 
 function showProfileSelectScreen() {
-    sessionStorage.removeItem('gp_session_user'); // force re-auth when switching profiles
+    localStorage.removeItem('gp_session_user'); // force re-auth when switching profiles
     const screen = document.getElementById('profileSelectScreen');
     const content = document.getElementById('mainContent');
     if (screen) screen.style.display = 'flex';
@@ -2701,7 +2701,7 @@ function psShowCards() {
 }
 
 function _psUnlockProfile(name) {
-    sessionStorage.setItem('gp_session_user', name);
+    localStorage.setItem('gp_session_user', name);
     document.getElementById('profileSelectScreen').style.display = 'none';
     currentUser = name;
     profileUnlocked = true;
@@ -2752,16 +2752,16 @@ async function initializeUserManagement() {
         allUserData['Meenu Tyagi'] = [...initialMeenuTyagiData];
         allUserData['Ganga'] = [...initialGangaData];
     }
-    if (!allUserData['Ajit Gautam'] || !allUserData['Ajit Gautam'].length) allUserData['Ajit Gautam'] = [...initialAjitData];
-    if (!allUserData['Prem Singh'] || !allUserData['Prem Singh'].length) allUserData['Prem Singh'] = [...initialPremSinghData];
-    if (!allUserData['Meenu Tyagi'] || !allUserData['Meenu Tyagi'].length) allUserData['Meenu Tyagi'] = [...initialMeenuTyagiData];
+    if (!allUserData['Ajit Gautam']) allUserData['Ajit Gautam'] = [...initialAjitData];
+    if (!allUserData['Prem Singh']) allUserData['Prem Singh'] = [...initialPremSinghData];
+    if (!allUserData['Meenu Tyagi']) allUserData['Meenu Tyagi'] = [...initialMeenuTyagiData];
     if (!allUserData['Ganga']) allUserData['Ganga'] = [...initialGangaData];
 
     setupRealtimeSync();
     rebuildRadios();
 
     // Resume session from previous tab/refresh without re-entering password
-    const sessionUser = sessionStorage.getItem('gp_session_user');
+    const sessionUser = localStorage.getItem('gp_session_user');
     if (sessionUser && allUserData[sessionUser]) {
         currentUser = sessionUser;
         profileUnlocked = true;
@@ -2865,7 +2865,7 @@ function switchUser(username) {
         });
         initMonthYearDropdowns();
         collapseTableSection();
-        sessionStorage.setItem('gp_session_user', username);
+        localStorage.setItem('gp_session_user', username);
         if (DEVICE_TRUSTED) {
             document.getElementById('mainContent').style.display = '';
             document.getElementById('pageNav').style.display = '';
@@ -3431,6 +3431,7 @@ function downloadExcel() {
 function uploadExcel(event) {
     const file = event.target.files[0];
     if (!file) return;
+    const fileInput = event.target;
     requirePassword(() => {
     const reader = new FileReader();
     reader.onload = e => {
@@ -3438,31 +3439,34 @@ function uploadExcel(event) {
         const ws = wb.Sheets[wb.SheetNames[0]];
         const rows = XLSX.utils.sheet_to_json(ws, {header:1});
         if (rows.length < 2) { showToast('File is empty or unreadable.', 'error'); return; }
-        const headers = rows[0];
+        const headers = rows[0].map(h => String(h || '').trim());
         const entries = [];
+        const colIdx = (name, alt) => { const i = headers.indexOf(name); return i !== -1 ? i : (alt ? headers.indexOf(alt) : -1); };
         for (let i = 1; i < rows.length; i++) {
             const r = rows[i];
-            const month = r[headers.indexOf('Month')];
+            const month = r[colIdx('Month')];
             if (!month || !/^[A-Za-z]{3}-\d{2}$/.test(String(month).trim())) continue;
             entries.push({
                 month: String(month).trim(),
-                equityReturn: parseFloat(r[headers.indexOf('Equity Return')])||0,
-                foReturn: parseFloat(r[headers.indexOf('F&O Return')])||0,
-                commodityReturn: parseFloat(r[headers.indexOf('Commodity Return') !== -1 ? headers.indexOf('Commodity Return') : headers.indexOf('Commodity')])||0,
-                bondInterest: parseFloat(r[headers.indexOf('Bond Interest')])||0,
-                deposit: parseFloat(r[headers.indexOf('Deposit')])||0,
-                capitalUsed: parseFloat(r[headers.indexOf('Capital Used')])||0
+                equityReturn: parseFloat(r[colIdx('Equity Return')])||0,
+                foReturn: parseFloat(r[colIdx('F&O Return')])||0,
+                commodityReturn: parseFloat(r[colIdx('Commodity Return', 'Commodity')])||0,
+                bondInterest: parseFloat(r[colIdx('Bond Interest')])||0,
+                deposit: parseFloat(r[colIdx('Deposit')])||0,
+                capitalUsed: parseFloat(r[colIdx('Capital Used')])||0
             });
         }
+        if (!entries.length) { showToast('No valid monthly data found in file.', 'warning'); return; }
         currentFinancialData = currentFinancialData.filter(i => !entries.some(u => u.month === i.month));
         currentFinancialData.push(...entries);
         sortData(currentFinancialData);
         allUserData[currentUser] = currentFinancialData;
-        updateAll(); saveUserData();
+        saveUserData();
+        updateAll();
+        fileInput.value = '';
         showToast(`Imported ${entries.length} month${entries.length !== 1 ? 's' : ''} successfully.`, 'success', 'Import Complete');
     };
     reader.readAsBinaryString(file);
-    event.target.value = '';
     }); // end requirePassword
 }
 
