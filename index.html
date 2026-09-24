@@ -1647,7 +1647,7 @@
     <div class="chart-grid full">
         <div class="chart-card">
             <div class="chart-card-title">Monthly Return (₹)</div>
-            <div class="chart-canvas-wrap tall"><canvas id="amountChart"></canvas></div>
+            <div class="chart-canvas-wrap" style="height:420px"><canvas id="amountChart"></canvas></div>
         </div>
     </div>
     <div class="chart-grid full">
@@ -3106,19 +3106,19 @@ function updateCharts() {
     const pctFaces = pctData.map(flatColor);
     percentageChart = new Chart(document.getElementById('percentageChart'), {
         type: 'bar',
-        data: { labels, datasets: [{ label: '% Return', data: pctData, backgroundColor: pctFaces, borderRadius: 6, borderWidth: 0, borderSkipped: false }] },
+        data: { labels, datasets: [{ label: '% Return', data: pctData, backgroundColor: pctFaces, borderRadius: 0, borderWidth: 0, borderSkipped: false, barPercentage: 0.85, categoryPercentage: 0.9 }] },
         plugins: [{ id:'pctGrad', beforeDraw(chart) { chart.data.datasets[0].backgroundColor = mkGradColors(chart, chart.data.datasets[0].data); } }],
         options: {
             ...baseChartConfig,
-            scales: { ...baseChartConfig.scales, y: { ...baseChartConfig.scales.y, ticks: _mkYTicks(v => v.toFixed(1)+'%'), border:{display:false} } }
+            scales: { ...baseChartConfig.scales, x: { ...baseChartConfig.scales.x, ticks: { ...baseChartConfig.scales.x.ticks, autoSkip: false, maxRotation: 45, minRotation: 30 } }, y: { ...baseChartConfig.scales.y, ticks: _mkYTicks(v => v.toFixed(1)+'%'), border:{display:false} } }
         }
     });
     const retFaces = retData.map(flatColor);
     amountChart = new Chart(document.getElementById('amountChart'), {
         type: 'bar',
-        data: { labels, datasets: [{ label: 'Monthly Return (₹)', data: retData, backgroundColor: retFaces, borderRadius: 6, borderWidth: 0, borderSkipped: false }] },
+        data: { labels, datasets: [{ label: 'Monthly Return (₹)', data: retData, backgroundColor: retFaces, borderRadius: 0, borderWidth: 0, borderSkipped: false, barPercentage: 0.85, categoryPercentage: 0.9 }] },
         plugins: [{ id:'retGrad', beforeDraw(chart) { chart.data.datasets[0].backgroundColor = mkGradColors(chart, chart.data.datasets[0].data); } }],
-        options: { ...baseChartConfig }
+        options: { ...baseChartConfig, scales: { ...baseChartConfig.scales, x: { ...baseChartConfig.scales.x, ticks: { ...baseChartConfig.scales.x.ticks, autoSkip: false, maxRotation: 45, minRotation: 30 } } } }
     });
 }
 
@@ -4430,8 +4430,8 @@ function renderTaxBreakdownChartFn(results) {
         data: {
             labels,
             datasets: [
-                { label: 'New Regime', data: results.map(r => Math.round(r.newRegime.totalTax)), backgroundColor: '#2563eb', borderRadius: 4 },
-                { label: 'Old Regime', data: results.map(r => Math.round(r.oldRegime.totalTax)), backgroundColor: '#7c3aed', borderRadius: 4 }
+                { label: 'New Regime', data: results.map(r => Math.round(r.newRegime.totalTax)), backgroundColor: '#2563eb', borderRadius: 0 },
+                { label: 'Old Regime', data: results.map(r => Math.round(r.oldRegime.totalTax)), backgroundColor: '#7c3aed', borderRadius: 0 }
             ]
         },
         options: {
