@@ -3103,7 +3103,7 @@ function updateCharts() {
     const pctData = currentFinancialData.map(d => parseFloat(d.percentage));
     const retData = currentFinancialData.map(d => d.monthlyReturn);
 
-    const pctFaces = pctData.map(v => (v > 0 && v < 2) ? 'rgba(250,204,21,0.88)' : flatColor(v));
+    const pctFaces = pctData.map(v => (v > 0 && v < 1.5) ? 'rgba(250,204,21,0.88)' : flatColor(v));
     percentageChart = new Chart(document.getElementById('percentageChart'), {
         type: 'bar',
         data: { labels, datasets: [{ label: '% Return', data: pctData, backgroundColor: pctFaces, borderRadius: 0, borderWidth: 0, borderSkipped: false, barPercentage: 0.85, categoryPercentage: 0.9 }] },
@@ -3112,7 +3112,7 @@ function updateCharts() {
             if (!area) return;
             chart.data.datasets[0].backgroundColor = chart.data.datasets[0].data.map(v => {
                 const g = ctx.createLinearGradient(0, area.top, 0, area.bottom);
-                if (v > 0 && v < 2) { g.addColorStop(0,'rgba(250,204,21,0.95)'); g.addColorStop(1,'rgba(180,140,0,0.88)'); }
+                if (v > 0 && v < 1.5) { g.addColorStop(0,'rgba(250,204,21,0.95)'); g.addColorStop(1,'rgba(180,140,0,0.88)'); }
                 else if (v >= 0) { g.addColorStop(0,'rgba(52,199,120,0.95)'); g.addColorStop(1,'rgba(16,90,50,0.88)'); }
                 else { g.addColorStop(0,'rgba(239,68,68,0.95)'); g.addColorStop(1,'rgba(140,20,20,0.88)'); }
                 return g;
@@ -3125,7 +3125,7 @@ function updateCharts() {
     });
     const retFaces = retData.map((v, i) => {
         const p = pctData[i];
-        if (p > 0 && p < 2) return 'rgba(250,204,21,0.88)';
+        if (p > 0 && p < 1.5) return 'rgba(250,204,21,0.88)';
         return v >= 0 ? 'rgba(52,199,120,0.88)' : 'rgba(239,68,68,0.88)';
     });
     const retPctRef = pctData;
@@ -3139,7 +3139,7 @@ function updateCharts() {
             ds.backgroundColor = ds.data.map((v, i) => {
                 const p = retPctRef[i] || 0;
                 const g = ctx.createLinearGradient(0, area.top, 0, area.bottom);
-                if (p > 0 && p < 2) { g.addColorStop(0,'rgba(250,204,21,0.95)'); g.addColorStop(1,'rgba(180,140,0,0.88)'); }
+                if (p > 0 && p < 1.5) { g.addColorStop(0,'rgba(250,204,21,0.95)'); g.addColorStop(1,'rgba(180,140,0,0.88)'); }
                 else if (v >= 0) { g.addColorStop(0,'rgba(52,199,120,0.95)'); g.addColorStop(1,'rgba(16,90,50,0.88)'); }
                 else { g.addColorStop(0,'rgba(239,68,68,0.95)'); g.addColorStop(1,'rgba(140,20,20,0.88)'); }
                 return g;
