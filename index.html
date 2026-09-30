@@ -3247,7 +3247,72 @@ function updateCumulativeUserChart() {
             pointBorderColor: '#fff',
             pointBorderWidth: 2
         }] },
-        plugins: [{ id:'cumGrad', beforeDraw(chart) { chart.data.datasets[0].backgroundColor = makeCumGradient(chart); } }],
+        plugins: [
+            { id:'cumGrad', beforeDraw(chart) { chart.data.datasets[0].backgroundColor = makeCumGradient(chart); } },
+            { id:'milestones', afterDraw(chart) {
+                const area = chart.chartArea;
+                const yScale = chart.scales.y;
+                if (!area || !yScale) return;
+                const ctx = chart.ctx;
+                const step = 2500000;
+                const minVal = yScale.min;
+                const maxVal = yScale.max;
+                const startM = Math.ceil(minVal / step);
+                const endM = Math.floor(maxVal / step);
+                ctx.save();
+                for (let m = startM; m <= endM; m++) {
+                    if (m === 0) continue;
+                    const val = m * step;
+                    const y = yScale.getPixelForValue(val);
+                    if (y < area.top || y > area.bottom) continue;
+                    ctx.beginPath();
+                    ctx.setLineDash([6, 4]);
+                    ctx.strokeStyle = val > 0 ? 'rgba(34,160,94,0.45)' : 'rgba(239,68,68,0.45)';
+                    ctx.lineWidth = 1.2;
+                    ctx.moveTo(area.left, y);
+                    ctx.lineTo(area.right, y);
+                    ctx.stroke();
+                    ctx.setLineDash([]);
+                    const label = (val < 0 ? '-' : '') + '₹' + (Math.abs(val) / 100000).toFixed(0) + 'L';
+                    ctx.font = 'bold 10px DM Sans, sans-serif';
+                    ctx.fillStyle = val > 0 ? '#16a34a' : '#dc2626';
+                    ctx.textAlign = 'right';
+                    ctx.textBaseline = 'bottom';
+                    ctx.fillText(label, area.right - 4, y - 3);
+                }
+                ctx.restore();
+                const ds = chart.data.datasets[0].data;
+                const labels = chart.data.labels;
+                const xScale = chart.scales.x;
+                const crossed = new Set();
+                for (let i = 1; i < ds.length; i++) {
+                    const prev = ds[i-1], cur = ds[i];
+                    const lo = Math.min(prev, cur), hi = Math.max(prev, cur);
+                    const sLo = Math.ceil(lo / step), sHi = Math.floor(hi / step);
+                    for (let m = sLo; m <= sHi; m++) {
+                        if (m === 0 || crossed.has(m)) continue;
+                        crossed.add(m);
+                        const x = xScale.getPixelForValue(i);
+                        const val = m * step;
+                        const y = yScale.getPixelForValue(val);
+                        if (x < area.left || x > area.right || y < area.top || y > area.bottom) continue;
+                        ctx.save();
+                        ctx.beginPath();
+                        ctx.arc(x, y, 6, 0, 2 * Math.PI);
+                        ctx.fillStyle = val > 0 ? '#16a34a' : '#dc2626';
+                        ctx.globalAlpha = 0.25;
+                        ctx.fill();
+                        ctx.restore();
+                        ctx.save();
+                        ctx.beginPath();
+                        ctx.arc(x, y, 3, 0, 2 * Math.PI);
+                        ctx.fillStyle = val > 0 ? '#16a34a' : '#dc2626';
+                        ctx.fill();
+                        ctx.restore();
+                    }
+                }
+            }}
+        ],
         options: {
             ...baseChartConfig,
             scales: { ...baseChartConfig.scales, y: { ...baseChartConfig.scales.y, ticks: _mkYTicks(v => { const a=Math.abs(v); if(a>=10000000)return (v<0?'-':'')+'₹'+(a/10000000).toFixed(1)+'Cr'; if(a>=100000)return (v<0?'-':'')+'₹'+(a/100000).toFixed(1)+'L'; return v.toLocaleString('en-IN'); }), border:{display:false} } }
