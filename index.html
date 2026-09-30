@@ -2721,23 +2721,9 @@ function loadFromLocalCache() {
 async function saveUserData() {
     if (!currentUser) return;
     const entries = allUserData[currentUser] || [];
-    // Safety: don't overwrite Firestore if local data has fewer entries (likely stale hardcoded fallback)
-    try {
-        const doc = await db.collection(FS_COLLECTION).doc(currentUser).get();
-        if (doc.exists) {
-            const remoteEntries = doc.data().entries || [];
-            if (remoteEntries.length > entries.length) {
-                console.warn('saveUserData blocked: local has', entries.length, 'entries but Firestore has', remoteEntries.length, '— refusing to overwrite with fewer entries');
-                allUserData[currentUser] = remoteEntries;
-                currentFinancialData = remoteEntries;
-                saveToLocalCache();
-                updateAll();
-                return;
-            }
-        }
-    } catch(e) {}
     saveToLocalCache();
     return db.collection(FS_COLLECTION).doc(currentUser).set({ entries })
+        .then(() => console.log('Firestore save OK:', currentUser, entries.length, 'entries'))
         .catch(e => console.error('Firestore save error:', e));
 }
 
@@ -2753,7 +2739,7 @@ function saveAllUserData() {
 
 async function loadAllUserDataFromFirestore() {
     try {
-        const snapshot = await db.collection(FS_COLLECTION).get();
+        const snapshot = await db.collection(FS_COLLECTION).get({ source: 'server' });
         if (!snapshot.empty) {
             const result = {};
             snapshot.forEach(doc => { result[doc.id] = doc.data().entries || []; });
@@ -3074,12 +3060,12 @@ async function initializeUserManagement() {
         if (!allUserData[name]) allUserData[name] = [];
     });
 
-    // One-time migration: recalculate all metrics and re-save to Firestore (v36)
-    if (!localStorage.getItem('gp_metrics_resync_v36')) {
+    // One-time migration: recalculate all metrics and re-save to Firestore (v37)
+    if (!localStorage.getItem('gp_metrics_resync_v37')) {
         Object.keys(allUserData).forEach(name => { _computeMetricsForArray(allUserData[name]); });
         saveAllUserData();
-        localStorage.setItem('gp_metrics_resync_v36', '1');
-        console.log('v36 metrics resync complete — all users re-saved to Firestore');
+        localStorage.setItem('gp_metrics_resync_v37', '1');
+        console.log('v37 metrics resync complete — all users re-saved to Firestore');
     }
 
     setupRealtimeSync();
