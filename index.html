@@ -3074,6 +3074,14 @@ async function initializeUserManagement() {
         if (!allUserData[name]) allUserData[name] = [];
     });
 
+    // One-time migration: recalculate all metrics and re-save to Firestore (v36)
+    if (!localStorage.getItem('gp_metrics_resync_v36')) {
+        Object.keys(allUserData).forEach(name => { _computeMetricsForArray(allUserData[name]); });
+        saveAllUserData();
+        localStorage.setItem('gp_metrics_resync_v36', '1');
+        console.log('v36 metrics resync complete — all users re-saved to Firestore');
+    }
+
     setupRealtimeSync();
     rebuildRadios();
 
