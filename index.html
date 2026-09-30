@@ -3272,19 +3272,13 @@ function updateCumulativeUserChart() {
                     const y = yScale.getPixelForValue(val);
                     if (y < area.top || y > area.bottom) continue;
                     ctx.beginPath();
-                    ctx.setLineDash([6, 4]);
-                    ctx.strokeStyle = val > 0 ? 'rgba(34,160,94,0.45)' : 'rgba(239,68,68,0.45)';
-                    ctx.lineWidth = 1.2;
+                    ctx.setLineDash([6, 6]);
+                    ctx.strokeStyle = val > 0 ? 'rgba(34,160,94,0.12)' : 'rgba(239,68,68,0.12)';
+                    ctx.lineWidth = 0.8;
                     ctx.moveTo(area.left, y);
                     ctx.lineTo(area.right, y);
                     ctx.stroke();
                     ctx.setLineDash([]);
-                    const label = (val < 0 ? '-' : '') + '₹' + (Math.abs(val) / 100000).toFixed(0) + 'L';
-                    ctx.font = 'bold 10px DM Sans, sans-serif';
-                    ctx.fillStyle = val > 0 ? '#16a34a' : '#dc2626';
-                    ctx.textAlign = 'right';
-                    ctx.textBaseline = 'bottom';
-                    ctx.fillText(label, area.right - 4, y - 3);
                 }
                 ctx.restore();
                 const ds = chart.data.datasets[0].data;
@@ -3336,8 +3330,8 @@ function updateCumulativeUserChart() {
                     const tw = Math.max(ctx.measureText(amtLabel).width, ctx.measureText(monthLabel).width) + 10;
                     const bh = 28;
                     let bx = x - tw / 2;
-                    let by = y - sz - bh - 10;
-                    if (by < area.top) by = y + sz + 10;
+                    let by = y - sz - bh - 18;
+                    if (by < area.top) by = y + sz + 14;
                     if (bx < area.left) bx = area.left + 2;
                     if (bx + tw > area.right) bx = area.right - tw - 2;
                     ctx.fillStyle = col;

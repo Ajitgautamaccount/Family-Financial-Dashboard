@@ -1,4 +1,4 @@
-const CACHE = 'dharohar-v23';
+const CACHE = 'dharohar-v24';
 const SHELL = [
   '/Family-Financial-Dashboard/',
   '/Family-Financial-Dashboard/index.html',
