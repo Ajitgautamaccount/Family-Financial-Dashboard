@@ -4056,6 +4056,7 @@ function updateAll() {
     updateOverallCharts();
     updateCumulativeAllUsersChart();
     updateMonthlyPercentageAllUsersChart();
+    renderUpcomingPayouts();
     const tp = document.getElementById('taxPlannerPage');
     if (tp && tp.style.display !== 'none') renderTaxPlanner();
 }
@@ -5240,6 +5241,7 @@ function showPage(page) {
 function renderUpcomingPayouts() {
     const strip = document.getElementById('upcomingPayoutsStrip');
     if (!strip) return;
+    if (currentUser !== 'Ajit Gautam') { strip.innerHTML = ''; return; }
     const now = new Date();
     const curYear = now.getFullYear();
     // Build all payout events for current + next year, pick next 3 from today
