@@ -2722,9 +2722,18 @@ async function saveUserData() {
     if (!currentUser) return;
     const entries = allUserData[currentUser] || [];
     saveToLocalCache();
-    return db.collection(FS_COLLECTION).doc(currentUser).set({ entries })
-        .then(() => console.log('Firestore save OK:', currentUser, entries.length, 'entries'))
-        .catch(e => console.error('Firestore save error:', e));
+    try {
+        await db.collection(FS_COLLECTION).doc(currentUser).set({ entries });
+        const verify = await db.collection(FS_COLLECTION).doc(currentUser).get();
+        const saved = verify.exists ? (verify.data().entries || []).length : 0;
+        console.log('Firestore save OK:', currentUser, entries.length, 'entries sent,', saved, 'verified in DB');
+        if (saved !== entries.length) console.warn('MISMATCH: sent', entries.length, 'but DB has', saved);
+        return true;
+    } catch(e) {
+        console.error('Firestore save error:', e);
+        showToast('Cloud sync failed — changes saved locally only', 'error');
+        return false;
+    }
 }
 
 async function saveAllUserData() {
@@ -2756,15 +2765,19 @@ async function saveAllUserData() {
 
 async function loadAllUserDataFromFirestore() {
     try {
-        const snapshot = await db.collection(FS_COLLECTION).get({ source: 'server' });
+        const snapshot = await db.collection(FS_COLLECTION).get();
         if (!snapshot.empty) {
             const result = {};
-            snapshot.forEach(doc => { result[doc.id] = doc.data().entries || []; });
+            snapshot.forEach(doc => {
+                result[doc.id] = doc.data().entries || [];
+                console.log('Firestore loaded:', doc.id, result[doc.id].length, 'entries');
+            });
             if (Object.keys(result).length) {
                 try { localStorage.setItem(LS_CACHE_KEY, JSON.stringify(result)); } catch(e2) {}
                 return result;
             }
         }
+        console.log('Firestore returned empty — no documents in collection');
     } catch(e) {
         console.error('Firestore load error, falling back to local cache:', e);
     }
