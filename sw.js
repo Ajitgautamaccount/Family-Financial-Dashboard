@@ -1,8 +1,13 @@
-const CACHE = 'dharohar-v34';
+const CACHE = 'dharohar-v36';
 const SHELL = [
   '/Family-Financial-Dashboard/',
   '/Family-Financial-Dashboard/index.html',
   '/Family-Financial-Dashboard/manifest.json',
+  '/Family-Financial-Dashboard/icons/icon-192.svg',
+  '/Family-Financial-Dashboard/icons/icon-512.svg',
+  '/Family-Financial-Dashboard/icons/icon-maskable-192.svg',
+  '/Family-Financial-Dashboard/icons/icon-maskable-512.svg',
+  '/Family-Financial-Dashboard/icons/apple-touch-icon.svg',
   'https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap',
   'https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js',
   'https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0',

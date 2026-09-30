@@ -10,7 +10,8 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Dharohar">
     <link rel="manifest" href="manifest.json">
-    <link rel="apple-touch-icon" href="icon-192.png">
+    <link rel="apple-touch-icon" href="icons/apple-touch-icon.svg">
+    <link rel="icon" type="image/svg+xml" href="icons/icon-192.svg">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
@@ -313,6 +314,8 @@
         .panel-row {
             display: flex; flex-wrap: wrap; gap: 12px; align-items: center;
         }
+        .input-username { width: 160px; }
+        .select-month { padding: 9px 13px; border: 1.5px solid var(--border); border-radius: var(--radius-sm); font-family: 'DM Sans', sans-serif; font-size: 13px; background: var(--bg); color: var(--text); width: 110px; outline: none; }
 
         /* User radio pills */
         .user-radio-group { display: flex; flex-wrap: wrap; gap: 8px; }
@@ -714,7 +717,7 @@
             /* Control panels */
             .panel { padding: 14px 14px; }
             .panel-row { flex-direction: column; align-items: stretch; gap: 10px; }
-            input[type="number"], input[type="text"] { width: 100%; }
+            input[type="number"], input[type="text"], .select-month { width: 100%; }
             .btn { width: 100%; justify-content: center; }
             .file-btn-wrap { width: 100%; }
             .file-btn-wrap .btn { width: 100%; }
@@ -1748,7 +1751,7 @@
             </div>
             <div style="display:flex;gap:8px;align-items:center;margin-left:auto;flex-wrap:wrap">
                 <label class="sr-only" for="newUsername">New username</label>
-                <input type="text" id="newUsername" placeholder="New username" style="width:160px">
+                <input type="text" id="newUsername" placeholder="New username" class="input-username">
                 <button onclick="addUser()" class="btn btn-primary"><svg class="icon" aria-hidden="true"><use href="#icon-plus"/></svg> Add User</button>
                 <button onclick="deleteUser()" class="btn btn-danger">✕ Delete User</button>
             </div>
@@ -1760,7 +1763,7 @@
         <div class="panel-title"><svg class="icon" aria-hidden="true"><use href="#icon-plus"/></svg> Add Monthly Data</div>
         <div class="panel-row">
             <label class="sr-only" for="newMonthSelect">Month</label>
-            <select id="newMonthSelect" style="padding:9px 13px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-family:'DM Sans',sans-serif;font-size:13px;background:var(--bg);color:var(--text);width:110px;outline:none;">
+            <select id="newMonthSelect" class="select-month">
                 <option value="Jan">Jan</option><option value="Feb">Feb</option><option value="Mar">Mar</option>
                 <option value="Apr">Apr</option><option value="May">May</option><option value="Jun">Jun</option>
                 <option value="Jul">Jul</option><option value="Aug">Aug</option><option value="Sep">Sep</option>
@@ -3264,7 +3267,7 @@ function addNewMonth() {
         sortData(currentFinancialData);
         allUserData[currentUser] = currentFinancialData;
         persistFormValues();
-        saveUserData(); scheduleUpdateAll();
+        calculateMetrics(); saveUserData(); scheduleUpdateAll();
         showToast(`${month} added successfully.`, 'success');
     });
 }
@@ -3348,7 +3351,7 @@ function updateEntry(month, el, field) {
     if (isNaN(v)) { showToast('Enter a valid number.', 'error'); return; }
     requirePassword(() => {
         const item = allUserData[currentUser].find(i => i.month === month);
-        if (item) { item[field] = v; saveUserData(); scheduleUpdateAll(); }
+        if (item) { item[field] = v; calculateMetrics(); saveUserData(); scheduleUpdateAll(); }
     });
 }
 
@@ -3366,7 +3369,7 @@ function deleteMonth(m) {
         const idx = allUserData[currentUser].findIndex(i => i.month === m);
         if (idx !== -1) {
             allUserData[currentUser].splice(idx, 1);
-            saveUserData(); scheduleUpdateAll();
+            calculateMetrics(); saveUserData(); scheduleUpdateAll();
             showToast(`${m} deleted.`, 'success');
         }
     });
@@ -3891,7 +3894,7 @@ function uploadExcel(event) {
         currentFinancialData.push(...entries);
         sortData(currentFinancialData);
         allUserData[currentUser] = currentFinancialData;
-        saveUserData();
+        calculateMetrics(); saveUserData();
         updateAll();
         fileInput.value = '';
         showToast(`Imported ${entries.length} month${entries.length !== 1 ? 's' : ''} successfully.`, 'success', 'Import Complete');
