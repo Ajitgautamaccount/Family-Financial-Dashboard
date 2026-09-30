@@ -252,15 +252,18 @@
             50% { transform: translateY(-3px); box-shadow: 0 18px 36px rgba(16,34,65,0.10); }
         }
 
-        /* Force user pills to remain high contrast even when parent sets color via !important */
         .user-radio-group .user-pill {
-            color: #102241 !important;
-            background: rgba(255,255,255,0.98) !important;
-            border: 1px solid rgba(16,34,65,0.06) !important;
-            box-shadow: 0 6px 18px rgba(16,34,65,0.04) !important;
+            color: #102241;
+            background: rgba(255,255,255,0.98);
+            border: 1px solid rgba(16,34,65,0.06);
+            box-shadow: 0 6px 18px rgba(16,34,65,0.04);
             font-weight: 700;
         }
-        .user-radio-group .user-pill .family-dot { border: none !important; }
+        .user-radio-group .user-pill .family-dot { border: none; }
+        .user-radio-group .user-pill.active-f1 { background: var(--fam1) !important; border-color: var(--fam1) !important; color: #fff !important; box-shadow: 0 4px 14px rgba(37,99,235,0.35) !important; transform: scale(1.06); }
+        .user-radio-group .user-pill.active-f1 .family-dot { background: #fff !important; }
+        .user-radio-group .user-pill.active-f2 { background: var(--fam2) !important; border-color: var(--fam2) !important; color: #fff !important; box-shadow: 0 4px 14px rgba(168,85,247,0.35) !important; transform: scale(1.06); }
+        .user-radio-group .user-pill.active-f2 .family-dot { background: #fff !important; }
 
         .section-heading .sh-line {
             flex: 1; height: 1px;
@@ -326,8 +329,10 @@
             box-shadow: 0 6px 16px rgba(16,34,65,0.04);
         }
         .user-pill:hover { border-color: rgba(26,39,68,0.12); background: #ffffff; }
-        .user-pill.active-f1 { background: var(--fam1-bg); border-color: var(--fam1); color: var(--fam1); box-shadow: none; }
-        .user-pill.active-f2 { background: var(--fam2-bg); border-color: var(--fam2); color: var(--fam2); box-shadow: none; }
+        .user-pill.active-f1 { background: var(--fam1); border-color: var(--fam1); color: #fff; box-shadow: 0 4px 14px rgba(37,99,235,0.35); transform: scale(1.06); font-weight: 700; }
+        .user-pill.active-f1 .family-dot { background: #fff; border-color: rgba(255,255,255,0.5); }
+        .user-pill.active-f2 { background: var(--fam2); border-color: var(--fam2); color: #fff; box-shadow: 0 4px 14px rgba(168,85,247,0.35); transform: scale(1.06); font-weight: 700; }
+        .user-pill.active-f2 .family-dot { background: #fff; border-color: rgba(255,255,255,0.5); }
         .user-pill input[type="radio"] { display: none; }
         .user-pill .family-dot {
             width: 8px; height: 8px; border-radius: 50%; opacity: 1; border: 2px solid rgba(255,255,255,0.7);
@@ -1098,7 +1103,7 @@
         }
         .page-nav-inner {
             max-width: 1440px; margin: 0 auto; padding: 0 2.5%;
-            display: flex; gap: 0;
+            display: flex; gap: 0; align-items: center;
         }
         .page-nav-btn {
             display: flex; align-items: center; gap: 8px;
@@ -1395,6 +1400,184 @@
             .backup-card { padding: 14px 16px; }
             .backup-actions { width: 100%; justify-content: flex-end; }
         }
+        /* ── DARK MODE TOGGLE ── */
+        .dark-toggle {
+            display: flex; align-items: center; cursor: pointer; flex-shrink: 0;
+        }
+        .dark-toggle input { display: none; }
+        .dt-track {
+            position: relative; width: 52px; height: 28px;
+            background: rgba(255,255,255,0.18); border-radius: 14px;
+            transition: background .3s;
+            display: flex; align-items: center;
+        }
+        .dt-thumb {
+            position: absolute; left: 3px; top: 3px;
+            width: 22px; height: 22px; border-radius: 50%;
+            background: #fff; box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+            transition: transform .3s;
+        }
+        .dark-toggle input:checked ~ .dt-track { background: rgba(201,168,76,0.45); }
+        .dark-toggle input:checked ~ .dt-track .dt-thumb { transform: translateX(24px); }
+        .dt-icon { position: absolute; top: 50%; transform: translateY(-50%); font-size: 14px; line-height: 1; transition: opacity .3s; }
+        .dt-sun { right: 7px; opacity: 1; color: rgba(255,255,255,0.7); }
+        .dt-moon { left: 7px; opacity: 0; color: var(--gold); }
+        .dark-toggle input:checked ~ .dt-track .dt-sun { opacity: 0; }
+        .dark-toggle input:checked ~ .dt-track .dt-moon { opacity: 1; }
+
+        /* ── DARK MODE THEME ── */
+        body.dark-mode {
+            --bg: #0f1729;
+            --bg-card: #182136;
+            --text: #e2e8f0;
+            --text-mid: #94a3b8;
+            --text-muted: #64748b;
+            --border: #2a3654;
+            --shadow-sm: 0 2px 8px rgba(0,0,0,0.3);
+            --shadow-md: 0 6px 24px rgba(0,0,0,0.4);
+            --shadow-lg: 0 16px 48px rgba(0,0,0,0.5);
+            --off-white: #1e293b;
+            --navy: #1e3a5f;
+            --navy-mid: #2a4a72;
+            --navy-light: #1e3a5f;
+            --fam1-bg: rgba(37,99,235,0.15);
+            --fam1-border: rgba(37,99,235,0.3);
+            --fam2-bg: rgba(124,58,237,0.15);
+            --fam2-border: rgba(124,58,237,0.3);
+        }
+        body.dark-mode .page-header {
+            background: linear-gradient(135deg, #0c1a2e 0%, #162744 100%);
+        }
+        body.dark-mode .page-nav {
+            background: #0c1a2e;
+            border-bottom-color: rgba(201,168,76,0.15);
+        }
+        body.dark-mode .hero-panel {
+            background: linear-gradient(125deg, rgba(24,33,54,0.98), rgba(15,23,41,0.95));
+            border-color: var(--border);
+        }
+        body.dark-mode .hero-badge {
+            background: linear-gradient(90deg, rgba(37,99,235,0.2), rgba(124,58,237,0.2));
+            color: #94a3b8;
+        }
+        body.dark-mode .hero-title { color: #e2e8f0; }
+        body.dark-mode .hero-credit {
+            color: #e2e8f0 !important;
+            background: rgba(30,41,59,0.95) !important;
+            box-shadow: 0 10px 24px rgba(0,0,0,0.3) !important;
+        }
+        body.dark-mode .stat-card { background: var(--bg-card); border-color: var(--border); }
+        body.dark-mode .stat-card::before { background: linear-gradient(90deg, var(--gold), #2a4a72); }
+        body.dark-mode .stat-value { color: #e2e8f0; }
+        body.dark-mode .section-heading h2 { color: #e2e8f0; }
+        body.dark-mode .section-heading .sh-icon { background: linear-gradient(135deg, #1e3a5f, #2a4a72); }
+        body.dark-mode .section-heading .sh-line { background: linear-gradient(to right, var(--border), transparent); }
+        body.dark-mode .panel {
+            background: var(--bg-card); border-color: var(--border);
+        }
+        body.dark-mode .panel-title { color: #e2e8f0; }
+        body.dark-mode .panel-title svg { color: #94a3b8; }
+        body.dark-mode .chart-card {
+            background: var(--bg-card); border-color: var(--border);
+            box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+        }
+        body.dark-mode .chart-card:hover { box-shadow: 0 12px 40px rgba(0,0,0,0.5); }
+        body.dark-mode .chart-card-title { color: #94a3b8; }
+        body.dark-mode .year-card {
+            background: var(--bg-card); border-color: var(--border);
+            border-top-color: #2a4a72;
+        }
+        body.dark-mode .year-card:hover { border-top-color: var(--gold); }
+        body.dark-mode .year-card-header h3 { color: #e2e8f0; }
+        body.dark-mode .year-card-header { border-bottom-color: var(--border); }
+        body.dark-mode .summary-row { border-bottom-color: var(--border); }
+        body.dark-mode .summary-row .sr-value { color: #e2e8f0; }
+        body.dark-mode .badge-positive { background: rgba(34,160,94,0.2); }
+        body.dark-mode .badge-negative { background: rgba(192,57,43,0.2); }
+        body.dark-mode .table-wrap { background: var(--bg-card); border-color: var(--border); }
+        body.dark-mode thead tr { background: linear-gradient(90deg, #0c1a2e, #162744); }
+        body.dark-mode tbody tr:nth-child(even) { background: rgba(30,41,59,0.5); }
+        body.dark-mode tbody tr:hover { background: rgba(37,99,235,0.1); }
+        body.dark-mode td { color: var(--text-mid); }
+        body.dark-mode td:first-child { color: var(--text); }
+        body.dark-mode td input[type="number"] { background: #1e293b; border-color: var(--border); color: #e2e8f0; }
+        body.dark-mode td input[type="number"]:focus { background: #253347; border-color: #2563eb; }
+        body.dark-mode input[type="number"],
+        body.dark-mode input[type="text"] { background: #1e293b; border-color: var(--border); color: #e2e8f0; }
+        body.dark-mode input[type="number"]:focus,
+        body.dark-mode input[type="text"]:focus { background: #253347; border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,0.2); }
+        body.dark-mode .btn-secondary { background: #1e293b; color: #94a3b8; border-color: var(--border); }
+        body.dark-mode .btn-secondary:hover { background: #253347; border-color: #2563eb; color: #e2e8f0; }
+        body.dark-mode .family-section { background: var(--bg-card); border-color: var(--border); }
+        body.dark-mode .fam1-header { background: linear-gradient(135deg, #1e3a8a, #1e40af); }
+        body.dark-mode .fam2-header { background: linear-gradient(135deg, #4c1d95, #5b21b6); }
+        body.dark-mode .fam-stat { background: #1e293b; border-color: var(--border); }
+        body.dark-mode .family-year-table thead th { background: #1e293b; color: #94a3b8; border-bottom-color: var(--border); }
+        body.dark-mode .family-year-table tbody td { color: var(--text-mid); border-bottom-color: var(--border); }
+        body.dark-mode .family-year-table tbody td:first-child { color: var(--text); }
+        body.dark-mode .family-year-table tfoot td { background: #1e293b; color: #e2e8f0; border-top-color: var(--border); }
+        body.dark-mode #gautamFamilyTable thead th:nth-child(6) { background: rgba(37,99,235,0.2); color: #60a5fa; }
+        body.dark-mode #gautamFamilyTable thead th:nth-child(9) { background: rgba(34,197,94,0.15); color: #4ade80; }
+        body.dark-mode .yearly-table { background: var(--bg-card); border-color: var(--border); }
+        body.dark-mode .yearly-table thead { background: #0c1a2e; }
+        body.dark-mode .yearly-table tbody tr:nth-child(even) { background: rgba(30,41,59,0.5); }
+        body.dark-mode .yearly-table tbody tr:hover { background: rgba(37,99,235,0.1); }
+        body.dark-mode .yearly-table tbody tr.group-row { background: linear-gradient(90deg, rgba(37,99,235,0.15), rgba(30,41,59,0.6)); }
+        body.dark-mode .yearly-table tbody tr.group-row td { color: #60a5fa; }
+        body.dark-mode .yearly-table td { color: var(--text); }
+        body.dark-mode .footer { border-top-color: var(--border); color: var(--text-muted); }
+        body.dark-mode .h-stat { background: var(--bg-card); }
+        body.dark-mode .h-stat.total { background: #0c1a2e; }
+        body.dark-mode .hs-val { color: #e2e8f0; }
+        body.dark-mode .holdings-table { background: var(--bg-card); }
+        body.dark-mode .holdings-table thead tr { background: linear-gradient(90deg, #0c1a2e, #162744); }
+        body.dark-mode .holdings-table td { border-bottom-color: var(--border); }
+        body.dark-mode .holdings-table tbody tr:hover { background: rgba(30,41,59,0.8); }
+        body.dark-mode .holdings-table tfoot td { background: #1e293b; border-top-color: var(--border); }
+        body.dark-mode .td-name { color: #e2e8f0; }
+        body.dark-mode .holdings-table-wrap { box-shadow: var(--shadow-sm); }
+        body.dark-mode .pwd-box { background: #1e293b; }
+        body.dark-mode .pwd-box h3 { color: #e2e8f0; }
+        body.dark-mode .pwd-box p { color: #94a3b8; }
+        body.dark-mode .pwd-box input[type="password"] { background: #0f1729; border-color: var(--border); color: #e2e8f0; }
+        body.dark-mode .pwd-box input[type="password"]:focus { background: #182136; border-color: #2563eb; }
+        body.dark-mode .user-radio-group .user-pill {
+            color: #e2e8f0; background: rgba(30,41,59,0.9);
+            border-color: var(--border); box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+        body.dark-mode .user-pill:not(.active-f1):not(.active-f2) { color: #e2e8f0; }
+        body.dark-mode .user-pill:hover { background: #253347; border-color: #475569; }
+        body.dark-mode select { background: #1e293b; color: #e2e8f0; border-color: var(--border); }
+        body.dark-mode .hero-stat { background: #1e293b; border-color: var(--border); }
+        body.dark-mode .hero-stat .value { color: #e2e8f0; }
+        body.dark-mode .member-chip.fam1-chip { background: rgba(37,99,235,0.15); border-color: rgba(37,99,235,0.3); }
+        body.dark-mode .member-chip.fam2-chip { background: rgba(124,58,237,0.15); border-color: rgba(124,58,237,0.3); }
+        body.dark-mode #profileSelectScreen { background: linear-gradient(135deg, #070d1a 0%, #0f1729 60%, #0a1020 100%); }
+        body.dark-mode .ps-card { background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.08); }
+        body.dark-mode .ps-card:hover { background: rgba(255,255,255,0.08); }
+        body.dark-mode .dt-track { background: rgba(255,255,255,0.12); }
+        body.dark-mode .page-header,
+        body.dark-mode .dark-bg { color: #e2e8f0 !important; }
+        body.dark-mode .page-header .header-title,
+        body.dark-mode .page-header .header-subtitle,
+        body.dark-mode .dark-bg h2,
+        body.dark-mode .dark-bg h3,
+        body.dark-mode .dark-bg p,
+        body.dark-mode .dark-bg .sh-icon,
+        body.dark-mode .dark-bg .family-icon,
+        body.dark-mode .dark-bg .family-header-text,
+        body.dark-mode .dark-bg .family-header-text * { color: #e2e8f0 !important; }
+        body.dark-mode .dark-bg .family-header-text p { color: rgba(226,232,240,0.85) !important; }
+        body.dark-mode .gf-combined-th,
+        body.dark-mode .gf-combined-td { background: rgba(37,99,235,0.12) !important; border-left-color: rgba(37,99,235,0.3) !important; }
+        body.dark-mode .gf-overall-th,
+        body.dark-mode .gf-overall-td { background: rgba(34,197,94,0.1) !important; border-left-color: rgba(34,197,94,0.3) !important; }
+        body.dark-mode .bond-payout-row-highlight { background: rgba(34,197,94,0.08) !important; }
+        body.dark-mode .bond-payout-total-row { background: rgba(8,145,178,0.12) !important; }
+        body.dark-mode .bond-payout-table .holdings-table th:nth-child(3),
+        body.dark-mode .bond-payout-table .holdings-table td:nth-child(3) { color: #22d3ee; }
+        body.dark-mode .sh-icon { background: rgba(30,41,59,0.8) !important; }
+
     </style>
 </head>
 <body>
@@ -1427,6 +1610,14 @@
 
 <!-- ── PROFILE SELECT SCREEN ── -->
 <div id="profileSelectScreen">
+    <label class="dark-toggle" style="position:absolute;top:20px;right:20px" title="Toggle dark mode">
+        <input type="checkbox" class="darkModeCheckSync" onchange="toggleDarkMode(this.checked)">
+        <span class="dt-track">
+            <span class="dt-thumb"></span>
+            <span class="dt-icon dt-sun">&#9728;</span>
+            <span class="dt-icon dt-moon">&#9790;</span>
+        </span>
+    </label>
     <div style="margin-bottom:16px;color:var(--gold);opacity:.85"><svg class="icon icon-xl" aria-hidden="true"><use href="#icon-trend-up"/></svg></div>
     <div class="ps-title">Gautam Family Financial Dashboard</div>
     <div class="ps-subtitle">Select your profile to continue</div>
@@ -1517,6 +1708,14 @@
         <button class="page-nav-btn" onclick="showPage('backup')" id="navBackup">
             <svg class="icon" aria-hidden="true"><use href="#icon-shield"/></svg> Backup
         </button>
+        <label class="dark-toggle" id="darkToggle" title="Toggle dark mode" style="margin-left:auto">
+            <input type="checkbox" id="darkModeCheck" onchange="toggleDarkMode(this.checked)">
+            <span class="dt-track">
+                <span class="dt-thumb"></span>
+                <span class="dt-icon dt-sun">&#9728;</span>
+                <span class="dt-icon dt-moon">&#9790;</span>
+            </span>
+        </label>
     </div>
 </nav>
 
@@ -1527,7 +1726,7 @@
         <div class="hero-copy">
             <div class="hero-badge">✦ High-level tracker for monthly performance, user comparisons and portfolio mix.</div>
             <h1 class="hero-title">Monitor returns, asset allocation and user performance all in one place.</h1>
-            <p class="hero-credit blinking">Developed by Ajit Gautam</p>
+            <p class="hero-credit blinking">Gautam Family Financial Dashboard</p>
             <div class="hero-actions">
                 <button onclick="document.getElementById('newEquity').focus()" class="btn btn-primary"><svg class="icon" aria-hidden="true"><use href="#icon-plus"/></svg> Add new month</button>
                 <button onclick="downloadExcel()" class="btn btn-gold"><svg class="icon" aria-hidden="true"><use href="#icon-download"/></svg> Export Excel</button>
@@ -1791,10 +1990,10 @@
                             <th>Meenu Return</th>
                             <th>Prem Return</th>
                             <th>Ganga Return</th>
-                            <th style="background:#f0f9ff;border-left:2px solid #bfdbfe">Combined Return</th>
+                            <th class="gf-combined-th" style="background:#f0f9ff;border-left:2px solid #bfdbfe">Combined Return</th>
                             <th>Total Capital Used</th>
                             <th>Total Deposits</th>
-                            <th style="background:#f0fdf4;border-left:2px solid #bbf7d0">Overall % Return</th>
+                            <th class="gf-overall-th" style="background:#f0fdf4;border-left:2px solid #bbf7d0">Overall % Return</th>
                         </tr>
                     </thead>
                     <tbody id="gautamFamilyTbody"></tbody>
@@ -1805,10 +2004,10 @@
                             <td id="gfMeenuTotal">—</td>
                             <td id="gfPremTotal">—</td>
                             <td id="gfGangaTotal">—</td>
-                            <td id="gfCombinedTotal" style="background:#eff6ff;border-left:2px solid #bfdbfe;font-size:14px">—</td>
+                            <td id="gfCombinedTotal" class="gf-combined-td" style="background:#eff6ff;border-left:2px solid #bfdbfe;font-size:14px">—</td>
                             <td id="gfCapitalTotal">—</td>
                             <td id="gfDepositTotal">—</td>
-                            <td id="gfOverallPct" style="background:#f0fdf4;border-left:2px solid #bbf7d0">—</td>
+                            <td id="gfOverallPct" class="gf-overall-td" style="background:#f0fdf4;border-left:2px solid #bbf7d0">—</td>
                         </tr>
                     </tfoot>
                 </table>
@@ -1845,7 +2044,7 @@
         </div>
     </div>
 
-    <div class="footer">Gautam Family Financial Dashboard &copy; 2026 · Developed by <strong class="blinking">Ajit Gautam</strong></div>
+    <div class="footer">Gautam Family Financial Dashboard &copy; 2026</div>
 
 </div><!-- /dashboardPage /container -->
 
@@ -1975,7 +2174,7 @@
         </div>
     </div>
 
-    <div class="footer" style="margin-top:48px">Gautam Family Financial Dashboard &copy; 2026 · Developed by <strong class="blinking">Ajit Gautam</strong></div>
+    <div class="footer" style="margin-top:48px">Gautam Family Financial Dashboard &copy; 2026</div>
 </div><!-- /holdingsPage -->
 
 <!-- ── TAX PLANNER PAGE ── -->
@@ -2016,7 +2215,7 @@
     </div>
     <div id="taxTipsContainer"></div>
 
-    <div class="footer" style="margin-top:48px">Gautam Family Financial Dashboard &copy; 2026 · Developed by <strong class="blinking">Ajit Gautam</strong></div>
+    <div class="footer" style="margin-top:48px">Gautam Family Financial Dashboard &copy; 2026</div>
 </div><!-- /taxPlannerPage -->
 
 <!-- ── BACKUP PAGE ── -->
@@ -2047,7 +2246,7 @@
         <div class="backup-empty"><svg class="icon" aria-hidden="true"><use href="#icon-shield"/></svg><p>Loading backups...</p></div>
     </div>
 
-    <div class="footer" style="margin-top:48px">Gautam Family Financial Dashboard &copy; 2026 · Developed by <strong class="blinking">Ajit Gautam</strong></div>
+    <div class="footer" style="margin-top:48px">Gautam Family Financial Dashboard &copy; 2026</div>
 </div><!-- /backupPage -->
 
 </div><!-- /mainContent -->
@@ -2066,6 +2265,33 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 const FS_COLLECTION = 'familyDashboard';
+
+// ── Dark Mode ──
+function toggleDarkMode(on) {
+    document.body.classList.toggle('dark-mode', on);
+    localStorage.setItem('gp_dark_mode', on ? '1' : '0');
+    const cb = document.getElementById('darkModeCheck');
+    if (cb) cb.checked = on;
+    document.querySelectorAll('.darkModeCheckSync').forEach(c => c.checked = on);
+    if (typeof percentageChart !== 'undefined') updateChartColors();
+}
+function updateChartColors() {
+    [percentageChart, amountChart, cumulativeUserChart, cumulativeAllUsersChart, overallMonthlyPercentageChart].forEach(ch => {
+        if (!ch) return;
+        ch.update();
+    });
+    if (typeof renderUpcomingPayouts === 'function') renderUpcomingPayouts();
+    if (typeof updateGautamFamilySection === 'function') updateGautamFamilySection();
+}
+(function initDarkMode() {
+    if (localStorage.getItem('gp_dark_mode') === '1') {
+        document.body.classList.add('dark-mode');
+        const cb = document.getElementById('darkModeCheck');
+        if (cb) cb.checked = true;
+        document.querySelectorAll('.darkModeCheckSync').forEach(c => c.checked = true);
+    }
+})();
+
 
 // ── Global State ──
 let allUserData = {};
@@ -2107,13 +2333,29 @@ function updateHeroSummary() {
     const profileName = currentUser || '';
     const bestAmount = bestMonth && bestMonth.monthlyReturn !== undefined ? fcPlain(bestMonth.monthlyReturn) : '—';
     const worstAmount = worstMonth && worstMonth.monthlyReturn !== undefined ? fcPlain(worstMonth.monthlyReturn) : '—';
+    const now = new Date();
+    const MONTH_SHORT = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const curMonthKey = MONTH_SHORT[now.getMonth()] + '-' + String(now.getFullYear()).slice(2);
+    const curMonthEntry = currentFinancialData.find(d => d.month === curMonthKey);
+    const curMonthIdx = curMonthEntry ? currentFinancialData.indexOf(curMonthEntry) : -1;
+    const prevMonthEntry = curMonthIdx > 0 ? currentFinancialData[curMonthIdx - 1] : (currentFinancialData.length ? currentFinancialData[currentFinancialData.length - 1] : null);
+    const targetCapital = prevMonthEntry ? ((prevMonthEntry.capitalUsed || 0) + (prevMonthEntry.deposit || 0) + (prevMonthEntry.monthlyReturn || 0)) : 0;
+    const targetVal = targetCapital * 0.015;
+    const curMonthLabel = MONTH_SHORT[now.getMonth()] + '-' + now.getFullYear();
+    const curReturn = curMonthEntry ? (curMonthEntry.monthlyReturn || 0) : 0;
+    const targetPct = targetVal > 0 ? ((curReturn / targetVal) * 100).toFixed(0) : 0;
+    const targetMet = curReturn >= targetVal;
     document.getElementById('heroLiveStats').innerHTML = `
         <div class="hero-stat"><div class="label">Total return</div><div class="value">${fcPlain(totalReturn)}</div>
             <div class="stat-sub" style="margin-top:8px">Equity: ${fcPlain(totalEquity)} &nbsp; | &nbsp; F&amp;O: ${fcPlain(totalFO)} &nbsp; | &nbsp; Bond: ${fcPlain(totalBond)} &nbsp; | &nbsp; Commodity: ${fcPlain(totalCommodity)}</div>
         </div>
+        <div class="hero-stat" style="border-left:3px solid ${targetMet ? 'var(--emerald)' : 'var(--gold)'}">
+            <div class="label">${curMonthLabel} Minimum Target (1.5%)</div>
+            <div class="value" style="color:var(--gold);font-size:20px">${fcPlain(targetVal)}</div>
+            <div class="stat-sub" style="margin-top:6px">Current: <span style="font-weight:700;color:${targetMet ? 'var(--emerald)' : 'var(--crimson)'}">${fcPlain(curReturn)}</span> &nbsp;(${targetPct}% of target${targetMet ? ' ✓' : ''})</div>
+        </div>
         <div class="hero-stat"><div class="label">Best month</div><div class="best-value">${bestMonth.month || '—'}</div><div class="stat-sub" style="margin-top:6px;color:var(--emerald);font-weight:700">${bestAmount}</div></div>
         <div class="hero-stat"><div class="label">Worst month</div><div class="worst-value">${worstMonth.month || '—'}</div><div class="stat-sub" style="margin-top:6px;color:var(--crimson);font-weight:700">${worstAmount}</div></div>
-        <div class="hero-stat"><div class="label">Profile</div><div class="value">${profileName}</div></div>
     `;
     runCountUpOnKPIs();
 }
@@ -2344,11 +2586,11 @@ const baseChartConfig = {
                 }
                 return value;
             },
-            color: ctx => ctx.dataset.data[ctx.dataIndex] < 0 ? '#c0392b' : '#155724',
+            color: function(ctx) { const dark = document.body.classList.contains('dark-mode'); return ctx.dataset.data[ctx.dataIndex] < 0 ? (dark ? '#f87171' : '#c0392b') : (dark ? '#4ade80' : '#155724'); },
             font: function(context) {
                 return { weight: '700', size: _isMobileChart(context.chart) ? 7 : 10, family: "'DM Sans', sans-serif" };
             },
-            textStrokeColor: 'rgba(255,255,255,0.85)',
+            textStrokeColor: function() { return document.body.classList.contains('dark-mode') ? 'rgba(15,23,41,0.85)' : 'rgba(255,255,255,0.85)'; },
             textStrokeWidth: 3,
             padding: 2
         },
@@ -2356,7 +2598,7 @@ const baseChartConfig = {
             position: 'bottom',
             labels: {
                 font: { family: "'DM Sans', sans-serif", size: 11 },
-                color: '#4a5568',
+                color: function() { return document.body.classList.contains('dark-mode') ? '#94a3b8' : '#4a5568'; },
                 boxWidth: 12,
                 padding: 10,
                 // Shorten long labels on mobile to prevent wrapping
@@ -2427,9 +2669,9 @@ const baseChartConfig = {
     scales: {
         y: {
             beginAtZero: false,
-            grid: { color: 'rgba(189,195,199,0.2)' },
+            grid: { color: function() { return document.body.classList.contains('dark-mode') ? 'rgba(148,163,184,0.12)' : 'rgba(189,195,199,0.2)'; } },
             ticks: {
-                color: '#8896a8',
+                color: function() { return document.body.classList.contains('dark-mode') ? '#94a3b8' : '#8896a8'; },
                 font: function(context) {
                     return { size: _isMobileChart(context.chart) ? 9 : 11 };
                 },
@@ -2440,7 +2682,7 @@ const baseChartConfig = {
         x: {
             grid: { display: false },
             ticks: {
-                color: '#8896a8',
+                color: function() { return document.body.classList.contains('dark-mode') ? '#94a3b8' : '#8896a8'; },
                 font: function(context) {
                     return { size: _isMobileChart(context.chart) ? 8 : 10 };
                 },
@@ -3243,7 +3485,7 @@ function updateCumulativeUserChart() {
             pointRadius: function(ctx) { return _isMobileChart(ctx.chart) ? 1.5 : 4; },
             pointHoverRadius: 8,
             pointBackgroundColor: cumData.map(v => v < 0 ? '#e74c3c' : '#22a05e'),
-            pointBorderColor: '#fff',
+            pointBorderColor: function() { return document.body.classList.contains('dark-mode') ? '#182136' : '#fff'; },
             pointBorderWidth: 2
         }] },
         plugins: [
@@ -3549,13 +3791,13 @@ function updateCumulativeAllUsersChart() {
         const gradFill = ctx2.createLinearGradient(0, 0, 0, 480);
         gradFill.addColorStop(0, color + '28');
         gradFill.addColorStop(1, color + '02');
-        return { label: username, data: cumData, borderColor: color, segment: { borderColor: ctx => ctx.p1.parsed.y < 0 ? '#e74c3c' : color }, borderWidth: 3, backgroundColor: gradFill, fill: true, tension: 0.38, pointRadius: function(ctx) { return _isMobileChart(ctx.chart) ? 2 : 5; }, pointHoverRadius: 9, pointBackgroundColor: cumData.map(v => v === null ? color : (v < 0 ? '#e74c3c' : color)), pointBorderColor: '#fff', pointBorderWidth: 2, spanGaps: true,
+        return { label: username, data: cumData, borderColor: color, segment: { borderColor: ctx => ctx.p1.parsed.y < 0 ? '#e74c3c' : color }, borderWidth: 3, backgroundColor: gradFill, fill: true, tension: 0.38, pointRadius: function(ctx) { return _isMobileChart(ctx.chart) ? 2 : 5; }, pointHoverRadius: 9, pointBackgroundColor: cumData.map(v => v === null ? color : (v < 0 ? '#e74c3c' : color)), pointBorderColor: function() { return document.body.classList.contains('dark-mode') ? '#182136' : '#fff'; }, pointBorderWidth: 2, spanGaps: true,
             datalabels: { display: ctx => !_isMobileChart(ctx.chart) && ctx.dataIndex % 2 === 0 && ctx.dataset.data[ctx.dataIndex] !== null, anchor: 'end', align: 'top', offset: 4, color, font: { size: 10, weight: '600' }, formatter: v => { const a=Math.abs(v); if(a>=10000000) return (v<0?'-':'')+'₹'+(a/10000000).toFixed(1)+'Cr'; if(a>=100000) return (v<0?'-':'')+'₹'+(a/100000).toFixed(1)+'L'; return (v<0?'-':'')+'₹'+a.toLocaleString('en-IN',{maximumFractionDigits:0}); } }
         };
     });
     cumulativeAllUsersChart = new Chart(canvas, {
         type: 'line', data: { labels: allMonths, datasets },
-        options: { ...baseChartConfig, layout: { padding: { top: 32, right: 20, bottom: 8, left: 8 } }, plugins: { ...baseChartConfig.plugins, datalabels: { ...baseChartConfig.plugins.datalabels, display: ctx => !_isMobileChart(ctx.chart) && ctx.dataIndex % 2 === 0 && ctx.dataset.data[ctx.dataIndex] !== null } }, scales: { ...baseChartConfig.scales, x: { ...baseChartConfig.scales.x, ticks: { color:'#8896a8', font: { size: 11 }, maxRotation: 45 } }, y: { ...baseChartConfig.scales.y, ticks: _mkYTicks(v => { const a=Math.abs(v); if(a>=10000000)return (v<0?'-':'')+'₹'+(a/10000000).toFixed(1)+'Cr'; if(a>=100000)return (v<0?'-':'')+'₹'+(a/100000).toFixed(1)+'L'; return v.toLocaleString('en-IN'); }), border:{display:false} } } }
+        options: { ...baseChartConfig, layout: { padding: { top: 32, right: 20, bottom: 8, left: 8 } }, plugins: { ...baseChartConfig.plugins, datalabels: { ...baseChartConfig.plugins.datalabels, display: ctx => !_isMobileChart(ctx.chart) && ctx.dataIndex % 2 === 0 && ctx.dataset.data[ctx.dataIndex] !== null } }, scales: { ...baseChartConfig.scales, x: { ...baseChartConfig.scales.x, ticks: { color: function() { return document.body.classList.contains('dark-mode') ? '#94a3b8' : '#8896a8'; }, font: { size: 11 }, maxRotation: 45 } }, y: { ...baseChartConfig.scales.y, ticks: _mkYTicks(v => { const a=Math.abs(v); if(a>=10000000)return (v<0?'-':'')+'₹'+(a/10000000).toFixed(1)+'Cr'; if(a>=100000)return (v<0?'-':'')+'₹'+(a/100000).toFixed(1)+'L'; return v.toLocaleString('en-IN'); }), border:{display:false} } } }
     });
 }
 
@@ -3579,11 +3821,11 @@ function updateMonthlyPercentageAllUsersChart() {
         const gradFill = ctx2.createLinearGradient(0, 0, 0, 480);
         gradFill.addColorStop(0, color + '21');
         gradFill.addColorStop(1, color + '02');
-        return { label: username, data: pctData, borderColor: color, borderWidth: 3, backgroundColor: gradFill, fill: true, tension: 0.38, pointRadius: function(ctx) { return _isMobileChart(ctx.chart) ? 2 : 5; }, pointHoverRadius: 9, pointBackgroundColor: pctData.map(v => v === null ? color : (v < 0 ? '#e74c3c' : color)), pointBorderColor: '#fff', pointBorderWidth: 2, spanGaps: true };
+        return { label: username, data: pctData, borderColor: color, borderWidth: 3, backgroundColor: gradFill, fill: true, tension: 0.38, pointRadius: function(ctx) { return _isMobileChart(ctx.chart) ? 2 : 5; }, pointHoverRadius: 9, pointBackgroundColor: pctData.map(v => v === null ? color : (v < 0 ? '#e74c3c' : color)), pointBorderColor: function() { return document.body.classList.contains('dark-mode') ? '#182136' : '#fff'; }, pointBorderWidth: 2, spanGaps: true };
     });
     overallMonthlyPercentageChart = new Chart(canvas, {
         type: 'line', data: { labels: allMonths, datasets },
-        options: { ...baseChartConfig, layout: { padding: { top: 32, right: 20, bottom: 8, left: 8 } }, plugins: { ...baseChartConfig.plugins, datalabels: { ...baseChartConfig.plugins.datalabels, display: ctx => !_isMobileChart(ctx.chart) && ctx.dataset.data[ctx.dataIndex] !== null } }, scales: { ...baseChartConfig.scales, x: { ...baseChartConfig.scales.x, ticks: { color:'#8896a8', font: { size: 11 }, maxRotation: 45 } }, y: { ...baseChartConfig.scales.y, ticks: _mkYTicks(v => v.toFixed(1)+'%'), border:{display:false} } } }
+        options: { ...baseChartConfig, layout: { padding: { top: 32, right: 20, bottom: 8, left: 8 } }, plugins: { ...baseChartConfig.plugins, datalabels: { ...baseChartConfig.plugins.datalabels, display: ctx => !_isMobileChart(ctx.chart) && ctx.dataset.data[ctx.dataIndex] !== null } }, scales: { ...baseChartConfig.scales, x: { ...baseChartConfig.scales.x, ticks: { color: function() { return document.body.classList.contains('dark-mode') ? '#94a3b8' : '#8896a8'; }, font: { size: 11 }, maxRotation: 45 } }, y: { ...baseChartConfig.scales.y, ticks: _mkYTicks(v => v.toFixed(1)+'%'), border:{display:false} } } }
     });
 }
 
@@ -3725,12 +3967,12 @@ function updateGautamFamilySection() {
             ${memberVals.map((d, i) => `<td>${memberYearly[MEMBERS[i].key][yr] 
                 ? `<span class="${d.total>=0?'pos':'neg'}">${fcPlain(d.total)}</span>` 
                 : `<span style="color:var(--text-muted);font-size:11px">—</span>`}</td>`).join('')}
-            <td style="background:#eff6ff;border-left:2px solid #bfdbfe;font-weight:700">
+            <td class="gf-combined-td" style="background:#eff6ff;border-left:2px solid #bfdbfe;font-weight:700">
                 <span class="${combined>=0?'pos':'neg'}">${fcPlain(combined)}</span>
             </td>
             <td>${fcPlain(capSum)}</td>
             <td>${fcPlain(depSum)}</td>
-            <td style="background:#f0fdf4;border-left:2px solid #bbf7d0">
+            <td class="gf-overall-td" style="background:#f0fdf4;border-left:2px solid #bbf7d0">
                 <span class="${pct>=0?'pos':'neg'}">${pct.toFixed(2)}%</span>
             </td>
         `;
@@ -4386,14 +4628,14 @@ function renderHoldings() {
         const now = new Date();
         const isPast = (e.month < now.getMonth()+1) || (e.month === now.getMonth()+1 && e.day < now.getDate());
         const highlight = !isPast ? 'background:#f0fdf4' : '';
-        return `<tr style="${highlight}">
+        return `<tr class="${!isPast ? 'bond-payout-row-highlight' : ''}" style="${highlight}">
             <td style="color:#0891b2;font-weight:600">${dateStr}</td>
             <td class="td-name">${e.name}</td>
             <td style="color:#059669;font-weight:700">${fINR2(e.perPayout)}</td>
             <td style="color:#0891b2">${fINR2(e.annual)}</td>
             <td>${freqLabel}</td>
         </tr>`;
-    }).join('') + `<tr style="background:#e0f2fe;font-weight:700">
+    }).join('') + `<tr class="bond-payout-total-row" style="background:#e0f2fe;font-weight:700">
         <td colspan="2">TOTAL ANNUAL INTEREST</td>
         <td>—</td>
         <td style="color:#0891b2">${fINR2(totalAnnual)}</td>
@@ -4990,9 +5232,10 @@ function renderUpcomingPayouts() {
         const badge = i === 0 ? '<span style="background:#059669;color:#fff;font-size:9px;font-weight:700;padding:1px 6px;border-radius:10px;letter-spacing:.04em;margin-left:6px">NEXT</span>' : '';
         const daysAway = Math.ceil((e.dt - now) / 86400000);
         const daysLabel = daysAway === 0 ? 'Today!' : daysAway === 1 ? 'Tomorrow' : `in ${daysAway} days`;
-        return `<div style="flex:1;min-width:180px;background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:14px 16px;box-shadow:0 2px 8px rgba(26,39,68,0.06);border-left:4px solid ${i===0?'#059669':'#0891b2'}">
-            <div style="font-size:10px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px">Upcoming Payout #${i+1} ${badge}</div>
-            <div style="font-size:15px;font-weight:700;color:#1a2744;margin-bottom:2px">${e.name}</div>
+        const dk = document.body.classList.contains('dark-mode');
+        return `<div style="flex:1;min-width:180px;background:${dk?'#182136':'#fff'};border:1px solid ${dk?'#2a3654':'#e2e8f0'};border-radius:12px;padding:14px 16px;box-shadow:${dk?'0 2px 8px rgba(0,0,0,0.3)':'0 2px 8px rgba(26,39,68,0.06)'};border-left:4px solid ${i===0?'#059669':'#0891b2'}">
+            <div style="font-size:10px;font-weight:700;color:${dk?'#94a3b8':'#64748b'};text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px">Upcoming Payout #${i+1} ${badge}</div>
+            <div style="font-size:15px;font-weight:700;color:${dk?'#e2e8f0':'#1a2744'};margin-bottom:2px">${e.name}</div>
             <div style="font-size:13px;color:#0891b2;font-weight:600;margin-bottom:4px">${FULL_MONTHS[e.month-1]} ${String(e.day).padStart(2,'0')}, ${e.dt.getFullYear()}</div>
             <div style="font-size:18px;font-weight:800;color:#059669">${fINR2(e.perPayout)}</div>
             <div style="font-size:10px;color:#94a3b8;margin-top:3px">${daysLabel}</div>
