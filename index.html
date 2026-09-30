@@ -2029,7 +2029,14 @@
     </div>
     <div class="panel">
         <p class="backup-info">Automatic backups run on the <strong>5th of every month</strong>. You can also create a manual backup anytime to safeguard your data.</p>
-        <button class="btn btn-primary" onclick="manualBackup()"><svg class="icon" style="width:14px;height:14px" aria-hidden="true"><use href="#icon-shield"/></svg> Create Backup Now</button>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px">
+            <button class="btn btn-primary" onclick="manualBackup()"><svg class="icon" style="width:14px;height:14px" aria-hidden="true"><use href="#icon-shield"/></svg> Create Backup Now</button>
+            <button class="btn btn-secondary" onclick="downloadBackupFile()">⬇ Download Backup</button>
+            <div class="file-btn-wrap" style="display:inline-block;position:relative">
+                <button class="btn btn-secondary" style="background:#0891b2;color:#fff;border-color:#0891b2">⬆ Upload Backup</button>
+                <input type="file" id="backupFileUpload" accept=".json" onchange="uploadBackupFile(event)">
+            </div>
+        </div>
     </div>
 
     <div class="section-heading">
@@ -4760,6 +4767,69 @@ async function renderBackupPage() {
             </div>
         </div>`;
     }).join('');
+}
+
+function downloadBackupFile() {
+    requirePassword(() => {
+        const data = {};
+        Object.keys(allUserData).forEach(name => {
+            data[name] = JSON.parse(JSON.stringify(allUserData[name] || []));
+        });
+        const backup = {
+            timestamp: new Date().toISOString(),
+            trigger: 'download',
+            version: 1,
+            data: data
+        };
+        const blob = new Blob([JSON.stringify(backup, null, 2)], {type: 'application/json'});
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        const dt = new Date();
+        const dateStr = dt.getFullYear() + '-' + String(dt.getMonth()+1).padStart(2,'0') + '-' + String(dt.getDate()).padStart(2,'0');
+        a.href = url;
+        a.download = 'Gautam_Backup_' + dateStr + '.json';
+        a.click();
+        URL.revokeObjectURL(url);
+        showToast('Backup file downloaded', 'success');
+    });
+}
+
+function uploadBackupFile(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    event.target.value = '';
+    requirePassword(() => {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const backup = JSON.parse(e.target.result);
+                if (!backup.data || typeof backup.data !== 'object') {
+                    showToast('Invalid backup file — missing data', 'error');
+                    return;
+                }
+                const users = Object.keys(backup.data);
+                if (!users.length) {
+                    showToast('Backup file contains no user data', 'error');
+                    return;
+                }
+                const ts = backup.timestamp ? new Date(backup.timestamp).toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric'}) : 'unknown date';
+                const details = users.map(u => u.split(' ')[0] + '(' + (backup.data[u]||[]).length + ')').join(', ');
+                if (!confirm('Restore from uploaded backup?\n\nBackup date: ' + ts + '\nProfiles: ' + details + '\n\nThis will overwrite ALL current data. This cannot be undone.')) return;
+                Object.keys(backup.data).forEach(name => {
+                    allUserData[name] = backup.data[name] || [];
+                });
+                currentFinancialData = allUserData[currentUser] || [];
+                saveAllUserData();
+                updateAll();
+                showToast('Data restored from uploaded backup', 'success', 'Restore Complete');
+                renderBackupPage();
+            } catch(err) {
+                console.error('Backup upload error:', err);
+                showToast('Error reading backup file: ' + err.message, 'error');
+            }
+        };
+        reader.readAsText(file);
+    });
 }
 
 async function manualBackup() {
