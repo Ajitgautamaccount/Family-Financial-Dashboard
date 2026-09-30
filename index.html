@@ -2727,14 +2727,20 @@ async function saveUserData() {
         .catch(e => console.error('Firestore save error:', e));
 }
 
-function saveAllUserData() {
+async function saveAllUserData() {
     saveToLocalCache();
     const batch = db.batch();
     Object.keys(allUserData).forEach(name => {
         const ref = db.collection(FS_COLLECTION).doc(name);
         batch.set(ref, { entries: allUserData[name] || [] });
     });
-    batch.commit().catch(e => console.error('Firestore batch save error:', e));
+    try {
+        await batch.commit();
+        console.log('Firestore batch save OK:', Object.keys(allUserData).join(', '));
+    } catch(e) {
+        console.error('Firestore batch save error:', e);
+        throw e;
+    }
 }
 
 async function loadAllUserDataFromFirestore() {
@@ -2866,8 +2872,9 @@ async function restoreFromBackup(backupId) {
         Object.keys(backupData).forEach(name => {
             allUserData[name] = backupData[name] || [];
         });
+        Object.keys(allUserData).forEach(name => { _computeMetricsForArray(allUserData[name]); });
         currentFinancialData = allUserData[currentUser] || [];
-        saveAllUserData();
+        await saveAllUserData();
         updateAll();
         showToast('Data restored from backup successfully', 'success');
         renderBackupPage();
@@ -3060,12 +3067,12 @@ async function initializeUserManagement() {
         if (!allUserData[name]) allUserData[name] = [];
     });
 
-    // One-time migration: recalculate all metrics and re-save to Firestore (v37)
-    if (!localStorage.getItem('gp_metrics_resync_v37')) {
+    // One-time migration v40: recalculate metrics and save to Firestore (no hardcoded overwrite)
+    if (!localStorage.getItem('gp_metrics_resync_v40')) {
         Object.keys(allUserData).forEach(name => { _computeMetricsForArray(allUserData[name]); });
-        saveAllUserData();
-        localStorage.setItem('gp_metrics_resync_v37', '1');
-        console.log('v37 metrics resync complete — all users re-saved to Firestore');
+        await saveAllUserData();
+        localStorage.setItem('gp_metrics_resync_v40', '1');
+        console.log('v40 metrics resync complete');
     }
 
     setupRealtimeSync();
@@ -5153,10 +5160,14 @@ function uploadBackupFile(event) {
                 Object.keys(backup.data).forEach(name => {
                     allUserData[name] = backup.data[name] || [];
                 });
+                Object.keys(allUserData).forEach(name => { _computeMetricsForArray(allUserData[name]); });
                 currentFinancialData = allUserData[currentUser] || [];
-                saveAllUserData();
+                saveAllUserData().then(() => {
+                    showToast('Data restored from uploaded backup', 'success', 'Restore Complete');
+                }).catch(() => {
+                    showToast('Data restored locally but Firestore sync failed — try again', 'error');
+                });
                 updateAll();
-                showToast('Data restored from uploaded backup', 'success', 'Restore Complete');
                 renderBackupPage();
             } catch(err) {
                 console.error('Backup upload error:', err);
