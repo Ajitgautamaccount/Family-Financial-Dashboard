@@ -3060,7 +3060,7 @@ async function initializeUserManagement() {
         allUserData['Meenu Tyagi'] = [...initialMeenuTyagiData];
         allUserData['Ganga'] = [...initialGangaData];
         localStorage.setItem('gp_initial_seed_done', '1');
-        saveAllUserData();
+        try { await saveAllUserData(); } catch(e) { console.error('Initial seed save failed:', e); }
     }
     // Ensure each user key exists (empty array, NOT hardcoded data) so UI doesn't break
     ['Ajit Gautam', 'Prem Singh', 'Meenu Tyagi', 'Ganga'].forEach(name => {
@@ -3070,7 +3070,7 @@ async function initializeUserManagement() {
     // One-time migration v40: recalculate metrics and save to Firestore (no hardcoded overwrite)
     if (!localStorage.getItem('gp_metrics_resync_v40')) {
         Object.keys(allUserData).forEach(name => { _computeMetricsForArray(allUserData[name]); });
-        await saveAllUserData();
+        try { await saveAllUserData(); } catch(e) { console.error('v40 migration save failed:', e); }
         localStorage.setItem('gp_metrics_resync_v40', '1');
         console.log('v40 metrics resync complete');
     }
