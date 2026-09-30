@@ -1656,13 +1656,6 @@
             <div class="chart-canvas-wrap tall"><canvas id="cumulativeUserChart"></canvas></div>
         </div>
     </div>
-    <div class="chart-grid full">
-        <div class="chart-card">
-            <div class="chart-card-title">Cumulative Return (Candlestick)</div>
-            <div class="chart-canvas-wrap" style="height:380px"><canvas id="cumulativeBarChart"></canvas></div>
-        </div>
-    </div>
-
     <!-- ── INDIVIDUAL YEARLY SUMMARY ── -->
     <div class="section-heading">
         <div class="sh-icon"><svg class="icon icon-lg" aria-hidden="true"><use href="#icon-calendar"/></svg></div>
@@ -2223,7 +2216,7 @@ const initialMeenuTyagiData = [
 const initialGangaData = [];  // Ganga data to be added by user
 
 // ── Chart Instances ──
-let percentageChart, amountChart, cumulativeUserChart, cumulativeBarChart, cumulativeAllUsersChart, overallMonthlyPercentageChart;
+let percentageChart, amountChart, cumulativeUserChart, cumulativeAllUsersChart, overallMonthlyPercentageChart;
 Chart.register(ChartDataLabels);
 
 
@@ -3358,81 +3351,6 @@ function updateCumulativeUserChart() {
     });
 }
 
-function updateCumulativeBarChart() {
-    if (cumulativeBarChart) cumulativeBarChart.destroy();
-    const candles = [];
-    let prevClose = 0;
-    currentFinancialData.forEach(d => {
-        const open = prevClose;
-        const close = open + (d.monthlyReturn || 0);
-        const components = [d.equityReturn||0, d.foReturn||0, d.bondInterest||0, d.commodityReturn||0];
-        let runHi = open, runLo = open, run = open;
-        components.forEach(c => { run += c; if (run > runHi) runHi = run; if (run < runLo) runLo = run; });
-        const high = Math.max(runHi, open, close);
-        const low = Math.min(runLo, open, close);
-        candles.push({ month: d.month, o: open, h: high, l: low, c: close });
-        prevClose = close;
-    });
-    const cLabels = candles.map(c => c.month);
-    const bodyData = candles.map(c => [Math.min(c.o, c.c), Math.max(c.o, c.c)]);
-    const bullish = candles.map(c => c.c >= c.o);
-    const canvas = document.getElementById('cumulativeBarChart');
-    cumulativeBarChart = new Chart(canvas, {
-        type: 'bar',
-        data: {
-            labels: cLabels,
-            datasets: [{
-                label: 'Cumulative Return',
-                data: bodyData,
-                backgroundColor: bullish.map(b => b ? 'rgba(34,160,94,0.85)' : 'rgba(239,68,68,0.85)'),
-                borderColor: bullish.map(b => b ? '#16a34a' : '#dc2626'),
-                borderWidth: 1,
-                borderSkipped: false,
-                barPercentage: 0.6,
-                categoryPercentage: 0.8
-            }]
-        },
-        plugins: [{ id: 'candleWick', afterDatasetsDraw(chart) {
-            const area = chart.chartArea;
-            const meta = chart.getDatasetMeta(0);
-            const ctx = chart.ctx;
-            const yScale = chart.scales.y;
-            ctx.save();
-            meta.data.forEach((bar, i) => {
-                const cd = candles[i];
-                const x = bar.x;
-                const yH = yScale.getPixelForValue(cd.h);
-                const yL = yScale.getPixelForValue(cd.l);
-                ctx.beginPath();
-                ctx.strokeStyle = bullish[i] ? '#16a34a' : '#dc2626';
-                ctx.lineWidth = 1.5;
-                ctx.moveTo(x, yH);
-                ctx.lineTo(x, yL);
-                ctx.stroke();
-            });
-            ctx.restore();
-        }}],
-        options: {
-            ...baseChartConfig,
-            plugins: { ...baseChartConfig.plugins, datalabels: { display: false },
-                tooltip: { callbacks: {
-                    title: (items) => items[0].label,
-                    label: (item) => {
-                        const cd = candles[item.dataIndex];
-                        const f = v => { const a=Math.abs(v); if(a>=10000000)return (v<0?'-':'')+'₹'+(a/10000000).toFixed(2)+'Cr'; if(a>=100000)return (v<0?'-':'')+'₹'+(a/100000).toFixed(2)+'L'; return '₹'+v.toLocaleString('en-IN'); };
-                        return ['Open: '+f(cd.o), 'High: '+f(cd.h), 'Low: '+f(cd.l), 'Close: '+f(cd.c)];
-                    }
-                }}
-            },
-            scales: {
-                ...baseChartConfig.scales,
-                x: { ...baseChartConfig.scales.x, ticks: { ...baseChartConfig.scales.x.ticks, autoSkip: true, maxTicksLimit: 24, maxRotation: 45, minRotation: 30 } },
-                y: { ...baseChartConfig.scales.y, ticks: { ..._mkYTicks(v => { const a=Math.abs(v); if(a>=10000000)return (v<0?'-':'')+'₹'+(a/10000000).toFixed(1)+'Cr'; if(a>=100000)return (v<0?'-':'')+'₹'+(a/100000).toFixed(1)+'L'; return v.toLocaleString('en-IN'); }), stepSize: 1000000, maxTicksLimit: undefined }, border:{display:false} }
-            }
-        }
-    });
-}
-
 // ── Yearly Summary ──
 function calcYearlyForUser(userData) {
     const y = {};
@@ -3860,7 +3778,6 @@ function updateAll() {
     updateTable();
     updateCharts();
     updateCumulativeUserChart();
-    updateCumulativeBarChart();
     displayAllUsersYearlySummaries();
     updateFamilySummaries();
     updateGautamFamilySection();
@@ -5039,7 +4956,7 @@ function showPage(page) {
         if (nav) nav.classList.toggle('active', p === page);
     });
     if (page === 'dashboard') {
-        [percentageChart, amountChart, cumulativeUserChart, cumulativeBarChart, cumulativeAllUsersChart, overallMonthlyPercentageChart].forEach(c => { if (c) c.resize(); });
+        [percentageChart, amountChart, cumulativeUserChart, cumulativeAllUsersChart, overallMonthlyPercentageChart].forEach(c => { if (c) c.resize(); });
     }
     if (page === 'holdings') renderHoldings();
     if (page === 'taxPlanner') renderTaxPlanner();
