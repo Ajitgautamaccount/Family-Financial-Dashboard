@@ -1860,6 +1860,12 @@
         <button onclick="exportHoldingsToExcel()" class="export-btn" title="Export all holdings to Excel">
             ⬇ Export to Excel
         </button>
+        <div class="file-btn-wrap" style="display:inline-block;position:relative;margin-left:8px">
+            <button class="export-btn" title="Upload holdings Excel file" style="background:#0891b2;border-color:#0891b2">
+                ⬆ Upload Holdings
+            </button>
+            <input type="file" id="holdingsFile" accept=".xlsx,.xls,.csv" onchange="uploadHoldings(event)">
+        </div>
     </div>
 
     <!-- Summary strip -->
@@ -1917,7 +1923,7 @@
     <div class="h-section" style="margin-top:44px">
         <div class="h-section-head">
             <div class="h-section-icon gold">🥇</div>
-            <h3>Gold ETF</h3>
+            <h3>Gold &amp; Silver ETF</h3>
             <span class="h-badge" id="goldBadge"></span>
         </div>
         <div class="holdings-table-wrap">
@@ -2461,10 +2467,25 @@ function loadFromLocalCache() {
     } catch(e) { return null; }
 }
 
-function saveUserData() {
+async function saveUserData() {
     if (!currentUser) return;
-    saveToLocalCache();
     const entries = allUserData[currentUser] || [];
+    // Safety: don't overwrite Firestore if local data has fewer entries (likely stale hardcoded fallback)
+    try {
+        const doc = await db.collection(FS_COLLECTION).doc(currentUser).get();
+        if (doc.exists) {
+            const remoteEntries = doc.data().entries || [];
+            if (remoteEntries.length > entries.length) {
+                console.warn('saveUserData blocked: local has', entries.length, 'entries but Firestore has', remoteEntries.length, '— refusing to overwrite with fewer entries');
+                allUserData[currentUser] = remoteEntries;
+                currentFinancialData = remoteEntries;
+                saveToLocalCache();
+                updateAll();
+                return;
+            }
+        }
+    } catch(e) {}
+    saveToLocalCache();
     return db.collection(FS_COLLECTION).doc(currentUser).set({ entries })
         .catch(e => console.error('Firestore save error:', e));
 }
@@ -2498,9 +2519,15 @@ async function loadAllUserDataFromFirestore() {
 
 // Real-time listener — auto-refreshes UI when any device changes Firestore data
 let _fsUnsub = null;
+let _fsFirstSnapshot = true;
 function setupRealtimeSync() {
     if (_fsUnsub) _fsUnsub();
+    _fsFirstSnapshot = true;
     _fsUnsub = db.collection(FS_COLLECTION).onSnapshot(snapshot => {
+        if (_fsFirstSnapshot) {
+            _fsFirstSnapshot = false;
+            return;
+        }
         let changed = false;
         snapshot.docChanges().forEach(change => {
             if (change.type === 'removed') return;
@@ -2782,16 +2809,19 @@ async function initializeUserManagement() {
 
     if (loaded) {
         allUserData = loaded;
-    } else {
+    } else if (!localStorage.getItem('gp_initial_seed_done')) {
+        // True first-ever use: no Firestore data AND no localStorage cache — seed once
         allUserData['Ajit Gautam'] = [...initialAjitData];
         allUserData['Prem Singh'] = [...initialPremSinghData];
         allUserData['Meenu Tyagi'] = [...initialMeenuTyagiData];
         allUserData['Ganga'] = [...initialGangaData];
+        localStorage.setItem('gp_initial_seed_done', '1');
+        saveAllUserData();
     }
-    if (!allUserData['Ajit Gautam']) allUserData['Ajit Gautam'] = [...initialAjitData];
-    if (!allUserData['Prem Singh']) allUserData['Prem Singh'] = [...initialPremSinghData];
-    if (!allUserData['Meenu Tyagi']) allUserData['Meenu Tyagi'] = [...initialMeenuTyagiData];
-    if (!allUserData['Ganga']) allUserData['Ganga'] = [...initialGangaData];
+    // Ensure each user key exists (empty array, NOT hardcoded data) so UI doesn't break
+    ['Ajit Gautam', 'Prem Singh', 'Meenu Tyagi', 'Ganga'].forEach(name => {
+        if (!allUserData[name]) allUserData[name] = [];
+    });
 
     setupRealtimeSync();
     rebuildRadios();
@@ -3903,42 +3933,46 @@ document.addEventListener('focusin', function(e) {
 
 // ── HOLDINGS DATA ──
 const HOLDINGS_BONDS = [
-    { name:'734GS2064',   qty:6350,  avgCost:97.08,  ltp:99.79,  invested:616473.49, curVal:633666.5,  pnl:17193.01,  chgPct:2.79,  coupon:7.34, payMonths:[1,7],     payDay:1  },
-    { name:'IRBINVIT-IV', qty:7600,  avgCost:61.10,  ltp:64.19,  invested:464360,    curVal:487844,    pnl:23484,     chgPct:5.06,  coupon:10,   payMonths:[2,5,8,11],payDay:1,  payFreq:4 },
-    { name:'PGINVIT-IV',  qty:2500,  avgCost:93.04,  ltp:100.01, invested:232600,    curVal:250025,    pnl:17425,     chgPct:7.49,  coupon:10,   payMonths:[2,5,8,11],payDay:1,  payFreq:4 },
-    { name:'709GOI54',    qty:55034, avgCost:102.34, ltp:95.8,   invested:5632410.98,curVal:5272257.2, pnl:-360153.78,chgPct:-6.39, coupon:7.09, payMonths:[2,8],     payDay:5  },
-    { name:'668GS2033',   qty:100,   avgCost:100.05, ltp:100,    invested:10005,     curVal:10000,     pnl:-5,        chgPct:-0.05, coupon:6.68, payMonths:[3,9],     payDay:1  },
-    { name:'92GS2030',    qty:11876, avgCost:115.65, ltp:113.3,  invested:1373479.79,curVal:1345550.8, pnl:-27928.99, chgPct:-2.03, coupon:9.20, payMonths:[3,9],     payDay:30 },
-    { name:'717GS2030',   qty:2000,  avgCost:102.1,  ltp:104.25, invested:204200,    curVal:208500,    pnl:4300,      chgPct:2.11,  coupon:7.17, payMonths:[4,10],    payDay:17 },
-    { name:'633GS2035',   qty:7500,  avgCost:101.48, ltp:101,    invested:761062.5,  curVal:757500,    pnl:-3562.5,   chgPct:-0.47, coupon:6.33, payMonths:[5,11],    payDay:5  },
-    { name:'709GOI74',    qty:94870, avgCost:98.08,  ltp:95.75,  invested:9304557.78,curVal:9083802.5, pnl:-220755.28,chgPct:-2.37, coupon:7.09, payMonths:[5,11],    payDay:25 },
-    { name:'73GS2053',    qty:1000,  avgCost:102.51, ltp:99.6,   invested:102512,    curVal:99600,     pnl:-2912,     chgPct:-2.84, coupon:7.30, payMonths:[6,12],    payDay:19 },
+    { name:'IRBINVIT-IV', qty:7600,  avgCost:61.10,  ltp:64.22,  invested:464360,    curVal:488072,    pnl:23712,     chgPct:5.11,  coupon:10,   payMonths:[2,5,8,11],payDay:1,  payFreq:4 },
+    { name:'PGINVIT-IV',  qty:2500,  avgCost:93.04,  ltp:102.41, invested:232600,    curVal:256025,    pnl:23425,     chgPct:10.07, coupon:10,   payMonths:[2,5,8,11],payDay:1,  payFreq:4 },
+    { name:'709GOI54',    qty:55034, avgCost:102.34, ltp:96.75,  invested:5632410.98,curVal:5324539.5, pnl:-307871.48,chgPct:-5.47, coupon:7.09, payMonths:[2,8],     payDay:5  },
+    { name:'668GS2033',   qty:100,   avgCost:100.05, ltp:99,     invested:10005,     curVal:9900,      pnl:-105,      chgPct:-1.05, coupon:6.68, payMonths:[3,9],     payDay:1  },
+    { name:'92GS2030',    qty:11876, avgCost:115.65, ltp:109.3,  invested:1373479.79,curVal:1298046.8, pnl:-75432.99, chgPct:-5.49, coupon:9.20, payMonths:[3,9],     payDay:30 },
+    { name:'633GS2035',   qty:7500,  avgCost:101.48, ltp:100.35, invested:761062.5,  curVal:752625,    pnl:-8437.5,   chgPct:-1.11, coupon:6.33, payMonths:[5,11],    payDay:5  },
+    { name:'709GOI74',    qty:94870, avgCost:98.08,  ltp:95.2,   invested:9304557.78,curVal:9031624,   pnl:-272933.78,chgPct:-2.93, coupon:7.09, payMonths:[5,11],    payDay:25 },
+    { name:'73GS2053',    qty:1000,  avgCost:102.51, ltp:97.86,  invested:102512,    curVal:97860,     pnl:-4652,     chgPct:-4.54, coupon:7.30, payMonths:[6,12],    payDay:19 },
 ];
 const HOLDINGS_GOLD = [
-    { name:'GOLDETF', qty:1050, avgCost:141.62, ltp:153.76, invested:148702.41, curVal:161448, pnl:12745.59, chgPct:8.57 },
+    { name:'GOLDETF', qty:1250, avgCost:141.77, ltp:143.02, invested:177206.41, curVal:178775, pnl:1568.59, chgPct:0.89 },
+    { name:'SILVER',  qty:170,  avgCost:227.79, ltp:218.96, invested:38723.45,  curVal:37223.2, pnl:-1500.25, chgPct:-3.87 },
 ];
 const HOLDINGS_EQUITY = [
-    { name:'BAJAJFINSV', qty:5,    avgCost:2019.10, ltp:2002,   invested:10095.5,   curVal:10010,    pnl:-85.5,     chgPct:-0.85 },
-    { name:'BDL',        qty:220,  avgCost:1506.48, ltp:1306,   invested:331424.5,  curVal:287320,   pnl:-44104.5,  chgPct:-13.31 },
-    { name:'DELTACORP',  qty:375,  avgCost:140.39,  ltp:59.43,  invested:52645.7,   curVal:22286.25, pnl:-30359.45, chgPct:-57.67 },
-    { name:'DRREDDY',    qty:10,   avgCost:1261.28, ltp:1178,   invested:12612.8,   curVal:11780,    pnl:-832.8,    chgPct:-6.60 },
-    { name:'HDFCBANK',   qty:780,  avgCost:755.56,  ltp:720,    invested:589337.25, curVal:561600,   pnl:-27737.25, chgPct:-4.71 },
-    { name:'HDFCLIFE',   qty:40,   avgCost:647.34,  ltp:548,    invested:25893.5,   curVal:21920,    pnl:-3973.5,   chgPct:-15.35 },
-    { name:'SBIN',       qty:30,   avgCost:987.20,  ltp:1046.05,invested:29616,     curVal:31381.5,  pnl:1765.5,    chgPct:5.96 },
-    { name:'TCS',        qty:150,  avgCost:3214.70, ltp:2344,   invested:482205.35, curVal:351600,   pnl:-130605.35,chgPct:-27.09 },
-    { name:'TITAN',      qty:10,   avgCost:4248.80, ltp:5169.2, invested:42488,     curVal:51692,    pnl:9204,      chgPct:21.66 },
-    { name:'TMPV',       qty:155,  avgCost:458.56,  ltp:319,    invested:71077.33,  curVal:49445,    pnl:-21632.33, chgPct:-30.43 },
-    { name:'VAIBHAVGBL', qty:141,  avgCost:250.08,  ltp:221.55, invested:35261.95,  curVal:31238.55, pnl:-4023.4,   chgPct:-11.41 },
+    { name:'BAJAJFINSV', qty:10,   avgCost:1903.30, ltp:1732.8, invested:19033,     curVal:17328,    pnl:-1705,     chgPct:-8.96 },
+    { name:'BDL',        qty:220,  avgCost:1506.48, ltp:1109.05,invested:331424.5,  curVal:243991,   pnl:-87433.5,  chgPct:-26.38 },
+    { name:'DELTACORP',  qty:375,  avgCost:140.39,  ltp:80.43,  invested:52645.7,   curVal:30161.25, pnl:-22484.45, chgPct:-42.71 },
+    { name:'DRREDDY',    qty:10,   avgCost:1261.28, ltp:1233,   invested:12612.8,   curVal:12330,    pnl:-282.8,    chgPct:-2.24 },
+    { name:'HDFCBANK',   qty:810,  avgCost:753.43,  ltp:708.7,  invested:610274.75, curVal:574047,   pnl:-36227.75, chgPct:-5.94 },
+    { name:'HDFCLIFE',   qty:50,   avgCost:622.72,  ltp:521.2,  invested:31136,     curVal:26060,    pnl:-5076,     chgPct:-16.30 },
+    { name:'IFCI',       qty:750,  avgCost:75.99,   ltp:68.74,  invested:56991.3,   curVal:51555,    pnl:-5436.3,   chgPct:-9.54 },
+    { name:'RELIANCE',   qty:3500, avgCost:1240,    ltp:1187.5, invested:4340000,   curVal:4156250,  pnl:-183750,   chgPct:-4.23 },
+    { name:'SBIN',       qty:30,   avgCost:987.20,  ltp:959.5,  invested:29616,     curVal:28785,    pnl:-831,      chgPct:-2.81 },
+    { name:'TCS',        qty:160,  avgCost:3143.72, ltp:2050,   invested:502995.35, curVal:328000,   pnl:-174995.35,chgPct:-34.79 },
+    { name:'TITAN',      qty:10,   avgCost:4248.80, ltp:4590,   invested:42488,     curVal:45900,    pnl:3412,      chgPct:8.03 },
+    { name:'TMPV',       qty:165,  avgCost:448.90,  ltp:284.85, invested:74068.33,  curVal:47000.25, pnl:-27068.08, chgPct:-36.54 },
+    { name:'VAIBHAVGBL', qty:141,  avgCost:250.08,  ltp:204.32, invested:35261.95,  curVal:28809.12, pnl:-6452.83,  chgPct:-18.30 },
+    { name:'NEXT50IETF', qty:1700, avgCost:75.01,   ltp:73.82,  invested:127517,    curVal:125494,   pnl:-2023,     chgPct:-1.59 },
+    { name:'NIFTYETF',   qty:850,  avgCost:256.38,  ltp:246.56, invested:217923,    curVal:209576,   pnl:-8347,     chgPct:-3.83 },
+    { name:'IT',          qty:700,  avgCost:32.27,   ltp:30.83,  invested:22589,     curVal:21581,    pnl:-1008,     chgPct:-4.46 },
 ];
 const HOLDINGS_MF = [
-    { name:'HDFC Mid Cap Fund',                           units:41.449,    avgNav:197.82,  curNav:236.919,  invested:8199.52,   curVal:9820.06,   pnl:1620.54,  chgPct:19.76 },
-    { name:'HDFC Small Cap Fund',                         units:86.691,    avgNav:140.72,  curNav:160.777,  invested:12199.43,  curVal:13937.92,  pnl:1738.48,  chgPct:14.25 },
-    { name:'ICICI Prudential Liquid Fund',                units:19.824,    avgNav:374.62,  curNav:419.2089, invested:7426.40,   curVal:8310.40,   pnl:884,      chgPct:11.90 },
-    { name:'Motilal Oswal Nifty 50 Index Fund',           units:3783.32,   avgNav:20.35,   curNav:21.0366,  invested:76996.24,  curVal:79588.19,  pnl:2591.95,  chgPct:3.37 },
-    { name:'Nippon India Diversified Equity Flexicap FoF',units:22591.103, avgNav:20.87,   curNav:21.6148,  invested:471575.72, curVal:488302.17, pnl:16726.45, chgPct:3.55 },
-    { name:'Nippon India Nifty 500 Momentum 50 Index',    units:60193.885, avgNav:8.11,    curNav:8.7593,   invested:488124.25, curVal:527256.30, pnl:39132.04, chgPct:8.02 },
-    { name:'Parag Parikh Flexi Cap Fund',                 units:2171.441,  avgNav:84.27,   curNav:90.6865,  invested:182990.81, curVal:196920.38, pnl:13929.58, chgPct:7.61 },
-    { name:'SBI Dividend Yield Fund',                     units:1375.942,  avgNav:14.10,   curNav:16.4697,  invested:19398.99,  curVal:22661.35,  pnl:3262.36,  chgPct:16.82 },
+    { name:'HDFC Mid Cap Fund',                                  units:41.449,    avgNav:197.82,  curNav:221.354,   invested:8199.52,   curVal:9174.90,   pnl:975.39,    chgPct:11.90 },
+    { name:'HDFC Small Cap Fund',                                units:86.691,    avgNav:140.72,  curNav:155.945,   invested:12199.43,  curVal:13519.03,  pnl:1319.59,   chgPct:10.82 },
+    { name:'ICICI Prudential Liquid Fund',                       units:19.824,    avgNav:374.62,  curNav:421.4075,  invested:7426.40,   curVal:8353.98,   pnl:927.58,    chgPct:12.49 },
+    { name:'Motilal Oswal Nifty 50 Index Fund',                  units:3783.32,   avgNav:20.35,   curNav:19.8378,   invested:76996.24,  curVal:75052.75,  pnl:-1943.49,  chgPct:-2.52 },
+    { name:'Nippon India Diversified Equity Flexicap Passive FoF',units:24019.812, avgNav:20.89,   curNav:20.387,    invested:501824.31, curVal:489691.91, pnl:-12132.41, chgPct:-2.42 },
+    { name:'Nippon India Nifty 500 Momentum 50 Index Fund',      units:63714.901, avgNav:8.14,    curNav:8.2828,    invested:518371.69, curVal:527737.78, pnl:9366.09,   chgPct:1.81 },
+    { name:'Parag Parikh Flexi Cap Fund',                        units:2171.441,  avgNav:84.27,   curNav:88.7188,   invested:182990.81, curVal:192647.64, pnl:9656.83,   chgPct:5.28 },
+    { name:'SBI Dividend Yield Fund',                            units:1375.942,  avgNav:14.10,   curNav:15.6542,   invested:19398.99,  curVal:21539.27,  pnl:2140.28,   chgPct:11.03 },
 ];
 
 // Bond coupon payout month names
@@ -4069,6 +4103,137 @@ function exportHoldingsToExcel() {
     XLSX.writeFile(wb, 'Gautam_Holdings_' + dateStr + '.xlsx');
 }
 
+function uploadHoldings(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    event.target.value = '';
+    requirePassword(() => {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const wb = XLSX.read(e.target.result, {type:'binary'});
+                const ws = wb.Sheets[wb.SheetNames[0]];
+                const rows = XLSX.utils.sheet_to_json(ws, {header:1});
+
+                let headerIdx = -1;
+                let colMap = {};
+                for (let i = 0; i < Math.min(rows.length, 10); i++) {
+                    const row = (rows[i] || []).map(c => String(c || '').trim().toLowerCase());
+                    const instrIdx = row.findIndex(c => c === 'instrument' || c === 'fund name');
+                    const qtyIdx = row.findIndex(c => c === 'qty.' || c === 'qty' || c === 'units');
+                    if (instrIdx >= 0 && qtyIdx >= 0) {
+                        headerIdx = i;
+                        colMap.name = instrIdx;
+                        colMap.qty = qtyIdx;
+                        colMap.avgCost = row.findIndex(c => c.includes('avg'));
+                        colMap.ltp = row.findIndex(c => c === 'ltp');
+                        colMap.invested = row.findIndex(c => c.includes('invested'));
+                        colMap.curVal = row.findIndex(c => c.includes('cur'));
+                        colMap.pnl = row.findIndex(c => c.includes('p&l') || c.includes('pnl'));
+                        break;
+                    }
+                }
+                if (headerIdx < 0) {
+                    showToast('Could not find header row with "Instrument" and "Qty." columns', 'error');
+                    return;
+                }
+
+                function parseNum(v) {
+                    if (v == null || v === '') return 0;
+                    let s = String(v).replace(/[₹,\s]/g, '').trim();
+                    const dots = (s.match(/\./g) || []).length;
+                    if (dots > 1) {
+                        const parts = s.split('.');
+                        const dec = parts.pop();
+                        s = parts.join('') + '.' + dec;
+                    }
+                    const n = parseFloat(s);
+                    return isNaN(n) ? 0 : n;
+                }
+
+                const GOLD_SILVER = new Set(['GOLDETF','GOLDBEES','SILVER','SILVERBEES','SILVETF']);
+                const bondNameSet = new Set(HOLDINGS_BONDS.map(b => b.name));
+                const bondRe = /^\d{2,4}G(S|OI)\d{2,4}$/i;
+                const invitRe = /INVIT/i;
+                const mfNameSet = new Set(HOLDINGS_MF.map(m => m.name.toLowerCase()));
+
+                function classify(name) {
+                    const upper = name.toUpperCase();
+                    if (bondNameSet.has(name) || bondRe.test(name) || invitRe.test(name)) return 'bond';
+                    if (GOLD_SILVER.has(upper)) return 'gold';
+                    if (name.includes(' ') && name.split(/\s+/).length > 2) return 'mf';
+                    if (mfNameSet.has(name.toLowerCase())) return 'mf';
+                    return 'equity';
+                }
+
+                const parsed = {bond:[], gold:[], equity:[], mf:[]};
+                for (let i = headerIdx + 1; i < rows.length; i++) {
+                    const row = rows[i];
+                    if (!row || !row[colMap.name]) continue;
+                    const name = String(row[colMap.name]).trim();
+                    if (!name) continue;
+                    const qty = parseNum(row[colMap.qty]);
+                    const avgCost = parseNum(row[colMap.avgCost]);
+                    const ltp = parseNum(row[colMap.ltp]);
+                    const invested = parseNum(row[colMap.invested]);
+                    const curVal = parseNum(row[colMap.curVal]);
+                    const pnl = parseNum(row[colMap.pnl]);
+                    const chgPct = invested ? +((pnl / invested) * 100).toFixed(2) : 0;
+                    const cat = classify(name);
+                    parsed[cat].push({name, qty, avgCost, ltp, invested, curVal, pnl, chgPct});
+                }
+
+                if (parsed.bond.length) {
+                    const oldMap = {};
+                    HOLDINGS_BONDS.forEach(b => oldMap[b.name] = b);
+                    HOLDINGS_BONDS.length = 0;
+                    parsed.bond.forEach(b => {
+                        const old = oldMap[b.name];
+                        HOLDINGS_BONDS.push({
+                            name: b.name, qty: b.qty, avgCost: b.avgCost, ltp: b.ltp,
+                            invested: b.invested, curVal: b.curVal, pnl: b.pnl, chgPct: b.chgPct,
+                            coupon: old ? old.coupon : 0,
+                            payMonths: old ? old.payMonths : [],
+                            payDay: old ? old.payDay : 1,
+                            ...(old && old.payFreq ? {payFreq: old.payFreq} : {})
+                        });
+                    });
+                }
+                if (parsed.gold.length) {
+                    HOLDINGS_GOLD.length = 0;
+                    parsed.gold.forEach(g => HOLDINGS_GOLD.push(g));
+                }
+                if (parsed.equity.length) {
+                    HOLDINGS_EQUITY.length = 0;
+                    parsed.equity.forEach(e => HOLDINGS_EQUITY.push(e));
+                }
+                if (parsed.mf.length) {
+                    HOLDINGS_MF.length = 0;
+                    parsed.mf.forEach(m => {
+                        HOLDINGS_MF.push({
+                            name: m.name, units: m.qty, avgNav: m.avgCost, curNav: m.ltp,
+                            invested: m.invested, curVal: m.curVal, pnl: m.pnl, chgPct: m.chgPct
+                        });
+                    });
+                }
+
+                renderHoldings();
+                const counts = [
+                    parsed.bond.length && `${parsed.bond.length} bonds`,
+                    parsed.gold.length && `${parsed.gold.length} gold/silver`,
+                    parsed.equity.length && `${parsed.equity.length} equity/ETFs`,
+                    parsed.mf.length && `${parsed.mf.length} mutual funds`
+                ].filter(Boolean).join(', ');
+                showToast(`Holdings updated: ${counts}`, 'success', 'Upload Complete');
+            } catch(err) {
+                console.error('Holdings upload error:', err);
+                showToast('Error parsing file: ' + err.message, 'error');
+            }
+        };
+        reader.readAsBinaryString(file);
+    });
+}
+
 function renderHoldings() {
     // ── Bonds ──
     const bTbody = document.getElementById('bondsTbody');
@@ -4146,7 +4311,7 @@ function renderHoldings() {
     ]);
     const gInv=sumField(HOLDINGS_GOLD,'invested'),gVal=sumField(HOLDINGS_GOLD,'curVal'),gPnl=sumField(HOLDINGS_GOLD,'pnl');
     gFoot.innerHTML=`<td><strong>TOTAL</strong></td><td></td><td></td><td></td><td><strong>${fINR(gInv)}</strong></td><td><strong>${fINR(gVal)}</strong></td><td class="${pnlClass(gPnl)}"><strong>${pnlSign(gPnl)}${fINR(gPnl)}</strong></td><td class="${pnlClass(gPnl)}">${pnlSign(gPnl)}${((gPnl/gInv)*100).toFixed(2)}%</td>`;
-    document.getElementById('goldBadge').textContent = HOLDINGS_GOLD.length + ' ETF · ' + fINR(gVal);
+    document.getElementById('goldBadge').textContent = HOLDINGS_GOLD.length + ' ETFs · ' + fINR(gVal);
 
     // ── Equity ──
     const eTbody = document.getElementById('equityTbody'), eFoot = document.getElementById('equityFoot');
@@ -4162,7 +4327,7 @@ function renderHoldings() {
     ]);
     const eInv=sumField(HOLDINGS_EQUITY,'invested'),eVal=sumField(HOLDINGS_EQUITY,'curVal'),ePnl=sumField(HOLDINGS_EQUITY,'pnl');
     eFoot.innerHTML=`<td><strong>TOTAL</strong></td><td></td><td></td><td></td><td><strong>${fINR(eInv)}</strong></td><td><strong>${fINR(eVal)}</strong></td><td class="${pnlClass(ePnl)}"><strong>${pnlSign(ePnl)}${fINR(ePnl)}</strong></td><td class="${pnlClass(ePnl)}">${pnlSign(ePnl)}${((ePnl/eInv)*100).toFixed(2)}%</td>`;
-    document.getElementById('equityBadge').textContent = HOLDINGS_EQUITY.length + ' stocks · ' + fINR(eVal);
+    document.getElementById('equityBadge').textContent = HOLDINGS_EQUITY.length + ' stocks/ETFs · ' + fINR(eVal);
 
     // ── Mutual Funds ──
     const mTbody = document.getElementById('mfTbody'), mFoot = document.getElementById('mfFoot');
@@ -4188,7 +4353,7 @@ function renderHoldings() {
     const pct = v => totalInv > 0 ? (v/totalInv*100).toFixed(1)+'%' : '—';
     document.getElementById('holdingsSummary').innerHTML = `
         <div class="h-stat bonds"><div class="hs-label">Bonds</div><div class="hs-val">${fINR(bVal)} <span style="font-size:13px;font-weight:600;color:#64748b">${pct(bInv)}</span></div><div class="hs-sub ${pnlClass(bPnl)}">${pnlSign(bPnl)}${fINR(bPnl)} P&amp;L</div></div>
-        <div class="h-stat gold"><div class="hs-label">Gold ETF</div><div class="hs-val">${fINR(gVal)} <span style="font-size:13px;font-weight:600;color:#64748b">${pct(gInv)}</span></div><div class="hs-sub ${pnlClass(gPnl)}">${pnlSign(gPnl)}${fINR(gPnl)} P&amp;L</div></div>
+        <div class="h-stat gold"><div class="hs-label">Gold &amp; Silver</div><div class="hs-val">${fINR(gVal)} <span style="font-size:13px;font-weight:600;color:#64748b">${pct(gInv)}</span></div><div class="hs-sub ${pnlClass(gPnl)}">${pnlSign(gPnl)}${fINR(gPnl)} P&amp;L</div></div>
         <div class="h-stat equity"><div class="hs-label">Equity</div><div class="hs-val">${fINR(eVal)} <span style="font-size:13px;font-weight:600;color:#64748b">${pct(eInv)}</span></div><div class="hs-sub ${pnlClass(ePnl)}">${pnlSign(ePnl)}${fINR(ePnl)} P&amp;L</div></div>
         <div class="h-stat mf"><div class="hs-label">Mutual Funds</div><div class="hs-val">${fINR(mVal)} <span style="font-size:13px;font-weight:600;color:#64748b">${pct(mInv)}</span></div><div class="hs-sub ${pnlClass(mPnl)}">${pnlSign(mPnl)}${fINR(mPnl)} P&amp;L</div></div>
         <div class="h-stat" style="border-left-color:#0891b2"><div class="hs-label">Monthly Bond Interest</div><div class="hs-val" style="color:#0891b2">${fINR2(monthlyBondInt)}</div><div class="hs-sub" style="color:#0891b2">Semi-annual payouts</div></div>
