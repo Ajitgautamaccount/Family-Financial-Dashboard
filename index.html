@@ -5988,102 +5988,183 @@ function showTyping() {
 function hideTyping() { const t = document.getElementById('aiTyping'); if (t) t.remove(); }
 
 function gatherFinancialContext() {
+    const fmt = n => { const v = Number(n||0); return (v < 0 ? '-' : '') + '₹' + Math.abs(v).toLocaleString('en-IN', {maximumFractionDigits:0}); };
+    const fmtP = n => Number(n||0).toFixed(2) + '%';
     let ctx = '';
-    const fmt = n => Number(n||0).toLocaleString('en-IN');
-    const users = Object.keys(allUserData);
+
+    // ── Per-user: monthly data + yearly summaries + KPIs ──
+    const users = Object.keys(allUserData).filter(u => allUserData[u] && allUserData[u].length);
     users.forEach(user => {
         const data = allUserData[user];
-        if (!data || !data.length) return;
-        ctx += '\n## ' + user + ' — Monthly Trading Data\n';
-        ctx += 'Month | EquityReturn(₹) | F&OReturn(₹) | BondInterest(₹) | Deposit(₹) | CapitalUsed(₹)\n';
-        ctx += '---|---|---|---|---|---\n';
-        let totalEq = 0, totalFO = 0, totalBond = 0, totalDep = 0;
+        ctx += '\n═══════════════════════════════════\n';
+        ctx += '## ' + user + '\n';
+
+        // Monthly detail
+        ctx += '\n### Monthly Trading Data\n';
+        ctx += 'Month | Equity | F&O | Commodity | Bonds | TotalReturn | Return% | Capital | Deposit\n';
+        let tEq=0, tFO=0, tBond=0, tComm=0, tRet=0, bestMonth=null, worstMonth=null, bestVal=-Infinity, worstVal=Infinity, pctSum=0, tDep=0;
         data.forEach(r => {
-            const eq = Number(r.equityReturn||0), fo = Number(r.foReturn||0);
-            const bi = Number(r.bondInterest||0), dep = Number(r.deposit||0);
-            totalEq += eq; totalFO += fo; totalBond += bi; totalDep += dep;
-            ctx += r.month + ' | ' + fmt(eq) + ' | ' + fmt(fo) + ' | ' + fmt(bi) + ' | ' + fmt(dep) + ' | ' + fmt(r.capitalUsed) + '\n';
+            const eq = Number(r.equityReturn||0), fo = Number(r.foReturn||0), bi = Number(r.bondInterest||0), cm = Number(r.commodityReturn||0);
+            const mr = Number(r.monthlyReturn||(eq+fo+bi+cm)), cap = Number(r.capitalUsed||0), dep = Number(r.deposit||0);
+            const pct = cap > 0 ? (mr/cap*100) : 0;
+            tEq += eq; tFO += fo; tBond += bi; tComm += cm; tRet += mr; pctSum += pct; tDep += dep;
+            if (mr > bestVal) { bestVal = mr; bestMonth = r.month; }
+            if (mr < worstVal) { worstVal = mr; worstMonth = r.month; }
+            ctx += r.month + ' | ' + fmt(eq) + ' | ' + fmt(fo) + ' | ' + fmt(cm) + ' | ' + fmt(bi) + ' | ' + fmt(mr) + ' | ' + fmtP(pct) + ' | ' + fmt(cap) + ' | ' + fmt(dep) + '\n';
         });
-        ctx += 'TOTAL | ' + fmt(totalEq) + ' | ' + fmt(totalFO) + ' | ' + fmt(totalBond) + ' | ' + fmt(totalDep) + ' | —\n';
-        ctx += 'Grand Total Return: ₹' + fmt(totalEq + totalFO + totalBond) + '\n';
+        const lastCap = Number(data[data.length-1].capitalUsed||0);
+        const avgPct = data.length ? pctSum/data.length : 0;
+
+        // Pre-computed summary (THESE ARE FACTS - Gemini should use these directly)
+        ctx += '\n### ' + user + ' — KEY FACTS (use these numbers directly)\n';
+        ctx += '- Total Return (all time): ' + fmt(tRet) + '\n';
+        ctx += '- Equity Return Total: ' + fmt(tEq) + '\n';
+        ctx += '- F&O Return Total: ' + fmt(tFO) + '\n';
+        ctx += '- Commodity Return Total: ' + fmt(tComm) + '\n';
+        ctx += '- Bond Interest Total: ' + fmt(tBond) + '\n';
+        ctx += '- Total Deposits: ' + fmt(tDep) + '\n';
+        ctx += '- Current Capital: ' + fmt(lastCap) + '\n';
+        ctx += '- Average Monthly Return %: ' + fmtP(avgPct) + '\n';
+        ctx += '- Best Month: ' + bestMonth + ' (' + fmt(bestVal) + ')\n';
+        ctx += '- Worst Month: ' + worstMonth + ' (' + fmt(worstVal) + ')\n';
+        ctx += '- Number of months traded: ' + data.length + '\n';
+
+        // Yearly breakdown (same calc as dashboard uses)
+        const yearly = calcYearlyForUser(data);
+        const years = Object.keys(yearly).sort();
+        if (years.length) {
+            ctx += '\n### ' + user + ' — Yearly Summary\n';
+            ctx += 'Year | Equity | F&O | Commodity | Bonds | TotalReturn | AvgCapital | Annualized% | Months\n';
+            years.forEach(yr => {
+                const d = yearly[yr];
+                ctx += yr + ' | ' + fmt(d.equity) + ' | ' + fmt(d.fo) + ' | ' + fmt(d.commodity) + ' | ' + fmt(d.bonds) + ' | ' + fmt(d.total) + ' | ' + fmt(d.avgCapital) + ' | ' + fmtP(d.annualPct) + ' | ' + d.count + '\n';
+            });
+        }
     });
-    ctx += '\n## Holdings — Bonds/Govt Securities\n';
-    ctx += 'Name | Qty | AvgCost | LTP | Invested(₹) | CurVal(₹) | P&L(₹) | Chg% | Coupon%\n';
+
+    // ── Combined family totals ──
+    ctx += '\n═══════════════════════════════════\n';
+    ctx += '## FAMILY COMBINED SUMMARY\n';
+    let grandTotal = 0, grandEq = 0, grandFO = 0, grandBond = 0, grandComm = 0;
+    users.forEach(user => {
+        const data = allUserData[user];
+        data.forEach(r => {
+            grandEq += Number(r.equityReturn||0);
+            grandFO += Number(r.foReturn||0);
+            grandBond += Number(r.bondInterest||0);
+            grandComm += Number(r.commodityReturn||0);
+            grandTotal += Number(r.monthlyReturn || (Number(r.equityReturn||0)+Number(r.foReturn||0)+Number(r.bondInterest||0)+Number(r.commodityReturn||0)));
+        });
+    });
+    ctx += '- Family Total Return: ' + fmt(grandTotal) + '\n';
+    ctx += '- Family Equity Total: ' + fmt(grandEq) + '\n';
+    ctx += '- Family F&O Total: ' + fmt(grandFO) + '\n';
+    ctx += '- Family Commodity Total: ' + fmt(grandComm) + '\n';
+    ctx += '- Family Bond Interest Total: ' + fmt(grandBond) + '\n';
+
+    // ── Holdings ──
+    ctx += '\n═══════════════════════════════════\n';
+    ctx += '## HOLDINGS PORTFOLIO\n';
+    let totalHInv=0, totalHVal=0;
+
+    ctx += '\n### Bonds & Govt Securities\n';
+    ctx += 'Name | Qty | AvgCost | LTP | Invested | CurValue | P&L | Chg% | CouponRate | AnnualInterest\n';
+    let totalBondAnnual = 0;
     HOLDINGS_BONDS.forEach(h => {
-        ctx += h.name + ' | ' + h.qty + ' | ' + h.avgCost + ' | ' + h.ltp + ' | ' + fmt(h.invested) + ' | ' + fmt(h.curVal) + ' | ' + fmt(h.pnl) + ' | ' + h.chgPct + '% | ' + h.coupon + '%\n';
+        const annual = h.payFreq === 4 ? (h.coupon/100*h.invested) : (h.coupon/100*h.qty*100);
+        totalBondAnnual += annual;
+        ctx += h.name + ' | ' + h.qty + ' | ' + h.avgCost + ' | ' + h.ltp + ' | ' + fmt(h.invested) + ' | ' + fmt(h.curVal) + ' | ' + fmt(h.pnl) + ' | ' + fmtP(h.chgPct) + ' | ' + h.coupon + '% | ' + fmt(annual) + '/yr\n';
+        totalHInv += h.invested; totalHVal += h.curVal;
     });
-    ctx += '\n## Holdings — Gold & Silver\n';
-    ctx += 'Name | Qty | AvgCost | LTP | Invested(₹) | CurVal(₹) | P&L(₹) | Chg%\n';
+    ctx += 'Total Annual Bond/Coupon Income: ' + fmt(totalBondAnnual) + ' (' + fmt(totalBondAnnual/12) + '/month)\n';
+
+    ctx += '\n### Gold & Silver ETFs\n';
     HOLDINGS_GOLD.forEach(h => {
-        ctx += h.name + ' | ' + h.qty + ' | ' + h.avgCost + ' | ' + h.ltp + ' | ' + fmt(h.invested) + ' | ' + fmt(h.curVal) + ' | ' + fmt(h.pnl) + ' | ' + h.chgPct + '%\n';
+        ctx += h.name + ' | Qty:' + h.qty + ' | Invested:' + fmt(h.invested) + ' | CurVal:' + fmt(h.curVal) + ' | P&L:' + fmt(h.pnl) + ' | ' + fmtP(h.chgPct) + '\n';
+        totalHInv += h.invested; totalHVal += h.curVal;
     });
-    ctx += '\n## Holdings — Equity Stocks\n';
-    ctx += 'Name | Qty | AvgCost | LTP | Invested(₹) | CurVal(₹) | P&L(₹) | Chg%\n';
+
+    ctx += '\n### Equity Stocks & ETFs\n';
+    ctx += 'Name | Qty | AvgCost | LTP | Invested | CurValue | P&L | Chg%\n';
+    let eqInv=0, eqVal=0;
     HOLDINGS_EQUITY.forEach(h => {
-        ctx += h.name + ' | ' + h.qty + ' | ' + h.avgCost + ' | ' + h.ltp + ' | ' + fmt(h.invested) + ' | ' + fmt(h.curVal) + ' | ' + fmt(h.pnl) + ' | ' + h.chgPct + '%\n';
+        ctx += h.name + ' | ' + h.qty + ' | ' + h.avgCost + ' | ' + h.ltp + ' | ' + fmt(h.invested) + ' | ' + fmt(h.curVal) + ' | ' + fmt(h.pnl) + ' | ' + fmtP(h.chgPct) + '\n';
+        eqInv += h.invested; eqVal += h.curVal; totalHInv += h.invested; totalHVal += h.curVal;
     });
-    ctx += '\n## Holdings — Mutual Funds\n';
-    ctx += 'Name | Units | AvgNAV | CurNAV | Invested(₹) | CurVal(₹) | P&L(₹) | Chg%\n';
+    ctx += 'Equity Total: Invested=' + fmt(eqInv) + ', Current=' + fmt(eqVal) + ', P&L=' + fmt(eqVal-eqInv) + '\n';
+
+    ctx += '\n### Mutual Funds\n';
+    ctx += 'Name | Units | AvgNAV | CurNAV | Invested | CurValue | P&L | Chg%\n';
+    let mfInv=0, mfVal=0;
     HOLDINGS_MF.forEach(h => {
-        ctx += h.name + ' | ' + h.units + ' | ' + h.avgNav + ' | ' + h.curNav + ' | ' + fmt(h.invested) + ' | ' + fmt(h.curVal) + ' | ' + fmt(h.pnl) + ' | ' + h.chgPct + '%\n';
+        ctx += h.name + ' | ' + h.units + ' | ' + h.avgNav + ' | ' + h.curNav + ' | ' + fmt(h.invested) + ' | ' + fmt(h.curVal) + ' | ' + fmt(h.pnl) + ' | ' + fmtP(h.chgPct) + '\n';
+        mfInv += h.invested; mfVal += h.curVal; totalHInv += h.invested; totalHVal += h.curVal;
     });
-    let totalHoldingsInvested = 0, totalHoldingsCurVal = 0;
-    [HOLDINGS_BONDS, HOLDINGS_GOLD, HOLDINGS_EQUITY, HOLDINGS_MF].forEach(arr => {
-        arr.forEach(h => { totalHoldingsInvested += Number(h.invested||0); totalHoldingsCurVal += Number(h.curVal||0); });
-    });
-    ctx += '\nTotal Holdings: Invested=₹' + fmt(totalHoldingsInvested) + ', Current=₹' + fmt(totalHoldingsCurVal) + ', P&L=₹' + fmt(totalHoldingsCurVal - totalHoldingsInvested) + '\n';
-    ctx += '\n## Tax Defaults\n';
+    ctx += 'MF Total: Invested=' + fmt(mfInv) + ', Current=' + fmt(mfVal) + ', P&L=' + fmt(mfVal-mfInv) + '\n';
+
+    ctx += '\n### PORTFOLIO TOTALS\n';
+    ctx += '- Total Invested: ' + fmt(totalHInv) + '\n';
+    ctx += '- Total Current Value: ' + fmt(totalHVal) + '\n';
+    ctx += '- Total P&L: ' + fmt(totalHVal-totalHInv) + ' (' + fmtP((totalHVal-totalHInv)/totalHInv*100) + ')\n';
+    const bInv = HOLDINGS_BONDS.reduce((s,h)=>s+h.invested,0);
+    const gInv = HOLDINGS_GOLD.reduce((s,h)=>s+h.invested,0);
+    ctx += '- Allocation: Bonds=' + fmtP(bInv/totalHInv*100) + ', Equity=' + fmtP(eqInv/totalHInv*100) + ', MF=' + fmtP(mfInv/totalHInv*100) + ', Gold=' + fmtP(gInv/totalHInv*100) + '\n';
+
+    // ── Tax ──
+    ctx += '\n═══════════════════════════════════\n';
+    ctx += '## TAX INFORMATION\n';
     for (const [user, t] of Object.entries(TAX_USER_DEFAULTS)) {
-        ctx += user + ': IncomeType=' + t.fixedType + ', AnnualIncome=₹' + fmt(t.annual) + '\n';
+        ctx += user + ': IncomeType=' + t.fixedType + ', AnnualIncome=' + fmt(t.annual);
+        if (t.fixedType === 'salary') ctx += ' (Salary from MNC)';
+        if (t.fixedType === 'pension') ctx += ' (Pension from Bank of Baroda)';
+        ctx += '\n';
     }
+    ctx += '\nTax Rules Used:\n';
+    ctx += '- STCG (equity held <12 months): taxed at 20%\n';
+    ctx += '- LTCG (equity held >12 months): taxed at 12.5%\n';
+    ctx += '- F&O income: treated as business income, taxed at slab rates\n';
+    ctx += '- Bond interest: taxed at slab rates\n';
+    ctx += '- Monthly target return: 1.5% of capital\n';
+    ctx += '- New Tax Regime standard deduction: ₹75,000\n';
+    ctx += '- New Regime slabs: 0-4L(0%), 4-8L(5%), 8-12L(10%), 12-16L(15%), 16-20L(20%), 20-24L(25%), 24L+(30%)\n';
+
+    // ── LLP Plan ──
     const llpEl = document.getElementById('llpPlanPage');
     if (llpEl) {
-        ctx += '\n## LLP Plan (Gautam Capital LLP)\n';
-        const sections = llpEl.querySelectorAll('.section-heading');
-        sections.forEach(sh => {
-            ctx += '\n### ' + sh.textContent.trim() + '\n';
-            let sib = sh.nextElementSibling;
-            while (sib && !sib.classList.contains('section-heading')) {
-                if (sib.tagName === 'TABLE' || sib.querySelector('table')) {
-                    const tbl = sib.tagName === 'TABLE' ? sib : sib.querySelector('table');
-                    tbl.querySelectorAll('tr').forEach(r => {
-                        ctx += Array.from(r.querySelectorAll('th,td')).map(c => c.textContent.trim()).join(' | ') + '\n';
-                    });
-                } else if (sib.tagName === 'UL' || sib.tagName === 'OL') {
-                    sib.querySelectorAll('li').forEach(li => { ctx += '- ' + li.textContent.trim() + '\n'; });
-                }
-                sib = sib.nextElementSibling;
-            }
-        });
+        ctx += '\n═══════════════════════════════════\n';
+        ctx += '## LLP PLAN — Gautam Capital LLP\n';
+        const allText = llpEl.innerText;
+        if (allText) ctx += allText.substring(0, 3000) + '\n';
     }
     return ctx;
 }
 
 function buildSystemPrompt() {
     const ctx = gatherFinancialContext();
-    return 'You are Dharohar AI, the Gautam family\'s personal financial assistant. You have COMPLETE access to their financial data below. Always base your answers STRICTLY on this data — never estimate or assume figures.\n\n'
+    return 'You are Dharohar AI, the Gautam family\'s trusted financial assistant.\n\n'
+        + 'CRITICAL INSTRUCTION: The data below contains PRE-COMPUTED totals, yearly summaries, KPIs, and portfolio values. '
+        + 'These numbers are ALREADY CALCULATED by the dashboard engine. You MUST quote them EXACTLY as given. '
+        + 'NEVER attempt to re-add, re-sum, or recalculate any figures — the data already contains the correct answers. '
+        + 'If a question asks for a total, look for the "KEY FACTS" or "Yearly Summary" sections — the answer is there.\n\n'
         + 'FAMILY MEMBERS:\n'
-        + '- Ajit Gautam: CA, currently on delegation in Germany from Indian MNC, salary ₹40L/year. Returns to India July 2027.\n'
+        + '- Ajit Gautam: Chartered Accountant (CA), on German delegation from Indian MNC, salary ₹40L/year. Returns to India July 2027.\n'
         + '- Meenu Tyagi: Ajit\'s wife, ex-Program Manager, will resume MNC work after India return.\n'
         + '- Prem Singh: Ajit\'s father, Ex-Bank of Baroda Manager, pension ₹55K/month (₹6.6L/year).\n'
-        + '- Ganga: Ajit\'s mother, homemaker, no independent income.\n\n'
-        + 'DATA DICTIONARY:\n'
-        + '- equityReturn: Monthly profit/loss from equity (cash) trading in ₹\n'
-        + '- foReturn: Monthly profit/loss from F&O (futures & options) trading in ₹\n'
-        + '- bondInterest: Monthly interest received from bond/govt securities holdings in ₹\n'
-        + '- deposit: Fresh capital added to trading account that month in ₹\n'
-        + '- capitalUsed: Total capital deployed in trading account at month end in ₹\n'
-        + '- Holdings show invested cost, current value, P&L, and % change\n\n'
-        + 'RULES:\n'
-        + '- ALWAYS cite exact numbers from the data. Never round unless asked.\n'
-        + '- Use Indian Rupee format: ₹X,XX,XXX (Indian numbering — lakhs and crores).\n'
-        + '- When calculating returns, use: (equityReturn + foReturn + bondInterest) as total monthly return.\n'
-        + '- When calculating % return for a month: totalReturn / capitalUsed × 100.\n'
-        + '- Be concise. Use markdown bold and bullet lists for clarity.\n'
-        + '- Politely decline questions unrelated to the financial data.\n'
-        + '- Use family members\' first names (Ajit, Meenu, Prem, Ganga).\n\n'
+        + '- Ganga: Ajit\'s mother, homemaker, no independent income.\n'
+        + '- All 4 members have separate trading accounts managed by Ajit.\n\n'
+        + 'HOW TO ANSWER:\n'
+        + '1. For "total return" or "how much earned" → use the "Total Return (all time)" from KEY FACTS.\n'
+        + '2. For yearly questions → use the "Yearly Summary" table.\n'
+        + '3. For best/worst month → use KEY FACTS "Best Month" / "Worst Month".\n'
+        + '4. For holdings/portfolio → use PORTFOLIO TOTALS section.\n'
+        + '5. For comparing members → compare their respective KEY FACTS.\n'
+        + '6. For tax questions → use TAX INFORMATION section.\n'
+        + '7. For family total → use FAMILY COMBINED SUMMARY.\n'
+        + '8. Always use ₹ with Indian numbering (lakhs, crores).\n'
+        + '9. Be concise. Use **bold** and bullet lists.\n'
+        + '10. Politely decline questions unrelated to family finances.\n\n'
         + 'CURRENT USER VIEWING: ' + (typeof currentUser !== 'undefined' ? currentUser : 'Unknown') + '\n\n'
-        + 'COMPLETE FINANCIAL DATA:\n' + ctx;
+        + ctx;
 }
 
 async function sendAiMessage() {
