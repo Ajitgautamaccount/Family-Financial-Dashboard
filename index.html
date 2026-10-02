@@ -5989,63 +5989,101 @@ function hideTyping() { const t = document.getElementById('aiTyping'); if (t) t.
 
 function gatherFinancialContext() {
     let ctx = '';
+    const fmt = n => Number(n||0).toLocaleString('en-IN');
     const users = Object.keys(allUserData);
     users.forEach(user => {
         const data = allUserData[user];
         if (!data || !data.length) return;
-        ctx += '\n## ' + user + ' — Trading Data\n';
-        ctx += 'Month | Equity% | F&O% | BondInt | Deposit | Capital\n';
+        ctx += '\n## ' + user + ' — Monthly Trading Data\n';
+        ctx += 'Month | EquityReturn(₹) | F&OReturn(₹) | BondInterest(₹) | Deposit(₹) | CapitalUsed(₹)\n';
+        ctx += '---|---|---|---|---|---\n';
+        let totalEq = 0, totalFO = 0, totalBond = 0, totalDep = 0;
         data.forEach(r => {
-            ctx += r.month + ' | ' + (r.equityPct||0) + '% | ' + (r.fnoPct||0) + '% | '
-                + (r.bondInterest||0) + ' | ' + (r.deposit||0) + ' | ' + (r.capitalUsed||0) + '\n';
+            const eq = Number(r.equityReturn||0), fo = Number(r.foReturn||0);
+            const bi = Number(r.bondInterest||0), dep = Number(r.deposit||0);
+            totalEq += eq; totalFO += fo; totalBond += bi; totalDep += dep;
+            ctx += r.month + ' | ' + fmt(eq) + ' | ' + fmt(fo) + ' | ' + fmt(bi) + ' | ' + fmt(dep) + ' | ' + fmt(r.capitalUsed) + '\n';
         });
+        ctx += 'TOTAL | ' + fmt(totalEq) + ' | ' + fmt(totalFO) + ' | ' + fmt(totalBond) + ' | ' + fmt(totalDep) + ' | —\n';
+        ctx += 'Grand Total Return: ₹' + fmt(totalEq + totalFO + totalBond) + '\n';
     });
-    ctx += '\n## Holdings\n';
-    const hGroups = {Bonds: typeof HOLDINGS_BONDS!=='undefined'?HOLDINGS_BONDS:[], Gold: typeof HOLDINGS_GOLD!=='undefined'?HOLDINGS_GOLD:[], Equity: typeof HOLDINGS_EQUITY!=='undefined'?HOLDINGS_EQUITY:[], MutualFunds: typeof HOLDINGS_MF!=='undefined'?HOLDINGS_MF:[]};
-    for (const [cat, items] of Object.entries(hGroups)) {
-        if (!items.length) continue;
-        ctx += '\n### ' + cat + '\n';
-        items.forEach(h => {
-            ctx += '- ' + (h.name||h.bond||h.fund||'') + ': Invested=' + (h.invested||h.faceValue||0) + ', Current=' + (h.current||h.currentValue||0);
-            if (h.qty) ctx += ', Qty=' + h.qty;
-            if (h.rate) ctx += ', Rate=' + h.rate + '%';
-            ctx += '\n';
-        });
-    }
+    ctx += '\n## Holdings — Bonds/Govt Securities\n';
+    ctx += 'Name | Qty | AvgCost | LTP | Invested(₹) | CurVal(₹) | P&L(₹) | Chg% | Coupon%\n';
+    HOLDINGS_BONDS.forEach(h => {
+        ctx += h.name + ' | ' + h.qty + ' | ' + h.avgCost + ' | ' + h.ltp + ' | ' + fmt(h.invested) + ' | ' + fmt(h.curVal) + ' | ' + fmt(h.pnl) + ' | ' + h.chgPct + '% | ' + h.coupon + '%\n';
+    });
+    ctx += '\n## Holdings — Gold & Silver\n';
+    ctx += 'Name | Qty | AvgCost | LTP | Invested(₹) | CurVal(₹) | P&L(₹) | Chg%\n';
+    HOLDINGS_GOLD.forEach(h => {
+        ctx += h.name + ' | ' + h.qty + ' | ' + h.avgCost + ' | ' + h.ltp + ' | ' + fmt(h.invested) + ' | ' + fmt(h.curVal) + ' | ' + fmt(h.pnl) + ' | ' + h.chgPct + '%\n';
+    });
+    ctx += '\n## Holdings — Equity Stocks\n';
+    ctx += 'Name | Qty | AvgCost | LTP | Invested(₹) | CurVal(₹) | P&L(₹) | Chg%\n';
+    HOLDINGS_EQUITY.forEach(h => {
+        ctx += h.name + ' | ' + h.qty + ' | ' + h.avgCost + ' | ' + h.ltp + ' | ' + fmt(h.invested) + ' | ' + fmt(h.curVal) + ' | ' + fmt(h.pnl) + ' | ' + h.chgPct + '%\n';
+    });
+    ctx += '\n## Holdings — Mutual Funds\n';
+    ctx += 'Name | Units | AvgNAV | CurNAV | Invested(₹) | CurVal(₹) | P&L(₹) | Chg%\n';
+    HOLDINGS_MF.forEach(h => {
+        ctx += h.name + ' | ' + h.units + ' | ' + h.avgNav + ' | ' + h.curNav + ' | ' + fmt(h.invested) + ' | ' + fmt(h.curVal) + ' | ' + fmt(h.pnl) + ' | ' + h.chgPct + '%\n';
+    });
+    let totalHoldingsInvested = 0, totalHoldingsCurVal = 0;
+    [HOLDINGS_BONDS, HOLDINGS_GOLD, HOLDINGS_EQUITY, HOLDINGS_MF].forEach(arr => {
+        arr.forEach(h => { totalHoldingsInvested += Number(h.invested||0); totalHoldingsCurVal += Number(h.curVal||0); });
+    });
+    ctx += '\nTotal Holdings: Invested=₹' + fmt(totalHoldingsInvested) + ', Current=₹' + fmt(totalHoldingsCurVal) + ', P&L=₹' + fmt(totalHoldingsCurVal - totalHoldingsInvested) + '\n';
     ctx += '\n## Tax Defaults\n';
     for (const [user, t] of Object.entries(TAX_USER_DEFAULTS)) {
-        ctx += user + ': ' + t.fixedType + ', Annual=' + t.annual + '\n';
+        ctx += user + ': IncomeType=' + t.fixedType + ', AnnualIncome=₹' + fmt(t.annual) + '\n';
     }
     const llpEl = document.getElementById('llpPlanPage');
     if (llpEl) {
-        const tables = llpEl.querySelectorAll('table');
-        if (tables.length) {
-            ctx += '\n## LLP Plan\n';
-            tables.forEach(tbl => {
-                const rows = tbl.querySelectorAll('tr');
-                rows.forEach(r => {
-                    const cells = r.querySelectorAll('th,td');
-                    ctx += Array.from(cells).map(c => c.textContent.trim()).join(' | ') + '\n';
-                });
-                ctx += '\n';
-            });
-        }
+        ctx += '\n## LLP Plan (Gautam Capital LLP)\n';
+        const sections = llpEl.querySelectorAll('.section-heading');
+        sections.forEach(sh => {
+            ctx += '\n### ' + sh.textContent.trim() + '\n';
+            let sib = sh.nextElementSibling;
+            while (sib && !sib.classList.contains('section-heading')) {
+                if (sib.tagName === 'TABLE' || sib.querySelector('table')) {
+                    const tbl = sib.tagName === 'TABLE' ? sib : sib.querySelector('table');
+                    tbl.querySelectorAll('tr').forEach(r => {
+                        ctx += Array.from(r.querySelectorAll('th,td')).map(c => c.textContent.trim()).join(' | ') + '\n';
+                    });
+                } else if (sib.tagName === 'UL' || sib.tagName === 'OL') {
+                    sib.querySelectorAll('li').forEach(li => { ctx += '- ' + li.textContent.trim() + '\n'; });
+                }
+                sib = sib.nextElementSibling;
+            }
+        });
     }
     return ctx;
 }
 
 function buildSystemPrompt() {
     const ctx = gatherFinancialContext();
-    return 'You are Dharohar AI, a knowledgeable financial assistant for the Gautam family\'s investment dashboard. You have access to all their financial data.\n\n'
+    return 'You are Dharohar AI, the Gautam family\'s personal financial assistant. You have COMPLETE access to their financial data below. Always base your answers STRICTLY on this data — never estimate or assume figures.\n\n'
+        + 'FAMILY MEMBERS:\n'
+        + '- Ajit Gautam: CA, currently on delegation in Germany from Indian MNC, salary ₹40L/year. Returns to India July 2027.\n'
+        + '- Meenu Tyagi: Ajit\'s wife, ex-Program Manager, will resume MNC work after India return.\n'
+        + '- Prem Singh: Ajit\'s father, Ex-Bank of Baroda Manager, pension ₹55K/month (₹6.6L/year).\n'
+        + '- Ganga: Ajit\'s mother, homemaker, no independent income.\n\n'
+        + 'DATA DICTIONARY:\n'
+        + '- equityReturn: Monthly profit/loss from equity (cash) trading in ₹\n'
+        + '- foReturn: Monthly profit/loss from F&O (futures & options) trading in ₹\n'
+        + '- bondInterest: Monthly interest received from bond/govt securities holdings in ₹\n'
+        + '- deposit: Fresh capital added to trading account that month in ₹\n'
+        + '- capitalUsed: Total capital deployed in trading account at month end in ₹\n'
+        + '- Holdings show invested cost, current value, P&L, and % change\n\n'
         + 'RULES:\n'
-        + '- Answer questions about investments, trading performance, holdings, tax planning, and LLP plan. Be specific with numbers.\n'
-        + '- Use Indian Rupee format: ₹X,XX,XXX (Indian numbering system).\n'
-        + '- Be concise but thorough. Use markdown formatting (bold, lists) for clarity.\n'
+        + '- ALWAYS cite exact numbers from the data. Never round unless asked.\n'
+        + '- Use Indian Rupee format: ₹X,XX,XXX (Indian numbering — lakhs and crores).\n'
+        + '- When calculating returns, use: (equityReturn + foReturn + bondInterest) as total monthly return.\n'
+        + '- When calculating % return for a month: totalReturn / capitalUsed × 100.\n'
+        + '- Be concise. Use markdown bold and bullet lists for clarity.\n'
         + '- Politely decline questions unrelated to the financial data.\n'
-        + '- Use family members\' first names.\n'
-        + '- If data doesn\'t cover the question, say so honestly.\n\n'
-        + 'CURRENT USER: ' + (typeof currentUser !== 'undefined' ? currentUser : 'Unknown') + '\n\n'
-        + 'FINANCIAL DATA:\n' + ctx;
+        + '- Use family members\' first names (Ajit, Meenu, Prem, Ganga).\n\n'
+        + 'CURRENT USER VIEWING: ' + (typeof currentUser !== 'undefined' ? currentUser : 'Unknown') + '\n\n'
+        + 'COMPLETE FINANCIAL DATA:\n' + ctx;
 }
 
 async function sendAiMessage() {
@@ -6069,7 +6107,7 @@ async function sendAiMessage() {
         const reqBody = JSON.stringify({
             system_instruction: { parts: [{ text: buildSystemPrompt() }] },
             contents: aiChatHistory,
-            generationConfig: { temperature: 0.7, maxOutputTokens: 1024, topP: 0.95 }
+            generationConfig: { temperature: 0.3, maxOutputTokens: 2048, topP: 0.95 }
         });
         let res, lastErr;
         for (const model of AI_MODELS) {
