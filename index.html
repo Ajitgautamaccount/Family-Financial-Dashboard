@@ -1711,6 +1711,9 @@
         <button class="page-nav-btn" onclick="showPage('backup')" id="navBackup">
             <svg class="icon" aria-hidden="true"><use href="#icon-shield"/></svg> Backup
         </button>
+        <button class="page-nav-btn" onclick="showPage('llpPlan')" id="navLlpPlan">
+            <svg class="icon" aria-hidden="true"><use href="#icon-table"/></svg> LLP Plan
+        </button>
         <label class="dark-toggle" id="darkToggle" title="Toggle dark mode" style="margin-left:auto">
             <input type="checkbox" id="darkModeCheck" onchange="toggleDarkMode(this.checked)">
             <span class="dt-track">
@@ -2250,6 +2253,480 @@
 
     <div class="footer" style="margin-top:48px">Gautam Family Financial Dashboard &copy; 2026</div>
 </div><!-- /backupPage -->
+
+<!-- ── LLP PLAN PAGE ── -->
+<div class="container" id="llpPlanPage" style="display:none">
+
+    <div class="section-heading" style="margin-top:24px">
+        <div class="sh-icon" style="background:linear-gradient(135deg,#1e3a5f,#2563eb)">&#127970;</div>
+        <h2>Gautam Capital LLP &mdash; Master Plan</h2>
+        <div class="sh-line"></div>
+    </div>
+
+    <div class="panel" style="background:linear-gradient(135deg,#eff6ff,#f0fdf4);border-left:4px solid var(--gold);margin-bottom:24px">
+        <h3 style="margin:0 0 8px;color:#1e3a5f;font-family:'Playfair Display',serif">Why LLP?</h3>
+        <p style="margin:0;color:#334155;line-height:1.7">
+            A Limited Liability Partnership (LLP) is the optimal structure for our family's proprietary trading. It provides
+            <strong>no double taxation</strong> (unlike Pvt Ltd), <strong>limited liability</strong> (unlike Partnership Firm),
+            <strong>business expense deductions</strong> on trading costs, and <strong>income splitting</strong> across 4 members to
+            minimize each person's tax slab. No SEBI registration needed since we trade only our own family capital.
+        </p>
+    </div>
+
+    <!-- NRI / GERMANY STATUS -->
+    <div class="section-heading">
+        <div class="sh-icon" style="background:#dbeafe">&#127758;</div>
+        <h2>NRI Status &amp; Germany Considerations</h2>
+        <div class="sh-line"></div>
+    </div>
+    <div class="panel" style="margin-bottom:24px">
+        <table style="width:100%;border-collapse:collapse">
+            <thead><tr style="background:#f1f5f9">
+                <th style="text-align:left;padding:10px 14px;border-bottom:2px solid #cbd5e1;color:#1e3a5f">Parameter</th>
+                <th style="text-align:left;padding:10px 14px;border-bottom:2px solid #cbd5e1;color:#1e3a5f">Current Status</th>
+                <th style="text-align:left;padding:10px 14px;border-bottom:2px solid #cbd5e1;color:#1e3a5f">Impact</th>
+            </tr></thead>
+            <tbody>
+                <tr><td style="padding:10px 14px;border-bottom:1px solid #e2e8f0"><strong>Ajit's Location</strong></td>
+                    <td style="padding:10px 14px;border-bottom:1px solid #e2e8f0">Germany (MNC Delegation)</td>
+                    <td style="padding:10px 14px;border-bottom:1px solid #e2e8f0">NRI u/s 6 if in India &lt;182 days in FY. LLP formation must wait till India return</td></tr>
+                <tr style="background:#f8fafc"><td style="padding:10px 14px;border-bottom:1px solid #e2e8f0"><strong>India Return</strong></td>
+                    <td style="padding:10px 14px;border-bottom:1px solid #e2e8f0">July 2027</td>
+                    <td style="padding:10px 14px;border-bottom:1px solid #e2e8f0">FY 2027-28: Resident if 182+ days in India (Jul-Mar = ~270 days). Becomes resident from FY 27-28</td></tr>
+                <tr><td style="padding:10px 14px;border-bottom:1px solid #e2e8f0"><strong>NRI Tax on Indian Income</strong></td>
+                    <td style="padding:10px 14px;border-bottom:1px solid #e2e8f0">FY 2026-27</td>
+                    <td style="padding:10px 14px;border-bottom:1px solid #e2e8f0">Ajit's salary earned in Germany is NOT taxable in India. Only Indian-sourced income (trading, bonds) is taxable</td></tr>
+                <tr style="background:#f8fafc"><td style="padding:10px 14px;border-bottom:1px solid #e2e8f0"><strong>DTAA (India-Germany)</strong></td>
+                    <td style="padding:10px 14px;border-bottom:1px solid #e2e8f0">Active</td>
+                    <td style="padding:10px 14px;border-bottom:1px solid #e2e8f0">Avoid double taxation. Claim credit for German tax paid on salary against Indian tax liability</td></tr>
+                <tr><td style="padding:10px 14px;border-bottom:1px solid #e2e8f0"><strong>LLP Incorporation</strong></td>
+                    <td style="padding:10px 14px;border-bottom:1px solid #e2e8f0">After return</td>
+                    <td style="padding:10px 14px;border-bottom:1px solid #e2e8f0">At least 1 Designated Partner must be Indian resident. Ajit qualifies only after Jul 2027. Prem can be DP from day 1</td></tr>
+                <tr style="background:#f8fafc"><td style="padding:10px 14px;border-bottom:1px solid #e2e8f0"><strong>MNC Employment + LLP</strong></td>
+                    <td style="padding:10px 14px;border-bottom:1px solid #e2e8f0">Fully Legal</td>
+                    <td style="padding:10px 14px;border-bottom:1px solid #e2e8f0">Indian law allows salaried persons to be LLP partners. Disclose to MNC HR &mdash; no conflict if LLP does proprietary trading</td></tr>
+                <tr><td style="padding:10px 14px;border-bottom:1px solid #e2e8f0"><strong>Meenu's Employment</strong></td>
+                    <td style="padding:10px 14px;border-bottom:1px solid #e2e8f0">Will resume work (Program Manager) post Jul 2027</td>
+                    <td style="padding:10px 14px;border-bottom:1px solid #e2e8f0">Her MNC salary becomes additional income; LLP salary should be adjusted to keep her total under optimal slab</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- MEMBER DESIGNATIONS -->
+    <div class="section-heading">
+        <div class="sh-icon" style="background:#ede9fe">&#128101;</div>
+        <h2>Partner Designations &amp; Roles</h2>
+        <div class="sh-line"></div>
+    </div>
+    <div class="panel" style="margin-bottom:24px">
+        <table style="width:100%;border-collapse:collapse">
+            <thead><tr style="background:#f1f5f9">
+                <th style="text-align:left;padding:10px 14px;border-bottom:2px solid #cbd5e1;color:#1e3a5f">Partner</th>
+                <th style="text-align:left;padding:10px 14px;border-bottom:2px solid #cbd5e1;color:#1e3a5f">Designation</th>
+                <th style="text-align:left;padding:10px 14px;border-bottom:2px solid #cbd5e1;color:#1e3a5f">Role</th>
+                <th style="text-align:left;padding:10px 14px;border-bottom:2px solid #cbd5e1;color:#1e3a5f">Background</th>
+                <th style="text-align:center;padding:10px 14px;border-bottom:2px solid #cbd5e1;color:#1e3a5f">Profit %</th>
+            </tr></thead>
+            <tbody>
+                <tr><td style="padding:10px 14px;border-bottom:1px solid #e2e8f0"><strong>Ajit Gautam</strong></td>
+                    <td style="padding:10px 14px;border-bottom:1px solid #e2e8f0">Designated Partner &amp; CIO</td>
+                    <td style="padding:10px 14px;border-bottom:1px solid #e2e8f0">Strategy, F&amp;O trading, portfolio allocation, MCA signatory</td>
+                    <td style="padding:10px 14px;border-bottom:1px solid #e2e8f0">Chartered Accountant, MNC professional</td>
+                    <td style="text-align:center;padding:10px 14px;border-bottom:1px solid #e2e8f0"><strong>40%</strong></td></tr>
+                <tr style="background:#f8fafc"><td style="padding:10px 14px;border-bottom:1px solid #e2e8f0"><strong>Meenu Tyagi</strong></td>
+                    <td style="padding:10px 14px;border-bottom:1px solid #e2e8f0">Designated Partner &amp; CFO</td>
+                    <td style="padding:10px 14px;border-bottom:1px solid #e2e8f0">Compliance, accounting, bank operations, tax coordination</td>
+                    <td style="padding:10px 14px;border-bottom:1px solid #e2e8f0">Ex-MNC Program Manager (will resume MNC job post Jul 2027)</td>
+                    <td style="text-align:center;padding:10px 14px;border-bottom:1px solid #e2e8f0"><strong>25%</strong></td></tr>
+                <tr><td style="padding:10px 14px;border-bottom:1px solid #e2e8f0"><strong>Prem Singh</strong></td>
+                    <td style="padding:10px 14px;border-bottom:1px solid #e2e8f0">Partner &amp; Senior Advisor</td>
+                    <td style="padding:10px 14px;border-bottom:1px solid #e2e8f0">Bond &amp; equity research, risk oversight, banking liaison</td>
+                    <td style="padding:10px 14px;border-bottom:1px solid #e2e8f0">Ex-Bank Manager, Bank of Baroda (30+ yrs banking expertise)</td>
+                    <td style="text-align:center;padding:10px 14px;border-bottom:1px solid #e2e8f0"><strong>25%</strong></td></tr>
+                <tr style="background:#f8fafc"><td style="padding:10px 14px;border-bottom:1px solid #e2e8f0"><strong>Ganga</strong></td>
+                    <td style="padding:10px 14px;border-bottom:1px solid #e2e8f0">Partner &amp; Operations Manager</td>
+                    <td style="padding:10px 14px;border-bottom:1px solid #e2e8f0">Record-keeping, KYC, document management, expense tracking</td>
+                    <td style="padding:10px 14px;border-bottom:1px solid #e2e8f0">Homemaker, administrative support</td>
+                    <td style="text-align:center;padding:10px 14px;border-bottom:1px solid #e2e8f0"><strong>10%</strong></td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- SALARY DISTRIBUTION -->
+    <div class="section-heading">
+        <div class="sh-icon" style="background:#dcfce7">&#128176;</div>
+        <h2>Optimal Salary Distribution</h2>
+        <div class="sh-line"></div>
+    </div>
+    <div class="panel" style="margin-bottom:12px;border-left:4px solid #22c55e">
+        <p style="margin:0 0 8px;color:#334155;font-size:13px"><strong>Sec 40(b) Maximum Deductible Salary:</strong> On book profit of ~&#8377;52.4L &rarr; First &#8377;3L at 90% + balance at 60% = <strong>&#8377;32.34L combined limit</strong></p>
+    </div>
+
+    <div class="panel" style="margin-bottom:8px">
+        <h3 style="margin:0 0 12px;color:#1e3a5f;font-family:'Playfair Display',serif">Phase 1: While Ajit is Employed (Aug 2027 &rarr; Dec 2030)</h3>
+        <p style="margin:0 0 12px;color:#64748b;font-size:13px">Ajit already in 30% slab from MNC salary &mdash; giving him LLP salary wastes the deduction. Maximize salary to other 3 members. Meenu's LLP salary adjusted since she will also draw MNC salary.</p>
+        <table style="width:100%;border-collapse:collapse">
+            <thead><tr style="background:#f1f5f9">
+                <th style="text-align:left;padding:10px 14px;border-bottom:2px solid #cbd5e1;color:#1e3a5f">Partner</th>
+                <th style="text-align:right;padding:10px 14px;border-bottom:2px solid #cbd5e1;color:#1e3a5f">LLP Salary/Yr</th>
+                <th style="text-align:right;padding:10px 14px;border-bottom:2px solid #cbd5e1;color:#1e3a5f">Other Income</th>
+                <th style="text-align:right;padding:10px 14px;border-bottom:2px solid #cbd5e1;color:#1e3a5f">Total Income</th>
+                <th style="text-align:right;padding:10px 14px;border-bottom:2px solid #cbd5e1;color:#1e3a5f">Tax (New Regime)</th>
+            </tr></thead>
+            <tbody>
+                <tr><td style="padding:10px 14px;border-bottom:1px solid #e2e8f0"><strong>Ajit</strong></td>
+                    <td style="text-align:right;padding:10px 14px;border-bottom:1px solid #e2e8f0">&#8377;0</td>
+                    <td style="text-align:right;padding:10px 14px;border-bottom:1px solid #e2e8f0">&#8377;40L (MNC)</td>
+                    <td style="text-align:right;padding:10px 14px;border-bottom:1px solid #e2e8f0">&#8377;40,00,000</td>
+                    <td style="text-align:right;padding:10px 14px;border-bottom:1px solid #e2e8f0;color:#dc2626">&#8377;8,91,800</td></tr>
+                <tr style="background:#f8fafc"><td style="padding:10px 14px;border-bottom:1px solid #e2e8f0"><strong>Meenu</strong></td>
+                    <td style="text-align:right;padding:10px 14px;border-bottom:1px solid #e2e8f0">&#8377;5,00,000</td>
+                    <td style="text-align:right;padding:10px 14px;border-bottom:1px solid #e2e8f0">&#8377;6-8L (MNC job)</td>
+                    <td style="text-align:right;padding:10px 14px;border-bottom:1px solid #e2e8f0">&#8377;11-13,00,000</td>
+                    <td style="text-align:right;padding:10px 14px;border-bottom:1px solid #e2e8f0;color:#16a34a">&#8377;0 &ndash; &#8377;52K</td></tr>
+                <tr><td style="padding:10px 14px;border-bottom:1px solid #e2e8f0"><strong>Prem</strong></td>
+                    <td style="text-align:right;padding:10px 14px;border-bottom:1px solid #e2e8f0">&#8377;12,00,000</td>
+                    <td style="text-align:right;padding:10px 14px;border-bottom:1px solid #e2e8f0">&#8377;6.6L (Pension)</td>
+                    <td style="text-align:right;padding:10px 14px;border-bottom:1px solid #e2e8f0">&#8377;18,60,000</td>
+                    <td style="text-align:right;padding:10px 14px;border-bottom:1px solid #e2e8f0;color:#dc2626">&#8377;3,02,000</td></tr>
+                <tr style="background:#f8fafc"><td style="padding:10px 14px;border-bottom:1px solid #e2e8f0"><strong>Ganga</strong></td>
+                    <td style="text-align:right;padding:10px 14px;border-bottom:1px solid #e2e8f0">&#8377;12,00,000</td>
+                    <td style="text-align:right;padding:10px 14px;border-bottom:1px solid #e2e8f0">Nil</td>
+                    <td style="text-align:right;padding:10px 14px;border-bottom:1px solid #e2e8f0">&#8377;12,00,000</td>
+                    <td style="text-align:right;padding:10px 14px;border-bottom:1px solid #e2e8f0;color:#16a34a">&#8377;0 (87A rebate)</td></tr>
+                <tr style="background:#eff6ff;font-weight:700"><td style="padding:10px 14px;border-top:2px solid #cbd5e1">Total Salary</td>
+                    <td style="text-align:right;padding:10px 14px;border-top:2px solid #cbd5e1">&#8377;29,00,000</td>
+                    <td style="text-align:right;padding:10px 14px;border-top:2px solid #cbd5e1"></td>
+                    <td style="text-align:right;padding:10px 14px;border-top:2px solid #cbd5e1"></td>
+                    <td style="text-align:right;padding:10px 14px;border-top:2px solid #cbd5e1;color:#dc2626">+ &#8377;7.3L LLP tax</td></tr>
+            </tbody>
+        </table>
+        <p style="margin:12px 0 0;color:#64748b;font-size:13px"><strong>Total Family Tax (Phase 1):</strong> ~&#8377;19.5L &nbsp;|&nbsp; <strong>Without LLP:</strong> ~&#8377;27-28L &nbsp;|&nbsp; <span style="color:#16a34a;font-weight:700">Annual Saving: ~&#8377;8-9L</span></p>
+    </div>
+
+    <div class="panel" style="margin-bottom:24px">
+        <h3 style="margin:0 0 12px;color:#1e3a5f;font-family:'Playfair Display',serif">Phase 2: After Ajit Quits (Jan 2031 onward)</h3>
+        <p style="margin:0 0 12px;color:#64748b;font-size:13px">Ajit leaves MNC. All income flows through LLP. Meenu may continue her job or join LLP full-time &mdash; salary adjusted accordingly.</p>
+        <table style="width:100%;border-collapse:collapse">
+            <thead><tr style="background:#f1f5f9">
+                <th style="text-align:left;padding:10px 14px;border-bottom:2px solid #cbd5e1;color:#1e3a5f">Partner</th>
+                <th style="text-align:right;padding:10px 14px;border-bottom:2px solid #cbd5e1;color:#1e3a5f">LLP Salary/Yr</th>
+                <th style="text-align:right;padding:10px 14px;border-bottom:2px solid #cbd5e1;color:#1e3a5f">Other Income</th>
+                <th style="text-align:right;padding:10px 14px;border-bottom:2px solid #cbd5e1;color:#1e3a5f">Total Income</th>
+                <th style="text-align:right;padding:10px 14px;border-bottom:2px solid #cbd5e1;color:#1e3a5f">Tax</th>
+            </tr></thead>
+            <tbody>
+                <tr><td style="padding:10px 14px;border-bottom:1px solid #e2e8f0"><strong>Ajit</strong></td>
+                    <td style="text-align:right;padding:10px 14px;border-bottom:1px solid #e2e8f0">&#8377;12,00,000</td>
+                    <td style="text-align:right;padding:10px 14px;border-bottom:1px solid #e2e8f0">Nil</td>
+                    <td style="text-align:right;padding:10px 14px;border-bottom:1px solid #e2e8f0">&#8377;12,00,000</td>
+                    <td style="text-align:right;padding:10px 14px;border-bottom:1px solid #e2e8f0;color:#16a34a">&#8377;0</td></tr>
+                <tr style="background:#f8fafc"><td style="padding:10px 14px;border-bottom:1px solid #e2e8f0"><strong>Meenu</strong></td>
+                    <td style="text-align:right;padding:10px 14px;border-bottom:1px solid #e2e8f0">&#8377;5-12,00,000</td>
+                    <td style="text-align:right;padding:10px 14px;border-bottom:1px solid #e2e8f0">&#8377;0-8L (if MNC)</td>
+                    <td style="text-align:right;padding:10px 14px;border-bottom:1px solid #e2e8f0">&#8377;12,00,000</td>
+                    <td style="text-align:right;padding:10px 14px;border-bottom:1px solid #e2e8f0;color:#16a34a">&#8377;0</td></tr>
+                <tr><td style="padding:10px 14px;border-bottom:1px solid #e2e8f0"><strong>Prem</strong></td>
+                    <td style="text-align:right;padding:10px 14px;border-bottom:1px solid #e2e8f0">&#8377;5,40,000</td>
+                    <td style="text-align:right;padding:10px 14px;border-bottom:1px solid #e2e8f0">&#8377;6.6L (Pension)</td>
+                    <td style="text-align:right;padding:10px 14px;border-bottom:1px solid #e2e8f0">&#8377;12,00,000</td>
+                    <td style="text-align:right;padding:10px 14px;border-bottom:1px solid #e2e8f0;color:#16a34a">&#8377;0</td></tr>
+                <tr style="background:#f8fafc"><td style="padding:10px 14px;border-bottom:1px solid #e2e8f0"><strong>Ganga</strong></td>
+                    <td style="text-align:right;padding:10px 14px;border-bottom:1px solid #e2e8f0">&#8377;2-12,00,000</td>
+                    <td style="text-align:right;padding:10px 14px;border-bottom:1px solid #e2e8f0">Nil</td>
+                    <td style="text-align:right;padding:10px 14px;border-bottom:1px solid #e2e8f0">&#8377;2-12,00,000</td>
+                    <td style="text-align:right;padding:10px 14px;border-bottom:1px solid #e2e8f0;color:#16a34a">&#8377;0</td></tr>
+                <tr style="background:#f0fdf4;font-weight:700"><td colspan="4" style="padding:10px 14px;border-top:2px solid #cbd5e1">Total Family Tax (all personal + LLP level ~&#8377;6.3L)</td>
+                    <td style="text-align:right;padding:10px 14px;border-top:2px solid #cbd5e1;color:#16a34a">~&#8377;6,25,000</td></tr>
+            </tbody>
+        </table>
+        <p style="margin:12px 0 0;color:#64748b;font-size:13px"><strong>Key:</strong> Keep each partner's total income at or below &#8377;12L to get 87A rebate = &#8377;0 personal tax. Only LLP-level 30% tax applies on retained profit. Adjust Meenu's LLP salary inversely to her MNC salary.</p>
+    </div>
+
+    <!-- DEDUCTIBLE EXPENSES -->
+    <div class="section-heading">
+        <div class="sh-icon" style="background:#fef3c7">&#128203;</div>
+        <h2>LLP Deductible Expenses</h2>
+        <div class="sh-line"></div>
+    </div>
+    <div class="panel" style="margin-bottom:24px">
+        <table style="width:100%;border-collapse:collapse">
+            <thead><tr style="background:#f1f5f9">
+                <th style="text-align:center;padding:10px 8px;border-bottom:2px solid #cbd5e1;color:#1e3a5f;width:30px">#</th>
+                <th style="text-align:left;padding:10px 14px;border-bottom:2px solid #cbd5e1;color:#1e3a5f">Expense Category</th>
+                <th style="text-align:right;padding:10px 14px;border-bottom:2px solid #cbd5e1;color:#1e3a5f">Est. Annual</th>
+                <th style="text-align:left;padding:10px 14px;border-bottom:2px solid #cbd5e1;color:#1e3a5f">Tax Section</th>
+                <th style="text-align:left;padding:10px 14px;border-bottom:2px solid #cbd5e1;color:#1e3a5f">Notes</th>
+            </tr></thead>
+            <tbody>
+                <tr><td style="text-align:center;padding:8px;border-bottom:1px solid #e2e8f0">1</td>
+                    <td style="padding:8px 14px;border-bottom:1px solid #e2e8f0">Home Office Rent</td>
+                    <td style="text-align:right;padding:8px 14px;border-bottom:1px solid #e2e8f0">&#8377;1.8-3.6L</td>
+                    <td style="padding:8px 14px;border-bottom:1px solid #e2e8f0">Sec 30</td>
+                    <td style="padding:8px 14px;border-bottom:1px solid #e2e8f0">Leave-and-license to LLP if self-owned</td></tr>
+                <tr style="background:#f8fafc"><td style="text-align:center;padding:8px;border-bottom:1px solid #e2e8f0">2</td>
+                    <td style="padding:8px 14px;border-bottom:1px solid #e2e8f0">Internet &amp; Broadband</td>
+                    <td style="text-align:right;padding:8px 14px;border-bottom:1px solid #e2e8f0">&#8377;24-36K</td>
+                    <td style="padding:8px 14px;border-bottom:1px solid #e2e8f0">Sec 37(1)</td>
+                    <td style="padding:8px 14px;border-bottom:1px solid #e2e8f0">100% if dedicated line; 50-70% if shared</td></tr>
+                <tr><td style="text-align:center;padding:8px;border-bottom:1px solid #e2e8f0">3</td>
+                    <td style="padding:8px 14px;border-bottom:1px solid #e2e8f0">Mobile Phones (2-3 lines)</td>
+                    <td style="text-align:right;padding:8px 14px;border-bottom:1px solid #e2e8f0">&#8377;24-48K</td>
+                    <td style="padding:8px 14px;border-bottom:1px solid #e2e8f0">Sec 37(1)</td>
+                    <td style="padding:8px 14px;border-bottom:1px solid #e2e8f0">Business-use proportion</td></tr>
+                <tr style="background:#f8fafc"><td style="text-align:center;padding:8px;border-bottom:1px solid #e2e8f0">4</td>
+                    <td style="padding:8px 14px;border-bottom:1px solid #e2e8f0">Trading Terminals &amp; Software</td>
+                    <td style="text-align:right;padding:8px 14px;border-bottom:1px solid #e2e8f0">&#8377;30K-1L</td>
+                    <td style="padding:8px 14px;border-bottom:1px solid #e2e8f0">Sec 37(1)</td>
+                    <td style="padding:8px 14px;border-bottom:1px solid #e2e8f0">Zerodha, Kotak Neo, Sensibull, Opstra</td></tr>
+                <tr><td style="text-align:center;padding:8px;border-bottom:1px solid #e2e8f0">5</td>
+                    <td style="padding:8px 14px;border-bottom:1px solid #e2e8f0">Data &amp; Research Subscriptions</td>
+                    <td style="text-align:right;padding:8px 14px;border-bottom:1px solid #e2e8f0">&#8377;15-40K</td>
+                    <td style="padding:8px 14px;border-bottom:1px solid #e2e8f0">Sec 37(1)</td>
+                    <td style="padding:8px 14px;border-bottom:1px solid #e2e8f0">Screener, Trendlyne, Moneycontrol Pro</td></tr>
+                <tr style="background:#f8fafc"><td style="text-align:center;padding:8px;border-bottom:1px solid #e2e8f0">6</td>
+                    <td style="padding:8px 14px;border-bottom:1px solid #e2e8f0">Computers &amp; Monitors (40% dep.)</td>
+                    <td style="text-align:right;padding:8px 14px;border-bottom:1px solid #e2e8f0">&#8377;40-80K</td>
+                    <td style="padding:8px 14px;border-bottom:1px solid #e2e8f0">Sec 32</td>
+                    <td style="padding:8px 14px;border-bottom:1px solid #e2e8f0">Depreciation on IT assets at 40%/year</td></tr>
+                <tr><td style="text-align:center;padding:8px;border-bottom:1px solid #e2e8f0">7</td>
+                    <td style="padding:8px 14px;border-bottom:1px solid #e2e8f0">Furniture &amp; Office Equipment (10% dep.)</td>
+                    <td style="text-align:right;padding:8px 14px;border-bottom:1px solid #e2e8f0">&#8377;10-20K</td>
+                    <td style="padding:8px 14px;border-bottom:1px solid #e2e8f0">Sec 32</td>
+                    <td style="padding:8px 14px;border-bottom:1px solid #e2e8f0">Desk, chair, shelves for office</td></tr>
+                <tr style="background:#f8fafc"><td style="text-align:center;padding:8px;border-bottom:1px solid #e2e8f0">8</td>
+                    <td style="padding:8px 14px;border-bottom:1px solid #e2e8f0">Electricity (proportional)</td>
+                    <td style="text-align:right;padding:8px 14px;border-bottom:1px solid #e2e8f0">&#8377;24-48K</td>
+                    <td style="padding:8px 14px;border-bottom:1px solid #e2e8f0">Sec 37(1)</td>
+                    <td style="padding:8px 14px;border-bottom:1px solid #e2e8f0">Pro-rata based on office sq.ft.</td></tr>
+                <tr><td style="text-align:center;padding:8px;border-bottom:1px solid #e2e8f0">9</td>
+                    <td style="padding:8px 14px;border-bottom:1px solid #e2e8f0">CA / Tax Professional Fees</td>
+                    <td style="text-align:right;padding:8px 14px;border-bottom:1px solid #e2e8f0">&#8377;50K-1L</td>
+                    <td style="padding:8px 14px;border-bottom:1px solid #e2e8f0">Sec 37(1)</td>
+                    <td style="padding:8px 14px;border-bottom:1px solid #e2e8f0">Annual compliance &amp; filing</td></tr>
+                <tr style="background:#f8fafc"><td style="text-align:center;padding:8px;border-bottom:1px solid #e2e8f0">10</td>
+                    <td style="padding:8px 14px;border-bottom:1px solid #e2e8f0">Audit Fees</td>
+                    <td style="text-align:right;padding:8px 14px;border-bottom:1px solid #e2e8f0">&#8377;25-50K</td>
+                    <td style="padding:8px 14px;border-bottom:1px solid #e2e8f0">Sec 37(1)</td>
+                    <td style="padding:8px 14px;border-bottom:1px solid #e2e8f0">Mandatory if T/O &gt;&#8377;10Cr or profit &lt;6%</td></tr>
+                <tr><td style="text-align:center;padding:8px;border-bottom:1px solid #e2e8f0">11</td>
+                    <td style="padding:8px 14px;border-bottom:1px solid #e2e8f0">Travel (broker meets, AGMs, seminars)</td>
+                    <td style="text-align:right;padding:8px 14px;border-bottom:1px solid #e2e8f0">&#8377;50K-1L</td>
+                    <td style="padding:8px 14px;border-bottom:1px solid #e2e8f0">Sec 37(1)</td>
+                    <td style="padding:8px 14px;border-bottom:1px solid #e2e8f0">Keep purpose log &amp; all bills</td></tr>
+                <tr style="background:#f8fafc"><td style="text-align:center;padding:8px;border-bottom:1px solid #e2e8f0">12</td>
+                    <td style="padding:8px 14px;border-bottom:1px solid #e2e8f0">Training, NISM Exams, Courses</td>
+                    <td style="text-align:right;padding:8px 14px;border-bottom:1px solid #e2e8f0">&#8377;15-50K</td>
+                    <td style="padding:8px 14px;border-bottom:1px solid #e2e8f0">Sec 37(1)</td>
+                    <td style="padding:8px 14px;border-bottom:1px solid #e2e8f0">Skill enhancement for trading</td></tr>
+                <tr><td style="text-align:center;padding:8px;border-bottom:1px solid #e2e8f0">13</td>
+                    <td style="padding:8px 14px;border-bottom:1px solid #e2e8f0">Newspapers, Journals, Books</td>
+                    <td style="text-align:right;padding:8px 14px;border-bottom:1px solid #e2e8f0">&#8377;10-20K</td>
+                    <td style="padding:8px 14px;border-bottom:1px solid #e2e8f0">Sec 37(1)</td>
+                    <td style="padding:8px 14px;border-bottom:1px solid #e2e8f0">Financial publications</td></tr>
+                <tr style="background:#f8fafc"><td style="text-align:center;padding:8px;border-bottom:1px solid #e2e8f0">14</td>
+                    <td style="padding:8px 14px;border-bottom:1px solid #e2e8f0">STT on F&amp;O + Brokerage + DP Charges</td>
+                    <td style="text-align:right;padding:8px 14px;border-bottom:1px solid #e2e8f0">As actuals</td>
+                    <td style="padding:8px 14px;border-bottom:1px solid #e2e8f0">Sec 36</td>
+                    <td style="padding:8px 14px;border-bottom:1px solid #e2e8f0">Direct trading costs, fully deductible</td></tr>
+                <tr><td style="text-align:center;padding:8px;border-bottom:1px solid #e2e8f0">15</td>
+                    <td style="padding:8px 14px;border-bottom:1px solid #e2e8f0">Business Insurance</td>
+                    <td style="text-align:right;padding:8px 14px;border-bottom:1px solid #e2e8f0">&#8377;10-25K</td>
+                    <td style="padding:8px 14px;border-bottom:1px solid #e2e8f0">Sec 36(1)(i)</td>
+                    <td style="padding:8px 14px;border-bottom:1px solid #e2e8f0">Professional indemnity, fire/theft for equipment</td></tr>
+                <tr style="background:#eff6ff;font-weight:700"><td style="text-align:center;padding:10px 8px;border-top:2px solid #cbd5e1"></td>
+                    <td style="padding:10px 14px;border-top:2px solid #cbd5e1">TOTAL ESTIMATED DEDUCTIONS</td>
+                    <td style="text-align:right;padding:10px 14px;border-top:2px solid #cbd5e1;color:#16a34a">&#8377;5-10L/year</td>
+                    <td style="padding:10px 14px;border-top:2px solid #cbd5e1"></td>
+                    <td style="padding:10px 14px;border-top:2px solid #cbd5e1">Tax saved: &#8377;1.5-3L at 30% rate</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- PHASED TIMELINE -->
+    <div class="section-heading">
+        <div class="sh-icon" style="background:#e0f2fe">&#128197;</div>
+        <h2>Phased Implementation Timeline</h2>
+        <div class="sh-line"></div>
+    </div>
+
+    <div class="panel" style="margin-bottom:12px;border-left:4px solid #3b82f6">
+        <h3 style="margin:0 0 8px;color:#1e3a5f;font-size:15px">&#127758; Phase 0: Germany Period (Now &rarr; Jun 2027)</h3>
+        <table style="width:100%;border-collapse:collapse">
+            <tbody>
+                <tr><td style="padding:6px 14px;border-bottom:1px solid #e2e8f0;width:30px"><input type="checkbox"></td>
+                    <td style="padding:6px 14px;border-bottom:1px solid #e2e8f0">File FY 2026-27 ITR as NRI &mdash; Ajit's German salary NOT taxable in India</td>
+                    <td style="padding:6px 14px;border-bottom:1px solid #e2e8f0;color:#64748b;white-space:nowrap">By Jul 2027</td></tr>
+                <tr><td style="padding:6px 14px;border-bottom:1px solid #e2e8f0"><input type="checkbox"></td>
+                    <td style="padding:6px 14px;border-bottom:1px solid #e2e8f0">Research CA firms experienced in LLP formation for trading entities</td>
+                    <td style="padding:6px 14px;border-bottom:1px solid #e2e8f0;color:#64748b;white-space:nowrap">Mar-Jun 2027</td></tr>
+                <tr><td style="padding:6px 14px;border-bottom:1px solid #e2e8f0"><input type="checkbox"></td>
+                    <td style="padding:6px 14px;border-bottom:1px solid #e2e8f0">Harvest equity losses (&#8377;5.6L unrealized) before year-end for tax offset</td>
+                    <td style="padding:6px 14px;border-bottom:1px solid #e2e8f0;color:#64748b;white-space:nowrap">Before Mar 2027</td></tr>
+                <tr><td style="padding:6px 14px;border-bottom:1px solid #e2e8f0"><input type="checkbox"></td>
+                    <td style="padding:6px 14px;border-bottom:1px solid #e2e8f0">Prepare LLP Agreement draft with CA (name, capital, profit ratio, salary clauses)</td>
+                    <td style="padding:6px 14px;border-bottom:1px solid #e2e8f0;color:#64748b;white-space:nowrap">May-Jun 2027</td></tr>
+                <tr><td style="padding:6px 14px;border-bottom:1px solid #e2e8f0"><input type="checkbox"></td>
+                    <td style="padding:6px 14px;border-bottom:1px solid #e2e8f0">Apply for DSC (Digital Signature Certificate) for Ajit &amp; Meenu</td>
+                    <td style="padding:6px 14px;border-bottom:1px solid #e2e8f0;color:#64748b;white-space:nowrap">Jun 2027</td></tr>
+                <tr><td style="padding:6px 14px;border-bottom:1px solid #e2e8f0"><input type="checkbox"></td>
+                    <td style="padding:6px 14px;border-bottom:1px solid #e2e8f0">Meenu to start job search for Program Manager roles in India</td>
+                    <td style="padding:6px 14px;border-bottom:1px solid #e2e8f0;color:#64748b;white-space:nowrap">Apr-Jun 2027</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="panel" style="margin-bottom:12px;border-left:4px solid #8b5cf6">
+        <h3 style="margin:0 0 8px;color:#1e3a5f;font-size:15px">&#127968; Phase 1: India Return &amp; LLP Setup (Jul &rarr; Dec 2027)</h3>
+        <table style="width:100%;border-collapse:collapse">
+            <tbody>
+                <tr><td style="padding:6px 14px;border-bottom:1px solid #e2e8f0;width:30px"><input type="checkbox"></td>
+                    <td style="padding:6px 14px;border-bottom:1px solid #e2e8f0">Return to India &mdash; become Resident for FY 2027-28 (182+ days: Jul-Mar)</td>
+                    <td style="padding:6px 14px;border-bottom:1px solid #e2e8f0;color:#64748b;white-space:nowrap">Jul 2027</td></tr>
+                <tr><td style="padding:6px 14px;border-bottom:1px solid #e2e8f0"><input type="checkbox"></td>
+                    <td style="padding:6px 14px;border-bottom:1px solid #e2e8f0">Incorporate LLP on MCA portal (FiLLiP form). DP1: Prem (already resident), DP2: Ajit</td>
+                    <td style="padding:6px 14px;border-bottom:1px solid #e2e8f0;color:#64748b;white-space:nowrap">Aug 2027</td></tr>
+                <tr><td style="padding:6px 14px;border-bottom:1px solid #e2e8f0"><input type="checkbox"></td>
+                    <td style="padding:6px 14px;border-bottom:1px solid #e2e8f0">Obtain LLP PAN, TAN. Open LLP current account &amp; demat account</td>
+                    <td style="padding:6px 14px;border-bottom:1px solid #e2e8f0;color:#64748b;white-space:nowrap">Aug-Sep 2027</td></tr>
+                <tr><td style="padding:6px 14px;border-bottom:1px solid #e2e8f0"><input type="checkbox"></td>
+                    <td style="padding:6px 14px;border-bottom:1px solid #e2e8f0">Disclose LLP partnership to MNC HR (formal email/letter)</td>
+                    <td style="padding:6px 14px;border-bottom:1px solid #e2e8f0;color:#64748b;white-space:nowrap">Aug 2027</td></tr>
+                <tr><td style="padding:6px 14px;border-bottom:1px solid #e2e8f0"><input type="checkbox"></td>
+                    <td style="padding:6px 14px;border-bottom:1px solid #e2e8f0">Register for GST if F&amp;O turnover qualifies (&gt;&#8377;20L)</td>
+                    <td style="padding:6px 14px;border-bottom:1px solid #e2e8f0;color:#64748b;white-space:nowrap">Sep 2027</td></tr>
+                <tr><td style="padding:6px 14px;border-bottom:1px solid #e2e8f0"><input type="checkbox"></td>
+                    <td style="padding:6px 14px;border-bottom:1px solid #e2e8f0">Meenu joins new MNC role as Program Manager</td>
+                    <td style="padding:6px 14px;border-bottom:1px solid #e2e8f0;color:#64748b;white-space:nowrap">Aug-Oct 2027</td></tr>
+                <tr><td style="padding:6px 14px;border-bottom:1px solid #e2e8f0"><input type="checkbox"></td>
+                    <td style="padding:6px 14px;border-bottom:1px solid #e2e8f0">Set up accounting (Tally/Zoho Books) &amp; start billing expenses through LLP</td>
+                    <td style="padding:6px 14px;border-bottom:1px solid #e2e8f0;color:#64748b;white-space:nowrap">Sep 2027</td></tr>
+                <tr><td style="padding:6px 14px;border-bottom:1px solid #e2e8f0"><input type="checkbox"></td>
+                    <td style="padding:6px 14px;border-bottom:1px solid #e2e8f0">Begin paying salary to Prem, Meenu &amp; Ganga from LLP account</td>
+                    <td style="padding:6px 14px;border-bottom:1px solid #e2e8f0;color:#64748b;white-space:nowrap">Oct 2027</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="panel" style="margin-bottom:12px;border-left:4px solid #22c55e">
+        <h3 style="margin:0 0 8px;color:#1e3a5f;font-size:15px">&#128200; Phase 2: LLP Operations + MNC Job (2028 &rarr; Dec 2030)</h3>
+        <table style="width:100%;border-collapse:collapse">
+            <tbody>
+                <tr><td style="padding:6px 14px;border-bottom:1px solid #e2e8f0;width:30px"><input type="checkbox"></td>
+                    <td style="padding:6px 14px;border-bottom:1px solid #e2e8f0">File LLP Annual Return (Form 11) by May 30 each year</td>
+                    <td style="padding:6px 14px;border-bottom:1px solid #e2e8f0;color:#64748b;white-space:nowrap">Yearly</td></tr>
+                <tr><td style="padding:6px 14px;border-bottom:1px solid #e2e8f0"><input type="checkbox"></td>
+                    <td style="padding:6px 14px;border-bottom:1px solid #e2e8f0">File Statement of Account &amp; Solvency (Form 8) by Oct 30 each year</td>
+                    <td style="padding:6px 14px;border-bottom:1px solid #e2e8f0;color:#64748b;white-space:nowrap">Yearly</td></tr>
+                <tr><td style="padding:6px 14px;border-bottom:1px solid #e2e8f0"><input type="checkbox"></td>
+                    <td style="padding:6px 14px;border-bottom:1px solid #e2e8f0">LLP ITR-5 + Tax Audit (if applicable) + 4 individual ITR-3 filings</td>
+                    <td style="padding:6px 14px;border-bottom:1px solid #e2e8f0;color:#64748b;white-space:nowrap">Jul-Oct yearly</td></tr>
+                <tr><td style="padding:6px 14px;border-bottom:1px solid #e2e8f0"><input type="checkbox"></td>
+                    <td style="padding:6px 14px;border-bottom:1px solid #e2e8f0">Pay advance tax quarterly (15 Jun / 15 Sep / 15 Dec / 15 Mar)</td>
+                    <td style="padding:6px 14px;border-bottom:1px solid #e2e8f0;color:#64748b;white-space:nowrap">Quarterly</td></tr>
+                <tr><td style="padding:6px 14px;border-bottom:1px solid #e2e8f0"><input type="checkbox"></td>
+                    <td style="padding:6px 14px;border-bottom:1px solid #e2e8f0">Build emergency fund target: &#8377;30-35L in liquid MF/FD</td>
+                    <td style="padding:6px 14px;border-bottom:1px solid #e2e8f0;color:#64748b;white-space:nowrap">By Dec 2030</td></tr>
+                <tr><td style="padding:6px 14px;border-bottom:1px solid #e2e8f0"><input type="checkbox"></td>
+                    <td style="padding:6px 14px;border-bottom:1px solid #e2e8f0">Track 3-year trading consistency &mdash; must show profitable trend before quitting</td>
+                    <td style="padding:6px 14px;border-bottom:1px solid #e2e8f0;color:#64748b;white-space:nowrap">Ongoing</td></tr>
+                <tr><td style="padding:6px 14px;border-bottom:1px solid #e2e8f0"><input type="checkbox"></td>
+                    <td style="padding:6px 14px;border-bottom:1px solid #e2e8f0">Adjust Meenu's LLP salary annually based on her MNC salary changes</td>
+                    <td style="padding:6px 14px;border-bottom:1px solid #e2e8f0;color:#64748b;white-space:nowrap">Each April</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="panel" style="margin-bottom:24px;border-left:4px solid #f59e0b">
+        <h3 style="margin:0 0 8px;color:#1e3a5f;font-size:15px">&#128640; Phase 3: Full-Time Trading (Jan 2031+)</h3>
+        <table style="width:100%;border-collapse:collapse">
+            <tbody>
+                <tr><td style="padding:6px 14px;border-bottom:1px solid #e2e8f0;width:30px"><input type="checkbox"></td>
+                    <td style="padding:6px 14px;border-bottom:1px solid #e2e8f0">Resign from MNC (serve 60-90 day notice in Oct/Nov 2030)</td>
+                    <td style="padding:6px 14px;border-bottom:1px solid #e2e8f0;color:#64748b;white-space:nowrap">Oct 2030</td></tr>
+                <tr><td style="padding:6px 14px;border-bottom:1px solid #e2e8f0"><input type="checkbox"></td>
+                    <td style="padding:6px 14px;border-bottom:1px solid #e2e8f0">Arrange personal health insurance for family (replacing company cover)</td>
+                    <td style="padding:6px 14px;border-bottom:1px solid #e2e8f0;color:#64748b;white-space:nowrap">Nov 2030</td></tr>
+                <tr><td style="padding:6px 14px;border-bottom:1px solid #e2e8f0"><input type="checkbox"></td>
+                    <td style="padding:6px 14px;border-bottom:1px solid #e2e8f0">Update LLP Agreement &mdash; add &#8377;12L salary for Ajit, adjust others</td>
+                    <td style="padding:6px 14px;border-bottom:1px solid #e2e8f0;color:#64748b;white-space:nowrap">Jan 2031</td></tr>
+                <tr><td style="padding:6px 14px;border-bottom:1px solid #e2e8f0"><input type="checkbox"></td>
+                    <td style="padding:6px 14px;border-bottom:1px solid #e2e8f0">Target: All 4 partners at &#8377;12L each = &#8377;0 personal tax. Only LLP-level tax.</td>
+                    <td style="padding:6px 14px;border-bottom:1px solid #e2e8f0;color:#64748b;white-space:nowrap">Jan 2031+</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- TAX SAVINGS SUMMARY -->
+    <div class="section-heading">
+        <div class="sh-icon" style="background:#dcfce7">&#128178;</div>
+        <h2>Projected Tax Savings</h2>
+        <div class="sh-line"></div>
+    </div>
+    <div class="panel" style="margin-bottom:24px">
+        <table style="width:100%;border-collapse:collapse">
+            <thead><tr style="background:#f1f5f9">
+                <th style="text-align:left;padding:10px 14px;border-bottom:2px solid #cbd5e1;color:#1e3a5f">Period</th>
+                <th style="text-align:right;padding:10px 14px;border-bottom:2px solid #cbd5e1;color:#1e3a5f">Tax Without LLP</th>
+                <th style="text-align:right;padding:10px 14px;border-bottom:2px solid #cbd5e1;color:#1e3a5f">Tax With LLP</th>
+                <th style="text-align:right;padding:10px 14px;border-bottom:2px solid #cbd5e1;color:#1e3a5f">Annual Saving</th>
+                <th style="text-align:right;padding:10px 14px;border-bottom:2px solid #cbd5e1;color:#1e3a5f">Cumulative</th>
+            </tr></thead>
+            <tbody>
+                <tr><td style="padding:10px 14px;border-bottom:1px solid #e2e8f0">FY 2027-28 (8 months LLP)</td>
+                    <td style="text-align:right;padding:10px 14px;border-bottom:1px solid #e2e8f0">~&#8377;24L</td>
+                    <td style="text-align:right;padding:10px 14px;border-bottom:1px solid #e2e8f0">~&#8377;19L</td>
+                    <td style="text-align:right;padding:10px 14px;border-bottom:1px solid #e2e8f0;color:#16a34a">~&#8377;5L</td>
+                    <td style="text-align:right;padding:10px 14px;border-bottom:1px solid #e2e8f0">&#8377;5L</td></tr>
+                <tr style="background:#f8fafc"><td style="padding:10px 14px;border-bottom:1px solid #e2e8f0">FY 2028-29</td>
+                    <td style="text-align:right;padding:10px 14px;border-bottom:1px solid #e2e8f0">~&#8377;27L</td>
+                    <td style="text-align:right;padding:10px 14px;border-bottom:1px solid #e2e8f0">~&#8377;19.5L</td>
+                    <td style="text-align:right;padding:10px 14px;border-bottom:1px solid #e2e8f0;color:#16a34a">~&#8377;7.5L</td>
+                    <td style="text-align:right;padding:10px 14px;border-bottom:1px solid #e2e8f0">&#8377;12.5L</td></tr>
+                <tr><td style="padding:10px 14px;border-bottom:1px solid #e2e8f0">FY 2029-30</td>
+                    <td style="text-align:right;padding:10px 14px;border-bottom:1px solid #e2e8f0">~&#8377;28L</td>
+                    <td style="text-align:right;padding:10px 14px;border-bottom:1px solid #e2e8f0">~&#8377;19.5L</td>
+                    <td style="text-align:right;padding:10px 14px;border-bottom:1px solid #e2e8f0;color:#16a34a">~&#8377;8.5L</td>
+                    <td style="text-align:right;padding:10px 14px;border-bottom:1px solid #e2e8f0">&#8377;21L</td></tr>
+                <tr style="background:#f8fafc"><td style="padding:10px 14px;border-bottom:1px solid #e2e8f0">FY 2030-31 (Ajit quits Dec 2030)</td>
+                    <td style="text-align:right;padding:10px 14px;border-bottom:1px solid #e2e8f0">~&#8377;22L</td>
+                    <td style="text-align:right;padding:10px 14px;border-bottom:1px solid #e2e8f0">~&#8377;12L</td>
+                    <td style="text-align:right;padding:10px 14px;border-bottom:1px solid #e2e8f0;color:#16a34a">~&#8377;10L</td>
+                    <td style="text-align:right;padding:10px 14px;border-bottom:1px solid #e2e8f0">&#8377;31L</td></tr>
+                <tr><td style="padding:10px 14px;border-bottom:1px solid #e2e8f0">FY 2031-32+ (full-time LLP)</td>
+                    <td style="text-align:right;padding:10px 14px;border-bottom:1px solid #e2e8f0">~&#8377;18L</td>
+                    <td style="text-align:right;padding:10px 14px;border-bottom:1px solid #e2e8f0">~&#8377;6.3L</td>
+                    <td style="text-align:right;padding:10px 14px;border-bottom:1px solid #e2e8f0;color:#16a34a">~&#8377;11.7L</td>
+                    <td style="text-align:right;padding:10px 14px;border-bottom:1px solid #e2e8f0">&#8377;42.7L</td></tr>
+                <tr style="background:#f0fdf4;font-weight:700"><td colspan="3" style="padding:12px 14px;border-top:2px solid #16a34a;font-size:15px">Total Savings (5 years: FY28 to FY32)</td>
+                    <td colspan="2" style="text-align:right;padding:12px 14px;border-top:2px solid #16a34a;font-size:18px;color:#16a34a">~&#8377;42.7 Lakhs</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- KEY RULES -->
+    <div class="section-heading">
+        <div class="sh-icon" style="background:#fee2e2">&#9888;&#65039;</div>
+        <h2>Important Rules &amp; Reminders</h2>
+        <div class="sh-line"></div>
+    </div>
+    <div class="panel" style="margin-bottom:24px">
+        <ul style="margin:0;padding-left:20px;line-height:2;color:#334155">
+            <li>Partner salary must be <strong>authorized in the LLP Agreement</strong> with exact amounts or formula</li>
+            <li><strong>Profit share from LLP is tax-free</strong> in partners' hands (Sec 10(2A)) &mdash; this is the biggest advantage</li>
+            <li>Keep <strong>individual demat accounts</strong> for long-term equity &mdash; use 4 &times; &#8377;1.25L LTCG exemption = &#8377;5L tax-free</li>
+            <li>Route <strong>F&amp;O and bonds through LLP demat</strong> for business expense deduction benefits</li>
+            <li>Maintain <strong>separate books</strong> (Tally/Zoho) with proper vouchers for every LLP expense</li>
+            <li><strong>Advance tax</strong> quarterly if LLP tax exceeds &#8377;10,000 (15 Jun/Sep/Dec/Mar)</li>
+            <li>Prem's <strong>BOB pension</strong> continues independently &mdash; factor &#8377;6.6L into his total income while calculating LLP salary</li>
+            <li>Meenu's <strong>MNC salary</strong> (post Jul 2027) must be considered &mdash; reduce her LLP salary to keep total near &#8377;12L</li>
+            <li><strong>Disclose LLP to Ajit's MNC</strong> &mdash; proprietary trading doesn't compete, but disclosure is mandatory per most employment contracts</li>
+            <li>No SEBI registration needed &mdash; <strong>proprietary trading of own capital only</strong>, not managing external money</li>
+        </ul>
+    </div>
+
+    <div class="footer" style="margin-top:48px">Gautam Family Financial Dashboard &copy; 2026</div>
+</div><!-- /llpPlanPage -->
 
 </div><!-- /mainContent -->
 
@@ -5221,8 +5698,8 @@ function confirmDeleteBackup(backupId, dateStr) {
 
 // ── PAGE SWITCHING ──
 function showPage(page) {
-    const pages = { dashboard: 'dashboardPage', holdings: 'holdingsPage', taxPlanner: 'taxPlannerPage', backup: 'backupPage' };
-    const navs = { dashboard: 'navDashboard', holdings: 'navHoldings', taxPlanner: 'navTaxPlanner', backup: 'navBackup' };
+    const pages = { dashboard: 'dashboardPage', holdings: 'holdingsPage', taxPlanner: 'taxPlannerPage', backup: 'backupPage', llpPlan: 'llpPlanPage' };
+    const navs = { dashboard: 'navDashboard', holdings: 'navHoldings', taxPlanner: 'navTaxPlanner', backup: 'navBackup', llpPlan: 'navLlpPlan' };
     Object.keys(pages).forEach(p => {
         const el = document.getElementById(pages[p]);
         const nav = document.getElementById(navs[p]);
