@@ -1581,6 +1581,134 @@
         body.dark-mode .bond-payout-table .holdings-table td:nth-child(3) { color: #22d3ee; }
         body.dark-mode .sh-icon { background: rgba(30,41,59,0.8) !important; }
 
+        /* ── AI CHATBOT ── */
+        .ai-chat-fab {
+            position: fixed; bottom: 28px; right: 28px; z-index: 10002;
+            width: 56px; height: 56px; border-radius: 50%; border: none; cursor: pointer;
+            background: linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 100%);
+            color: var(--navy); box-shadow: 0 4px 16px rgba(201,168,76,0.4);
+            transition: transform .2s, box-shadow .2s;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .ai-chat-fab:hover { transform: scale(1.1); box-shadow: 0 6px 24px rgba(201,168,76,0.5); }
+        .ai-chat-fab svg { width: 26px; height: 26px; }
+        @keyframes ai-fab-pulse { 0%{box-shadow:0 0 0 0 rgba(201,168,76,0.5)} 70%{box-shadow:0 0 0 14px rgba(201,168,76,0)} 100%{box-shadow:0 0 0 0 rgba(201,168,76,0)} }
+        .ai-chat-fab.pulse { animation: ai-fab-pulse 2s ease-out 3; }
+
+        .ai-chat-panel {
+            position: fixed; bottom: 96px; right: 28px; z-index: 10002;
+            width: 390px; height: 520px; max-height: calc(100vh - 140px);
+            background: var(--bg-card); border-radius: var(--radius);
+            box-shadow: 0 12px 48px rgba(0,0,0,0.18); display: flex; flex-direction: column;
+            transform: translateY(12px) scale(0.97); opacity: 0; pointer-events: none;
+            transition: transform .25s ease, opacity .25s ease;
+        }
+        .ai-chat-panel.open { transform: translateY(0) scale(1); opacity: 1; pointer-events: auto; }
+
+        .ai-chat-header {
+            display: flex; align-items: center; padding: 14px 16px; gap: 8px;
+            background: linear-gradient(135deg, var(--navy) 0%, var(--navy-light) 100%);
+            border-radius: var(--radius) var(--radius) 0 0; flex-shrink: 0;
+        }
+        .ai-chat-header-info { flex: 1; }
+        .ai-chat-title { font-family: 'Playfair Display',serif; font-size: 16px; font-weight: 700; color: var(--gold-light); }
+        .ai-chat-subtitle { font-size: 11px; color: rgba(255,255,255,0.6); margin-top: 1px; }
+        .ai-chat-header-btn {
+            background: rgba(255,255,255,0.1); border: none; color: #fff; cursor: pointer;
+            width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-size: 18px; transition: background .2s;
+        }
+        .ai-chat-header-btn:hover { background: rgba(255,255,255,0.2); }
+
+        .ai-chat-messages {
+            flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px;
+        }
+        .ai-chat-messages::-webkit-scrollbar { width: 4px; }
+        .ai-chat-messages::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+        .ai-chat-msg { max-width: 85%; padding: 10px 14px; font-size: 13.5px; line-height: 1.55; word-wrap: break-word; }
+        .ai-chat-msg-user {
+            align-self: flex-end; background: var(--navy); color: #fff;
+            border-radius: 14px 14px 4px 14px;
+        }
+        .ai-chat-msg-ai {
+            align-self: flex-start; background: var(--bg); color: var(--text);
+            border: 1px solid var(--border); border-radius: 14px 14px 14px 4px;
+        }
+        .ai-chat-msg-ai strong { color: var(--navy); }
+        .ai-chat-msg-ai ul, .ai-chat-msg-ai ol { margin: 6px 0; padding-left: 18px; }
+        .ai-chat-msg-ai li { margin: 3px 0; }
+        .ai-chat-msg-ai code { background: rgba(0,0,0,0.06); padding: 1px 5px; border-radius: 4px; font-size: 12.5px; }
+
+        .ai-chat-typing { align-self: flex-start; display: flex; gap: 5px; padding: 12px 18px; background: var(--bg); border: 1px solid var(--border); border-radius: 14px 14px 14px 4px; }
+        .ai-chat-typing span { width: 7px; height: 7px; border-radius: 50%; background: var(--text-muted); animation: ai-dot-bounce .6s infinite alternate; }
+        .ai-chat-typing span:nth-child(2) { animation-delay: .15s; }
+        .ai-chat-typing span:nth-child(3) { animation-delay: .3s; }
+        @keyframes ai-dot-bounce { to { opacity: 0.3; transform: translateY(-4px); } }
+
+        .ai-chat-input-area {
+            display: flex; align-items: flex-end; gap: 8px; padding: 12px 14px;
+            border-top: 1px solid var(--border); flex-shrink: 0;
+        }
+        .ai-chat-input {
+            flex: 1; border: 1.5px solid var(--border); border-radius: 10px;
+            padding: 9px 12px; font-size: 13.5px; font-family: 'DM Sans',sans-serif;
+            resize: none; outline: none; line-height: 1.4; max-height: 72px;
+            background: var(--bg-card); color: var(--text); transition: border-color .2s;
+        }
+        .ai-chat-input:focus { border-color: var(--gold); }
+        .ai-chat-input::placeholder { color: var(--text-muted); }
+        .ai-chat-send {
+            width: 36px; height: 36px; border-radius: 50%; border: none; cursor: pointer;
+            background: var(--gold); color: var(--navy); display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0; transition: background .2s, transform .1s;
+        }
+        .ai-chat-send:hover { background: var(--gold-light); }
+        .ai-chat-send:active { transform: scale(0.92); }
+        .ai-chat-send svg { width: 17px; height: 17px; }
+
+        .ai-chat-key-card {
+            background: var(--gold-pale); border: 1px solid var(--gold);
+            border-radius: var(--radius-sm); padding: 16px; text-align: center;
+        }
+        .ai-chat-key-card h4 { margin: 0 0 6px; font-size: 14px; color: var(--navy); }
+        .ai-chat-key-card p { margin: 0 0 12px; font-size: 12.5px; color: var(--text-mid); line-height: 1.45; }
+        .ai-chat-key-card input {
+            width: 100%; padding: 8px 12px; border: 1.5px solid var(--border);
+            border-radius: 8px; font-size: 13px; margin-bottom: 10px; outline: none;
+            font-family: 'DM Sans',sans-serif;
+        }
+        .ai-chat-key-card input:focus { border-color: var(--gold); }
+        .ai-chat-key-card button {
+            background: var(--navy); color: #fff; border: none; padding: 8px 24px;
+            border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600;
+        }
+        .ai-chat-key-card button:hover { background: var(--navy-light); }
+
+        /* Dark mode chatbot */
+        body.dark-mode .ai-chat-panel { background: #1e293b; }
+        body.dark-mode .ai-chat-msg-ai { background: #0f1729; border-color: rgba(255,255,255,0.1); color: #e2e8f0; }
+        body.dark-mode .ai-chat-msg-ai strong { color: var(--gold-light); }
+        body.dark-mode .ai-chat-msg-ai code { background: rgba(255,255,255,0.08); color: #93c5fd; }
+        body.dark-mode .ai-chat-typing { background: #0f1729; border-color: rgba(255,255,255,0.1); }
+        body.dark-mode .ai-chat-typing span { background: #64748b; }
+        body.dark-mode .ai-chat-input { background: #0f1729; border-color: rgba(255,255,255,0.12); color: #e2e8f0; }
+        body.dark-mode .ai-chat-input:focus { border-color: var(--gold); background: #182136; }
+        body.dark-mode .ai-chat-input-area { border-color: rgba(255,255,255,0.08); }
+        body.dark-mode .ai-chat-messages::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); }
+        body.dark-mode .ai-chat-key-card { background: rgba(201,168,76,0.1); border-color: rgba(201,168,76,0.3); }
+        body.dark-mode .ai-chat-key-card h4 { color: var(--gold-light); }
+        body.dark-mode .ai-chat-key-card p { color: #94a3b8; }
+        body.dark-mode .ai-chat-key-card input { background: #0f1729; border-color: rgba(255,255,255,0.12); color: #e2e8f0; }
+
+        /* Mobile chatbot */
+        @media(max-width:600px) {
+            .ai-chat-panel { right: 0; bottom: 0; width: 100vw; height: 100vh; max-height: 100vh; border-radius: 0; }
+            .ai-chat-header { border-radius: 0; }
+            .ai-chat-fab { bottom: 16px; right: 16px; width: 50px; height: 50px; }
+            .ai-chat-fab svg { width: 22px; height: 22px; }
+        }
+
     </style>
 </head>
 <body>
@@ -1606,6 +1734,9 @@
   <symbol id="icon-print" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></symbol>
   <symbol id="icon-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></symbol>
   <symbol id="icon-line-chart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></symbol>
+  <symbol id="icon-chat" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></symbol>
+  <symbol id="icon-send" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></symbol>
+  <symbol id="icon-settings" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></symbol>
 </svg>
 
 <div id="scroll-progress" role="progressbar" aria-label="Page scroll progress"></div>
@@ -2730,6 +2861,32 @@
 
 </div><!-- /mainContent -->
 
+<!-- ── AI CHATBOT ── -->
+<button id="aiChatFab" class="ai-chat-fab pulse" onclick="toggleAiChat()" title="Ask Dharohar AI" aria-label="Open AI assistant" style="display:none">
+    <svg class="icon" aria-hidden="true"><use href="#icon-chat"/></svg>
+</button>
+<div id="aiChatPanel" class="ai-chat-panel" role="dialog" aria-label="AI Financial Assistant">
+    <div class="ai-chat-header">
+        <div class="ai-chat-header-info">
+            <div class="ai-chat-title">Dharohar AI</div>
+            <div class="ai-chat-subtitle">Family financial assistant</div>
+        </div>
+        <button class="ai-chat-header-btn" onclick="showAiKeyPrompt()" title="API Key Settings" aria-label="API key settings">
+            <svg class="icon" width="16" height="16"><use href="#icon-settings"/></svg>
+        </button>
+        <button class="ai-chat-header-btn" onclick="toggleAiChat()" title="Close" aria-label="Close chat">&#x2715;</button>
+    </div>
+    <div class="ai-chat-messages" id="aiChatMessages"></div>
+    <div class="ai-chat-input-area">
+        <textarea id="aiChatInput" class="ai-chat-input" placeholder="Ask about your finances..." rows="1"
+                  onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendAiMessage()}"
+                  oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,72)+'px'"></textarea>
+        <button class="ai-chat-send" onclick="sendAiMessage()" title="Send" aria-label="Send message">
+            <svg class="icon"><use href="#icon-send"/></svg>
+        </button>
+    </div>
+</div>
+
 <script>
 // ── Firebase Init ──
 const firebaseConfig = {
@@ -3460,6 +3617,7 @@ function showProfileSelectScreen() {
     if (screen) screen.style.display = 'flex';
     if (content) content.style.display = 'none';
     const nav = document.getElementById('pageNav'); if (nav) nav.style.display = 'none';
+    document.getElementById('aiChatFab').style.display = 'none';
     psShowCards();
     _buildPsCards();
 }
@@ -3528,6 +3686,7 @@ function _psUnlockProfile(name) {
     collapseTableSection();
     document.getElementById('mainContent').style.display = '';
     document.getElementById('pageNav').style.display = '';
+    document.getElementById('aiChatFab').style.display = '';
     updateAll();
     showToast('Welcome, ' + currentUser + '!', 'success');
 }
@@ -3600,6 +3759,7 @@ async function initializeUserManagement() {
         document.getElementById('profileSelectScreen').style.display = 'none';
         document.getElementById('mainContent').style.display = '';
         document.getElementById('pageNav').style.display = '';
+        document.getElementById('aiChatFab').style.display = '';
         updateAll();
     } else {
         showProfileSelectScreen();
@@ -3687,12 +3847,14 @@ function switchUser(username) {
         if (DEVICE_TRUSTED) {
             document.getElementById('mainContent').style.display = '';
             document.getElementById('pageNav').style.display = '';
+            document.getElementById('aiChatFab').style.display = '';
             if (container) container.classList.remove('switching');
             updateAll();
         } else {
             const content = document.getElementById('mainContent');
             if (content) content.style.display = 'none';
             const nav2 = document.getElementById('pageNav'); if (nav2) nav2.style.display = 'none';
+            document.getElementById('aiChatFab').style.display = 'none';
             if (container) container.classList.remove('switching');
             _showPwdModal('profile');
         }
@@ -4641,6 +4803,7 @@ function verifyPassword() {
             const content = document.getElementById('mainContent');
             if (content) content.style.display = '';
             document.getElementById('pageNav').style.display = '';
+            document.getElementById('aiChatFab').style.display = '';
             updateAll();
             showToast('Welcome, ' + currentUser + '!', 'success');
         } else {
@@ -5713,6 +5876,228 @@ function showPage(page) {
     if (page === 'taxPlanner') renderTaxPlanner();
     if (page === 'backup') renderBackupPage();
     window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ── AI CHATBOT ──
+const AI_KEY_LS = 'dharohar_gemini_key';
+const AI_MODEL  = 'gemini-2.0-flash';
+const AI_API    = 'https://generativelanguage.googleapis.com/v1beta/models/';
+let aiChatHistory = [];
+let aiChatOpen = false;
+let aiWaiting = false;
+
+function toggleAiChat() {
+    aiChatOpen = !aiChatOpen;
+    const panel = document.getElementById('aiChatPanel');
+    const fab = document.getElementById('aiChatFab');
+    fab.classList.remove('pulse');
+    if (aiChatOpen) {
+        panel.style.display = 'flex';
+        requestAnimationFrame(() => panel.classList.add('open'));
+        if (!document.getElementById('aiChatMessages').children.length) {
+            if (!localStorage.getItem(AI_KEY_LS)) { showAiKeyPrompt(); }
+            else { renderAiWelcome(); }
+        }
+        setTimeout(() => document.getElementById('aiChatInput').focus(), 300);
+    } else {
+        panel.classList.remove('open');
+        setTimeout(() => { panel.style.display = 'none'; }, 260);
+    }
+}
+
+function showAiKeyPrompt() {
+    const msgs = document.getElementById('aiChatMessages');
+    const existing = document.getElementById('aiKeyCard');
+    if (existing) existing.remove();
+    const card = document.createElement('div');
+    card.id = 'aiKeyCard';
+    card.className = 'ai-chat-key-card';
+    const savedKey = localStorage.getItem(AI_KEY_LS) || '';
+    card.innerHTML = '<h4>Gemini API Key</h4>'
+        + '<p>Get a free key from <strong>aistudio.google.com</strong><br>Paste it below to enable Dharohar AI</p>'
+        + '<input type="password" id="aiKeyInput" placeholder="AIzaSy..." value="' + savedKey + '">'
+        + '<button onclick="saveAiKey()">Save Key</button>';
+    msgs.appendChild(card);
+    msgs.scrollTop = msgs.scrollHeight;
+}
+
+function saveAiKey() {
+    const input = document.getElementById('aiKeyInput');
+    const key = input ? input.value.trim() : '';
+    if (!key) return;
+    localStorage.setItem(AI_KEY_LS, key);
+    const card = document.getElementById('aiKeyCard');
+    if (card) card.remove();
+    aiChatHistory = [];
+    document.getElementById('aiChatMessages').innerHTML = '';
+    renderAiWelcome();
+}
+
+function renderAiWelcome() {
+    renderAiMessage('model', "Hello! I'm **Dharohar AI**, your family financial assistant. I can see all the data in your dashboard.\n\nAsk me anything — monthly performance, holdings, tax calculations, or comparisons between family members.");
+}
+
+function renderAiMessage(role, text) {
+    const msgs = document.getElementById('aiChatMessages');
+    const div = document.createElement('div');
+    div.className = 'ai-chat-msg ' + (role === 'user' ? 'ai-chat-msg-user' : 'ai-chat-msg-ai');
+    div.innerHTML = role === 'user' ? escapeHtml(text) : miniMarkdown(text);
+    msgs.appendChild(div);
+    msgs.scrollTop = msgs.scrollHeight;
+}
+
+function escapeHtml(t) { const d = document.createElement('div'); d.textContent = t; return d.innerHTML; }
+
+function miniMarkdown(text) {
+    let html = escapeHtml(text);
+    html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+    html = html.replace(/\*(.+?)\*/g, '<em>$1</em>');
+    html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
+    html = html.replace(/^### (.+)$/gm, '<strong>$1</strong>');
+    const lines = html.split('\n');
+    let out = '', inUl = false, inOl = false;
+    for (const line of lines) {
+        const ulMatch = line.match(/^[-*]\s+(.+)/);
+        const olMatch = line.match(/^\d+\.\s+(.+)/);
+        if (ulMatch) {
+            if (!inUl) { out += '<ul>'; inUl = true; }
+            out += '<li>' + ulMatch[1] + '</li>';
+        } else if (olMatch) {
+            if (!inOl) { out += '<ol>'; inOl = true; }
+            out += '<li>' + olMatch[1] + '</li>';
+        } else {
+            if (inUl) { out += '</ul>'; inUl = false; }
+            if (inOl) { out += '</ol>'; inOl = false; }
+            out += (line === '' ? '<br>' : line + '\n');
+        }
+    }
+    if (inUl) out += '</ul>';
+    if (inOl) out += '</ol>';
+    return out.replace(/\n$/, '');
+}
+
+function showTyping() {
+    const msgs = document.getElementById('aiChatMessages');
+    const d = document.createElement('div');
+    d.id = 'aiTyping';
+    d.className = 'ai-chat-typing';
+    d.innerHTML = '<span></span><span></span><span></span>';
+    msgs.appendChild(d);
+    msgs.scrollTop = msgs.scrollHeight;
+}
+function hideTyping() { const t = document.getElementById('aiTyping'); if (t) t.remove(); }
+
+function gatherFinancialContext() {
+    let ctx = '';
+    const users = Object.keys(allUserData);
+    users.forEach(user => {
+        const data = allUserData[user];
+        if (!data || !data.length) return;
+        ctx += '\n## ' + user + ' — Trading Data\n';
+        ctx += 'Month | Equity% | F&O% | BondInt | Deposit | Capital\n';
+        data.forEach(r => {
+            ctx += r.month + ' | ' + (r.equityPct||0) + '% | ' + (r.fnoPct||0) + '% | '
+                + (r.bondInterest||0) + ' | ' + (r.deposit||0) + ' | ' + (r.capitalUsed||0) + '\n';
+        });
+    });
+    ctx += '\n## Holdings\n';
+    const hGroups = {Bonds: typeof HOLDINGS_BONDS!=='undefined'?HOLDINGS_BONDS:[], Gold: typeof HOLDINGS_GOLD!=='undefined'?HOLDINGS_GOLD:[], Equity: typeof HOLDINGS_EQUITY!=='undefined'?HOLDINGS_EQUITY:[], MutualFunds: typeof HOLDINGS_MF!=='undefined'?HOLDINGS_MF:[]};
+    for (const [cat, items] of Object.entries(hGroups)) {
+        if (!items.length) continue;
+        ctx += '\n### ' + cat + '\n';
+        items.forEach(h => {
+            ctx += '- ' + (h.name||h.bond||h.fund||'') + ': Invested=' + (h.invested||h.faceValue||0) + ', Current=' + (h.current||h.currentValue||0);
+            if (h.qty) ctx += ', Qty=' + h.qty;
+            if (h.rate) ctx += ', Rate=' + h.rate + '%';
+            ctx += '\n';
+        });
+    }
+    ctx += '\n## Tax Defaults\n';
+    for (const [user, t] of Object.entries(TAX_USER_DEFAULTS)) {
+        ctx += user + ': ' + t.fixedType + ', Annual=' + t.annual + '\n';
+    }
+    const llpEl = document.getElementById('llpPlanPage');
+    if (llpEl) {
+        const tables = llpEl.querySelectorAll('table');
+        if (tables.length) {
+            ctx += '\n## LLP Plan\n';
+            tables.forEach(tbl => {
+                const rows = tbl.querySelectorAll('tr');
+                rows.forEach(r => {
+                    const cells = r.querySelectorAll('th,td');
+                    ctx += Array.from(cells).map(c => c.textContent.trim()).join(' | ') + '\n';
+                });
+                ctx += '\n';
+            });
+        }
+    }
+    return ctx;
+}
+
+function buildSystemPrompt() {
+    const ctx = gatherFinancialContext();
+    return 'You are Dharohar AI, a knowledgeable financial assistant for the Gautam family\'s investment dashboard. You have access to all their financial data.\n\n'
+        + 'RULES:\n'
+        + '- Answer questions about investments, trading performance, holdings, tax planning, and LLP plan. Be specific with numbers.\n'
+        + '- Use Indian Rupee format: ₹X,XX,XXX (Indian numbering system).\n'
+        + '- Be concise but thorough. Use markdown formatting (bold, lists) for clarity.\n'
+        + '- Politely decline questions unrelated to the financial data.\n'
+        + '- Use family members\' first names.\n'
+        + '- If data doesn\'t cover the question, say so honestly.\n\n'
+        + 'CURRENT USER: ' + (typeof currentUser !== 'undefined' ? currentUser : 'Unknown') + '\n\n'
+        + 'FINANCIAL DATA:\n' + ctx;
+}
+
+async function sendAiMessage() {
+    const input = document.getElementById('aiChatInput');
+    const text = input.value.trim();
+    if (!text || aiWaiting) return;
+    const apiKey = localStorage.getItem(AI_KEY_LS);
+    if (!apiKey) { showAiKeyPrompt(); return; }
+
+    renderAiMessage('user', text);
+    input.value = '';
+    input.style.height = 'auto';
+
+    aiChatHistory.push({ role: 'user', parts: [{ text: text }] });
+    if (aiChatHistory.length > 40) aiChatHistory.splice(0, 2);
+
+    showTyping();
+    aiWaiting = true;
+
+    try {
+        const res = await fetch(AI_API + AI_MODEL + ':generateContent?key=' + apiKey, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                system_instruction: { parts: [{ text: buildSystemPrompt() }] },
+                contents: aiChatHistory,
+                generationConfig: { temperature: 0.7, maxOutputTokens: 1024, topP: 0.95 }
+            })
+        });
+        hideTyping();
+        if (!res.ok) {
+            const err = await res.json().catch(() => ({}));
+            const msg = res.status === 400 ? 'Invalid API key. Please update via the settings icon.'
+                      : res.status === 429 ? 'Rate limit reached. Please wait a moment and try again.'
+                      : 'API error (' + res.status + '): ' + (err.error && err.error.message || 'Unknown error');
+            renderAiMessage('model', msg);
+            aiChatHistory.pop();
+            return;
+        }
+        const data = await res.json();
+        const reply = data.candidates && data.candidates[0] && data.candidates[0].content
+            && data.candidates[0].content.parts && data.candidates[0].content.parts[0]
+            ? data.candidates[0].content.parts[0].text : 'No response received.';
+        aiChatHistory.push({ role: 'model', parts: [{ text: reply }] });
+        renderAiMessage('model', reply);
+    } catch(e) {
+        hideTyping();
+        renderAiMessage('model', 'Network error. Please check your connection.');
+        aiChatHistory.pop();
+    } finally {
+        aiWaiting = false;
+    }
 }
 
 function renderUpcomingPayouts() {
