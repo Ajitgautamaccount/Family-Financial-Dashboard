@@ -5880,7 +5880,7 @@ function showPage(page) {
 
 // ── AI CHATBOT ──
 const AI_KEY_LS = 'dharohar_gemini_key';
-const AI_MODEL  = 'gemini-3.8-flash';
+const AI_MODELS = ['gemini-3.8-flash', 'gemini-3.7-flash', 'gemini-3.5-flash'];
 const AI_API    = 'https://generativelanguage.googleapis.com/v1beta/models/';
 let aiChatHistory = [];
 let aiChatOpen = false;
@@ -6066,18 +6066,24 @@ async function sendAiMessage() {
     aiWaiting = true;
 
     try {
-        const res = await fetch(AI_API + AI_MODEL + ':generateContent?key=' + apiKey, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                system_instruction: { parts: [{ text: buildSystemPrompt() }] },
-                contents: aiChatHistory,
-                generationConfig: { temperature: 0.7, maxOutputTokens: 1024, topP: 0.95 }
-            })
+        const reqBody = JSON.stringify({
+            system_instruction: { parts: [{ text: buildSystemPrompt() }] },
+            contents: aiChatHistory,
+            generationConfig: { temperature: 0.7, maxOutputTokens: 1024, topP: 0.95 }
         });
+        let res, lastErr;
+        for (const model of AI_MODELS) {
+            res = await fetch(AI_API + model + ':generateContent?key=' + apiKey, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: reqBody
+            });
+            if (res.ok || res.status === 400 || res.status === 429) break;
+            lastErr = await res.json().catch(() => ({}));
+        }
         hideTyping();
         if (!res.ok) {
-            const err = await res.json().catch(() => ({}));
+            const err = lastErr || await res.json().catch(() => ({}));
             const msg = res.status === 400 ? 'Invalid API key. Please update via the settings icon.'
                       : res.status === 429 ? 'Rate limit reached. Please wait a moment and try again.'
                       : 'API error (' + res.status + '): ' + (err.error && err.error.message || 'Unknown error');
