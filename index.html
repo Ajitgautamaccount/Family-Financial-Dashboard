@@ -3611,7 +3611,7 @@ function fp(v) {
 let _psSelectedUser = '';
 
 function showProfileSelectScreen() {
-    localStorage.removeItem('gp_session_user'); // force re-auth when switching profiles
+    sessionStorage.removeItem('gp_session_user'); // force re-auth when switching profiles
     const screen = document.getElementById('profileSelectScreen');
     const content = document.getElementById('mainContent');
     if (screen) screen.style.display = 'flex';
@@ -3666,7 +3666,7 @@ function psShowCards() {
 }
 
 function _psUnlockProfile(name) {
-    localStorage.setItem('gp_session_user', name);
+    sessionStorage.setItem('gp_session_user', name);
     document.getElementById('profileSelectScreen').style.display = 'none';
     currentUser = name;
     profileUnlocked = true;
@@ -3738,7 +3738,7 @@ async function initializeUserManagement() {
     rebuildRadios();
 
     // Resume session from previous tab/refresh without re-entering password
-    const sessionUser = localStorage.getItem('gp_session_user');
+    const sessionUser = sessionStorage.getItem('gp_session_user');
     if (sessionUser && allUserData[sessionUser]) {
         currentUser = sessionUser;
         profileUnlocked = true;
@@ -3843,7 +3843,7 @@ function switchUser(username) {
         });
         initMonthYearDropdowns();
         collapseTableSection();
-        localStorage.setItem('gp_session_user', username);
+        sessionStorage.setItem('gp_session_user', username);
         if (DEVICE_TRUSTED) {
             document.getElementById('mainContent').style.display = '';
             document.getElementById('pageNav').style.display = '';
@@ -4758,8 +4758,14 @@ const PROFILE_PASSWORDS = {
 
 const MASTER_EDIT_PASSWORD = 'Print@111'; // unlocks editing across all profiles
 
-// Trusted device: skip all password prompts
-const DEVICE_TRUSTED = (() => { localStorage.setItem('gp_trusted_device', '1'); return true; })();
+// One-time cleanup: remove the auto-set trusted flag from earlier versions
+if (!localStorage.getItem('gp_trust_cleanup_v1')) {
+    localStorage.removeItem('gp_trusted_device');
+    localStorage.setItem('gp_trust_cleanup_v1', '1');
+}
+
+// Trusted device: skip all password prompts (set via browser console: localStorage.setItem('gp_trusted_device','1'))
+const DEVICE_TRUSTED = localStorage.getItem('gp_trusted_device') === '1';
 
 let profileUnlocked = DEVICE_TRUSTED;
 let editUnlocked = DEVICE_TRUSTED;
