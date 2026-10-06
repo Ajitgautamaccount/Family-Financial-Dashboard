@@ -4764,6 +4764,13 @@ if (!localStorage.getItem('gp_trust_cleanup_v1')) {
     localStorage.setItem('gp_trust_cleanup_v1', '1');
 }
 
+// Force logout all devices — bump version to trigger on every device's next load
+if (!localStorage.getItem('gp_force_logout_v2')) {
+    sessionStorage.removeItem('gp_session_user');
+    localStorage.removeItem('gp_trusted_device');
+    localStorage.setItem('gp_force_logout_v2', '1');
+}
+
 // Trusted device: skip all password prompts (set via browser console: localStorage.setItem('gp_trusted_device','1'))
 const DEVICE_TRUSTED = localStorage.getItem('gp_trusted_device') === '1';
 
